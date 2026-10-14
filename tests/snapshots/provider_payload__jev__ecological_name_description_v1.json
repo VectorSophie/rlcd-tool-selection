@@ -2,7 +2,7 @@
   "state": {
     "user_request": "Send an email to dave@example.com with subject 'Report' saying the report is ready."
   },
-  "model": "jev-1.13.0",
+  "model": "typesafe/jev-1.13",
   "questions": {
     "tool": {
       "type": "choice",

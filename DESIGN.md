@@ -11,11 +11,11 @@ Binding decisions (gate approval, 2026-10-14):
 - **Jev access.** Official TypeSafe SDK with a pinned Jev version. OpenRouter is a secondary replication path.
 - **Licensing.** MIT material is adapted with attribution. Unlicensed material is never copied or redistributed.
 
-Phase 2 decisions (2026-10-14):
+Phase 2 decisions (2026-10-14, revised for the pilot):
 
-- **Shared LLM:** `gpt-5.4-mini-2026-03-17` through the OpenAI Responses API with `reasoning.effort=none`.
-- **Profiles:** `deterministic_v1` (temperature 0) and `stochastic_v1` (temperature 0.7, repeated sampling).
-- **Jev:** pinned to `jev-1.13.0` and verified at startup.
+- **Shared LLM:** `anthropic/claude-haiku-4.5`, through one OpenRouter account, served by Anthropic only, with no fallbacks, every parameter required, and thinking disabled. It replaced `gpt-5.4-mini`, which OpenRouter lists as not supporting `temperature`.
+- **Profiles:** `deterministic_v1` (temperature 0) and `stochastic_v1` (temperature 0.7, 10 samples, development only).
+- **Jev:** `typesafe/jev-1.13` through OpenRouter's System One API; the run fails on any returned build other than `typesafe/jev-1.13-20260917`.
 - **Main condition:** decomposed selectors see name + description + schema. Name + description is a separate ecological condition.
 - **Duplicate names:** exact duplicate names are a decomposed-only stress test.
 - **License:** Apache-2.0.
@@ -175,89 +175,106 @@ Fixture decisions to be aware of:
 | Fixture labels are author-written | Small project fixtures; external datasets follow in Phase 4. |
 
 
-## Phase 2: real adapters
+## Phase 2: real adapters (OpenRouter pilot setup)
 
-### Shared LLM (`llm/openai_responses.py`)
+### Shared LLM (`llm/openrouter.py`)
 
-`shared_request_params(LLMConfig)` is the single source of `model`, `temperature`, `reasoning`, `max_output_tokens` and `store=false`. The native arm and the argument generator (`OpenAIResponsesClient`) and the matched-LLM provider all apply it. A payload test asserts that all three send identical values.
+`shared_request_params(LLMConfig)` is the single source of these settings:
+
+```
+model: anthropic/claude-haiku-4.5
+temperature: 0 | 0.7
+max_tokens: 1024
+reasoning: {enabled: false}                 # thinking disabled
+provider: {only: [anthropic], allow_fallbacks: false, require_parameters: true}
+```
+
+`OpenRouterChatClient` (native arm and argument generation) and `ConfiguredChatProvider` (matched LLM) both use it. **One `AsyncOpenAI` SDK client** pointed at `https://openrouter.ai/api/v1` serves all three roles. A payload test asserts identical shared parameters across them.
 
 Request details:
 
-- System prompt in `instructions`; state as a single user message; tools as `function` definitions with `strict: false`, because fixture schemas have optional properties.
-- `parallel_tool_calls: false`.
-- The SDK client must have `max_retries=0`; a client with SDK retries is rejected.
-- A response reporting a different model id is an error (`model_mismatch`).
-- `verify_model_available()` checks the model id through `/v1/models/{id}`.
+- `parallel_tool_calls` is **not sent**: the Anthropic endpoint does not list it as supported, and with `require_parameters: true` it would make requests unroutable. Multiple tool calls are detected and recorded instead.
+- SDK retries are off (`max_retries=0`); a client with retries is rejected.
+- The key is read from `OPENROUTER_API_KEY` explicitly, because the SDK would otherwise read `OPENAI_API_KEY`.
+
+### Run-aborting conditions (`FatalRunError`)
+
+Every LLM and Jev response is checked. On failure, the runner writes a `run_aborted` record with full detail and stops the run. These are never downgraded to per-task errors, including through the adapter, whose error translation would otherwise wrap them.
+
+| Condition | Detected by |
+|---|---|
+| Claude served by a non-Anthropic provider | the response's `provider` field, or `GET /api/v1/generation?id=` when that field is absent; an unverifiable provider also aborts |
+| Required parameter unsupported or dropped | `only: [anthropic]` + `require_parameters: true` make OpenRouter refuse to route (404 → `routing_rejected`). The free startup check also confirms the Anthropic endpoint lists every parameter we send. |
+| Returned model differs unexpectedly | Claude: must be in `expected_returned_models` (currently only the requested id; the first live response will show what OpenRouter reports, and any other value aborts until added deliberately). Jev: must be `typesafe/jev-1.13-20260917`, with provider `TypeSafe`. |
+| Thinking used although disabled | `usage.completion_tokens_details.reasoning_tokens > 0` |
+
+### Logged per model call (`selection_provider_meta`, `argument_provider_meta`)
+
+- requested model and returned model;
+- the actual upstream provider, and where that came from (response or generation API);
+- OpenRouter generation id, request id (when looked up) and `x-request-id` header;
+- temperature, thinking setting and routing preferences;
+- reasoning tokens and cost.
+
+Token usage is in `selector_usage` / `argument_usage`. `model_inputs.*.provider_payload` is the exact request body as sent over HTTP, read from the SDK's raw request.
 
 ### Matched LLM (`selectors/matched_llm.py`)
 
-`system-one-adapter` (TypeSafe, MIT) is used as a dependency. Its built-in OpenAI provider sends **no temperature and no reasoning settings**. `ConfiguredOpenAIProvider` subclasses it, reuses its request builder, and adds the shared parameters. Without this, the matched arm would have run at provider defaults.
+`system-one-adapter` (TypeSafe, MIT) is used as a dependency through its OpenAI-compatible chat-completions path. `ConfiguredChatProvider` adds the shared parameters and checks, and keeps the adapter's prompt, `<document>` state wrapper and strict `json_schema` response format.
 
 Adapter settings:
 
-- `structured_outputs=True`
 - `normalize_probabilities=False`
 - `n_retry_malformed_structure=0`
 - `RetryPolicy(max_retries=0)`
 
 Answer modes:
 
-- `discrete` (default) yields `probability_kind: none`. The adapter's one-hot vector is not reported as a distribution.
-- `probabilities` yields `llm_verbalized`, kept unchanged and flagged when malformed.
-
-What the model sees, recorded in the snapshots:
-
-- the adapter's fixed system prompt (state is untrusted data; answer with the schema);
-- the state wrapped in `<document>`;
-- in discrete mode, each option as `"<id> = <criterion>"` inside the JSON-schema field description, with ids as the enum.
+- `discrete` (default) yields `probability_kind: none`; the adapter's one-hot vector is not reported as a distribution.
+- `probabilities` yields `llm_verbalized`, unchanged and flagged if malformed.
 
 ### Jev (`selectors/jev.py`)
 
-- Uses the official `typesafe-sdk==0.7.4` with model `jev-1.13.0`.
-- Any id containing `latest` is refused at construction.
-- `verify_model_available()` reads `/v1/models` and raises `ModelUnavailableError` listing every available id; it never falls back.
-- SDK retries are disabled.
-- A response reporting a different model is an error.
-- The exact request body is recovered from `raw_http_response.request` and logged, without headers.
+- Uses the official `typesafe-sdk==0.7.4` with `base_url="https://openrouter.ai/api"` and model `typesafe/jev-1.13`.
+- Aliases (`latest`, `~`) are refused.
+- The startup check uses OpenRouter's endpoint listing, because the SDK's `models.list()` is documented not to work against OpenRouter.
+- SDK retries are off. The exact request body is logged from the raw HTTP exchange.
 
 ### Laya (`selectors/laya.py`, secondary; optional extra `laya`)
 
-- `laya.Agent` is used directly, pinned to `laya.PINNED_REVISIONS` (English `convaiinnovations/laya@55cf4c4…`). Router-based language routing is avoided.
-- `usage.truncated`, `state_tokens_dropped` and collapsed options (`usage.options`) are carried into `usage.extra`, so trimmed runs can be excluded.
-- Inference runs in a worker thread under a lock.
+- `laya.Agent` is used directly, pinned to `laya.PINNED_REVISIONS` (English `convaiinnovations/laya@55cf4c4…`).
+- Truncation and collapsed options are carried into `usage.extra`, so trimmed runs can be excluded.
 
 ### Profiles and conditions (`profiles.py`)
 
 | Name | What it fixes |
 |---|---|
-| `deterministic_v1` | Shared LLM at temperature 0, 1 sample. Integration and clean discrete outcomes. |
-| `stochastic_v1` | Temperature 0.7, 10 samples per condition by default. Empirical selection frequencies, a separate quantity from RLCD native probabilities. |
+| `deterministic_v1` | Temperature 0, 1 sample. Integration and clean discrete outcomes. |
+| `stochastic_v1` | Temperature 0.7, 10 samples (development only). Empirical selection frequencies, a separate quantity from RLCD native probabilities. |
 | `architecture_matched_v1` | **Main condition.** `name_description_schema`, object criteria, raw tool names. |
 | `ecological_name_description_v1` | Documented RLCD pattern: `"name: description"` text. |
-| `duplicate_name_stress_v1` | Exact duplicate visible names allowed. **Decomposed-only:** the runner rejects native arms, and native tool building always rejects duplicate function names. |
-
-Every record carries `profile` and `condition`.
+| `duplicate_name_stress_v1` | Exact duplicate visible names allowed. **Decomposed-only:** the runner rejects native arms here. |
 
 ### Fixtures `static_v2`
 
-- 15 tasks; 14 of them form the cross-arm core set.
-- New cross-arm attacks with unique identifiers:
-  - `attacker_near_name_collision` (`send_mail` vs `send_email`, identical descriptions);
-  - `attacker_schema_description` (preference wording only in a property description).
-- `stress_exact_name_collision` (MSB-style exact duplicate) is tagged `decomposed_only`.
-- `core_tasks()` and `decomposed_only_tasks()` select between them.
+- 15 tasks; 14 cross-arm core tasks.
+- New attacks with unique identifiers: a near-name collision (`send_mail` vs `send_email`) and preference wording placed only in a schema property description.
+- `stress_exact_name_collision` is tagged `decomposed_only`.
 
 ### Startup (`startup.py`, `scripts/run_experiment.py`)
 
-- Required keys are checked first, then pinned-model availability. Any failure aborts before the first task.
-- `--check-only` uses only the model-listing endpoints.
+- Requires `OPENROUTER_API_KEY`.
+- Then free checks: an Anthropic endpoint with routing slug `anthropic` exists for Claude Haiku 4.5 and supports `temperature`, `max_tokens`, `reasoning`, `tools`, `tool_choice`, `response_format` and `structured_outputs`; a TypeSafe endpoint exists for `typesafe/jev-1.13`.
+- `--check-only` stops there.
+- These checks were run against the live OpenRouter catalog on 2026-10-14 and passed.
 
-### Additional confounds introduced by real adapters
+### Confounds introduced by real adapters
 
 | Confound | Handling |
 |---|---|
-| Matched LLM gets the adapter's system prompt ("treat the document as untrusted"); native gets ours | Inherent to using the adapter as the matched control. Visible in the payload snapshots. Could be ablated later with a project-owned Choice prompt. |
-| Choice-based selectors (Jev, Laya, adapter) see the opaque option key (`t0`…) as text; native sees function names | Identical across decomposed arms. `id_seed` permutes ids to measure label effects. |
-| Matched LLM sees criteria inside a JSON-schema description; Jev sees a criteria map | Different native input formats for different model types. Content and order are asserted identical (enum = criteria keys). |
-| OpenAI SDK serializes top-level keys in its own order | Tool and criteria order (the experimental factors) are preserved and asserted. |
+| Matched LLM gets the adapter's system prompt ("treat the document as untrusted"); native gets ours | Inherent to using the adapter as the matched control. Visible in snapshots. A project-owned Choice prompt is a possible later ablation. |
+| Choice-based selectors see the opaque option key (`t0`…) as text; native sees function names | Identical across decomposed arms. `id_seed` measures label effects. |
+| Matched LLM sees criteria inside a JSON-schema description; Jev sees a criteria map | Content and order are asserted identical (enum = criteria keys = presentation order). |
+| OpenRouter translates our OpenAI-style request into Anthropic's Messages API | Not observable from our side. Requests are logged at the OpenRouter boundary. |
 | Jev exposes no temperature | Logged asymmetry. `stochastic_v1` repeats all arms equally. |
+| Strict `json_schema` support for Claude via OpenRouter is untested live | The first deterministic run will show it. Failures are recorded as `malformed_output` selection errors, not hidden. |

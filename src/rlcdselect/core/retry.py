@@ -4,7 +4,7 @@ import time
 from collections.abc import Awaitable, Callable
 from typing import TypeVar
 
-from rlcdselect.core.types import AttemptLog, ProviderError, RetryPolicy, TransientError
+from rlcdselect.core.types import AttemptLog, FatalRunError, ProviderError, RetryPolicy, TransientError
 
 T = TypeVar("T")
 
@@ -27,6 +27,8 @@ async def call_with_retry(
         start = time.perf_counter()
         try:
             result = await fn()
+        except FatalRunError:
+            raise  # invalidates the run: never converted into a per-task error
         except TransientError as exc:
             attempts.append(AttemptLog(index, _ms(start), "transient", str(exc)))
             last = exc

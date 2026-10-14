@@ -1,6 +1,46 @@
 # Implementation Report
 
-## Phase 2: real selectors and the shared LLM
+## Phase 2 revision: OpenRouter pilot setup (Claude Haiku 4.5 + Jev 1.13)
+
+- Date: 2026-10-14
+- **Still no paid calls and no benchmark runs.** No API key is configured.
+- The free startup checks (OpenRouter's public endpoint listing) **were run live and passed**:
+  - Claude Haiku 4.5 has an `Anthropic` endpoint (slug `anthropic`) supporting every parameter we send;
+  - `typesafe/jev-1.13` has its `TypeSafe` endpoint.
+
+| Change | Status |
+|---|---|
+| Shared LLM switched to `anthropic/claude-haiku-4.5` via OpenRouter; routing `only: [anthropic]`, `allow_fallbacks: false`, `require_parameters: true`; `reasoning: {enabled: false}` | ✔ |
+| One OpenRouter SDK client shared by native calling, matched selection and argument generation | ✔ |
+| Jev via OpenRouter System One API (official SDK, base URL swap), model `typesafe/jev-1.13`, no aliases | ✔ |
+| Run aborts (`FatalRunError` + `run_aborted` record) on wrong provider, unexpected returned model, unroutable request, or reasoning tokens | ✔ native, matched and Jev paths |
+| Per-call logging of requested/returned model, provider (+ source), generation id, request id, `x-request-id`, temperature, thinking, routing, cost, tokens | ✔ (`*_provider_meta`, record schema v2) |
+| Startup checks via the endpoint listing (free) | ✔, run live |
+| OpenAI Responses client removed (superseded) | ✔ |
+| Tests | ✔ **77 passed** |
+
+### Findings during the revision
+
+1. **`parallel_tool_calls` must not be sent.** It isn't in the Anthropic endpoint's supported parameters, and `require_parameters: true` would make every request unroutable. It's omitted; multiple tool calls are detected and recorded.
+2. **The adapter's error translation wraps every non-SDK exception** in a generic `TypeSafeError`. That would have turned a fatal provider or model mismatch into an ordinary per-task error. The checks now run outside the adapter's translation block, and tests cover all fatal conditions on the matched path.
+3. **The OpenAI SDK reads `OPENAI_API_KEY` by default.** The OpenRouter client now reads `OPENROUTER_API_KEY` explicitly.
+4. **The chat response schema doesn't document a `provider` field.** The client uses it when present, otherwise looks it up via `GET /api/v1/generation`. If neither yields a provider, the run aborts.
+5. **The TypeSafe SDK's `models.list()` doesn't work against OpenRouter** (per OpenRouter's docs), so Jev availability is checked through the endpoint listing.
+
+### Unknowns the first live call will settle (each fails loudly rather than silently)
+
+- **The exact `model` string OpenRouter returns for Claude.** Only `anthropic/claude-haiku-4.5` is accepted now. If it reports something else, such as a dated id, the run aborts and the value goes into `SHARED_LLM_EXPECTED_RETURNED_MODELS` only by an explicit decision.
+- **Whether the response carries `provider`,** or the generation-API fallback is needed.
+- **Whether strict `json_schema` output works for Claude via OpenRouter** in the matched arm. If not, the failures are recorded as `malformed_output`.
+
+### Next steps (need your OpenRouter key; total well under $0.05)
+
+1. `--check-only`, which is free.
+2. One deterministic fixture run: 14 tasks × 3 arms × 1 ordering, about $0.05.
+
+---
+
+## Phase 2 (initial version, OpenAI Responses; superseded by the revision above)
 
 - Date: 2026-10-14
 - **No live API calls were made.** No API keys are configured in this environment. All provider behavior was verified at the HTTP-transport level with mocked responses.

@@ -17,7 +17,7 @@ from rlcdselect.core.types import ABSTAIN, Task, Usage
 from rlcdselect.eval.scoring import score
 from rlcdselect.pipelines.base import Pipeline, PipelineOutcome
 
-RECORD_SCHEMA_VERSION = 1
+RECORD_SCHEMA_VERSION = 2
 
 SECRET_KEYS = frozenset(
     {"api_key", "apikey", "x-api-key", "api-key", "authorization", "proxy-authorization",
@@ -88,6 +88,7 @@ def build_record(*, experiment_id: str, task: Task, pipeline: Pipeline, outcome:
     tools = [_tool_json(t) for t in task.tools]
 
     return {
+        "record_type": "run",
         "schema_version": RECORD_SCHEMA_VERSION,
         "run_id": run_id(experiment_id, task.task_id, outcome.pipeline_id, order_seed, id_seed, sample_index),
         "experiment_id": experiment_id,
@@ -140,6 +141,9 @@ def build_record(*, experiment_id: str, task: Task, pipeline: Pipeline, outcome:
         "total_latency_ms": sum(p for p in parts if p is not None),
         "selector_usage": _usage(sel.usage),
         "argument_usage": _usage(args.usage),
+        # requested/returned model, upstream provider, gateway request ids, temperature, thinking, cost
+        "selection_provider_meta": thaw(sel.provider_meta),
+        "argument_provider_meta": thaw(args.provider_meta),
         "retry_count": sel.retry_count + args.retry_count,
         "selection_attempts": thaw(sel.attempts),
         "argument_attempts": thaw(args.attempts),

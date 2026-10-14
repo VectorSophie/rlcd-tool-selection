@@ -1,5 +1,7 @@
 """Pipeline A: one LLM sees every candidate tool and both selects and fills arguments in one call."""
 
+import dataclasses
+
 from collections.abc import Sequence
 from typing import Any
 
@@ -95,6 +97,7 @@ class NativePipeline:
                 model_reported=response.model_reported,
                 error=error,
                 attempts=attempts,
+                provider_meta=response.provider_meta,
             )
 
         calls = response.tool_calls
@@ -114,5 +117,6 @@ class NativePipeline:
         selection = selection_with(SelectionStatus.SELECTED, tool_def.candidate_id)
         # Arguments came from the same call: latency and usage are attributed to selection only.
         arguments = arguments_from_call(call, tool_def, raw=raw, latency_ms=None, usage=None)
+        arguments = dataclasses.replace(arguments, provider_meta=response.provider_meta)
         execution = await execute_if_ready(self.executor, task, selection, arguments)
         return PipelineOutcome(self.pipeline_id, cset, selection, arguments, execution, inputs)

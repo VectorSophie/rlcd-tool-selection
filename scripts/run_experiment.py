@@ -1,12 +1,14 @@
 """Run the core arms (native LLM, matched LLM, Jev, optional Laya) on the fixtures with real providers.
 
-Startup checks run first: required API keys, then the availability of the pinned OpenAI and Jev
-models. Any failure stops the run before a single task executes.
+Everything goes through one OpenRouter account (`OPENROUTER_API_KEY`). Startup checks run first,
+for free: the Claude endpoint from Anthropic supports every parameter we send, and Jev's endpoint
+exists. During the run, any wrong provider, unexpected returned model, unroutable request or
+non-zero reasoning tokens aborts the run with a `run_aborted` record.
 
     uv run python scripts/run_experiment.py --profile deterministic_v1 --condition architecture_matched_v1 --check-only
     uv run python scripts/run_experiment.py --profile deterministic_v1 --condition architecture_matched_v1 --out results/live
 
-`--check-only` makes no paid model calls (it uses the model listing endpoints only).
+`--check-only` makes no paid model calls (it uses the public model-endpoint listing only).
 """
 
 import argparse
@@ -21,7 +23,7 @@ from rlcdselect.eval.metrics import summarize
 from rlcdselect.eval.runner import ExperimentConfig, run_experiment
 from rlcdselect.execution.mock import MockExecutor
 from rlcdselect.generation.arguments import ArgumentGenerator
-from rlcdselect.llm.openai_responses import OpenAIResponsesClient
+from rlcdselect.llm.openrouter import OpenRouterCatalog, OpenRouterChatClient
 from rlcdselect.pipelines.decomposed import DecomposedPipeline
 from rlcdselect.pipelines.native import NativePipeline
 from rlcdselect.profiles import CONDITIONS, PROFILES
@@ -34,20 +36,27 @@ async def main(args: argparse.Namespace) -> None:
     profile = PROFILES[args.profile]
     condition = CONDITIONS[args.condition]
     stress = condition.allow_duplicate_names
-    require_env(["OPENAI_API_KEY", "TYPESAFE_API_KEY"])
+    require_env(["OPENROUTER_API_KEY"])
 
-    llm = OpenAIResponsesClient(profile.llm)
     jev = JevSelector()
-    verified = await verify_live_models(llm, jev)
-    print(f"Verified pinned models: {verified}")
+    catalog = OpenRouterCatalog()
+    try:
+        verified = await verify_live_models(profile.llm, jev, catalog)
+    finally:
+        await catalog.aclose()
+    print(f"Verified (no paid calls): {json.dumps(verified, indent=2)}")
     if args.check_only:
         return
+
+    llm = OpenRouterChatClient(profile.llm)
 
     executor = MockExecutor()
     arguments = ArgumentGenerator(llm)
     pipelines = [] if stress else [NativePipeline(llm, executor, condition)]
     pipelines += [
-        DecomposedPipeline(MatchedLLMSelector(profile.llm, answer_mode=args.matched_mode), arguments, executor, condition),
+        # One OpenRouter SDK client serves native calling, argument generation and matched selection.
+        DecomposedPipeline(MatchedLLMSelector(profile.llm, answer_mode=args.matched_mode, client=llm.sdk_client),
+                           arguments, executor, condition),
         DecomposedPipeline(jev, arguments, executor, condition),
     ]
     if args.with_laya:

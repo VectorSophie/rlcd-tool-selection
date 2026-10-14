@@ -39,6 +39,8 @@ def _sum_usage(records: Sequence[Mapping[str, Any]], field: str, key: str) -> in
 def summarize(records: Sequence[Mapping[str, Any]], group_by: str = "pipeline") -> dict[str, dict[str, Any]]:
     groups: dict[str, list[Mapping[str, Any]]] = defaultdict(list)
     for r in records:
+        if r.get("record_type", "run") != "run":
+            continue
         groups[r[group_by]].append(r)
     out = {}
     for name, rs in sorted(groups.items()):
@@ -76,6 +78,8 @@ def selection_frequencies(
     """Empirical distribution of discrete outcomes per group (the primary cross-arm distribution)."""
     groups: dict[Any, Counter] = defaultdict(Counter)
     for r in records:
+        if r.get("record_type", "run") != "run":
+            continue
         groups[key(r)][r["selection_label"] or FAILED] += 1
     return {g: {label: c / sum(cnt.values()) for label, c in sorted(cnt.items())} for g, cnt in groups.items()}
 

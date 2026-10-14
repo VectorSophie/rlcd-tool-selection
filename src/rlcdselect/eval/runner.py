@@ -5,8 +5,10 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Callable
 
+from datetime import timezone
+
 from rlcdselect.core.jsonutil import thaw
-from rlcdselect.core.types import Task
+from rlcdselect.core.types import FatalRunError, Task
 from rlcdselect.eval.logging import JsonlWriter, build_record
 from rlcdselect.pipelines.base import Pipeline
 
@@ -55,7 +57,26 @@ async def run_experiment(
         for order_seed in config.order_seeds:
             for sample_index in range(config.samples_per_condition):
                 for pipeline in pipelines:
-                    outcome = await pipeline.run(task, order_seed=order_seed, id_seed=config.id_seed)
+                    try:
+                        outcome = await pipeline.run(task, order_seed=order_seed, id_seed=config.id_seed)
+                    except FatalRunError as exc:
+                        abort = {
+                            "record_type": "run_aborted",
+                            "experiment_id": config.experiment_id,
+                            "profile": config.profile,
+                            "condition": config.condition,
+                            "task_id": task.task_id,
+                            "pipeline": pipeline.pipeline_id,
+                            "order_seed": order_seed,
+                            "sample_index": sample_index,
+                            "error_kind": exc.kind,
+                            "message": str(exc),
+                            "detail": thaw(exc.raw),
+                            "timestamp": (clock() if clock else datetime.now(timezone.utc)).isoformat(),
+                        }
+                        if writer is not None:
+                            writer.write(abort)
+                        raise
                     record = build_record(
                         experiment_id=config.experiment_id, task=task, pipeline=pipeline, outcome=outcome,
                         order_seed=order_seed, id_seed=config.id_seed, sample_index=sample_index,

@@ -23,6 +23,7 @@ class SelectorOutput:
     model_reported: str | None
     raw: Any
     request_payload: Any = None  # the exact payload sent to the provider, when one was sent
+    provider_meta: Mapping[str, Any] | None = None  # requested/returned model, provider, request id
 
 
 class Selector(Protocol):

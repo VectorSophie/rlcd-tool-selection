@@ -2,6 +2,10 @@
 
 Profiles fix the shared LLM configuration. One `LLMConfig` serves native tool calling, matched
 selection and argument generation. Conditions fix how decomposed selectors see candidates.
+
+Pilot setup (2026-10-14): one OpenRouter account. The shared LLM is Claude Haiku 4.5, served by
+Anthropic only, with no fallbacks, every parameter required, and thinking disabled. Jev is
+`typesafe/jev-1.13` via OpenRouter's System One API.
 """
 
 from dataclasses import dataclass
@@ -9,8 +13,29 @@ from dataclasses import dataclass
 from rlcdselect.core.serialization import CriteriaFormat, NamePolicy, Representation, SerializationConfig
 from rlcdselect.core.types import LLMConfig
 
-SHARED_LLM_MODEL = "gpt-5.4-mini-2026-03-17"
-JEV_MODEL = "jev-1.13.0"
+SHARED_LLM_MODEL = "anthropic/claude-haiku-4.5"
+SHARED_LLM_ROUTING = {"only": ["anthropic"], "allow_fallbacks": False, "require_parameters": True}
+SHARED_LLM_EXPECTED_PROVIDER = "Anthropic"
+# Returned model ids accepted without failing the run. Only the requested id until a live response
+# shows what OpenRouter reports. Any other value aborts the run and must be added deliberately.
+SHARED_LLM_EXPECTED_RETURNED_MODELS = (SHARED_LLM_MODEL,)
+
+JEV_MODEL = "typesafe/jev-1.13"
+JEV_EXPECTED_PROVIDER = "TypeSafe"
+JEV_EXPECTED_RETURNED_MODELS = ("typesafe/jev-1.13-20260917",)  # documented in OpenRouter's System One guide
+
+
+def shared_llm(temperature: float) -> LLMConfig:
+    return LLMConfig(
+        provider="openrouter",
+        model=SHARED_LLM_MODEL,
+        temperature=temperature,
+        thinking="disabled",
+        max_output_tokens=1024,
+        routing=SHARED_LLM_ROUTING,
+        expected_upstream_provider=SHARED_LLM_EXPECTED_PROVIDER,
+        expected_returned_models=SHARED_LLM_EXPECTED_RETURNED_MODELS,
+    )
 
 
 @dataclass(frozen=True)
@@ -23,15 +48,15 @@ class ExperimentProfile:
 
 DETERMINISTIC_V1 = ExperimentProfile(
     name="deterministic_v1",
-    llm=LLMConfig(provider="openai", model=SHARED_LLM_MODEL, temperature=0.0, reasoning_effort="none"),
+    llm=shared_llm(0.0),
     samples_per_condition=1,
     purpose="Integration checks and clean discrete outcomes.",
 )
 
 STOCHASTIC_V1 = ExperimentProfile(
     name="stochastic_v1",
-    llm=LLMConfig(provider="openai", model=SHARED_LLM_MODEL, temperature=0.7, reasoning_effort="none"),
-    samples_per_condition=10,
+    llm=shared_llm(0.7),
+    samples_per_condition=10,  # development only; final sample sizes are decided later
     purpose=(
         "Repeated sampling for empirical selection frequencies. These frequencies are a different "
         "quantity from Jev/Laya native probabilities and are never compared to them directly."

@@ -94,6 +94,7 @@ class DecomposedPipeline:
             model_reported=output.model_reported,
             error=error,
             attempts=attempts,
+            provider_meta=output.provider_meta,
         )
         if status is not SelectionStatus.SELECTED:
             return PipelineOutcome(self.pipeline_id, cset, selection, SKIPPED_ARGUMENTS, None, inputs)

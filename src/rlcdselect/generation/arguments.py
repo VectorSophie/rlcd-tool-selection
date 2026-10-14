@@ -5,6 +5,7 @@ calls any other tool is recorded as a `tool_mismatch` error; the generator can n
 selection.
 """
 
+import dataclasses
 from collections.abc import Mapping
 from typing import Any
 
@@ -63,7 +64,9 @@ class ArgumentGenerator:
             err = ErrorInfo("arguments", error_kind(exc), str(exc))
             raw = getattr(exc, "raw", None)
             return ArgumentResult(ArgumentStatus.ERROR, None, None, (), raw, latency, None, err, attempts), request, None
-        return self._interpret(response, tool_def, latency, attempts), request, response.request_payload
+        result = dataclasses.replace(self._interpret(response, tool_def, latency, attempts),
+                                     provider_meta=response.provider_meta)
+        return result, request, response.request_payload
 
     @staticmethod
     def _interpret(response: ChatResponse, tool_def: NativeToolDef, latency: float, attempts: tuple[AttemptLog, ...]) -> ArgumentResult:

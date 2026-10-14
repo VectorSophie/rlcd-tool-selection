@@ -46,6 +46,7 @@ class ChatResponse:
     model_reported: str | None
     raw: Any
     request_payload: Any = None
+    provider_meta: Mapping[str, Any] | None = None
 
 
 class ChatClient(Protocol):

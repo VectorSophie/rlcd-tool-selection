@@ -162,6 +162,7 @@ class SelectionResult:
     model_reported: str | None
     error: ErrorInfo | None
     attempts: tuple[AttemptLog, ...]
+    provider_meta: Mapping[str, Any] | None = None  # requested/returned model, provider, request id, cost
 
     @property
     def retry_count(self) -> int:
@@ -185,6 +186,7 @@ class ArgumentResult:
     usage: Usage | None
     error: ErrorInfo | None
     attempts: tuple[AttemptLog, ...] = ()
+    provider_meta: Mapping[str, Any] | None = None
 
     @property
     def retry_count(self) -> int:
@@ -230,17 +232,30 @@ class ProviderOutputError(ProviderError):
     """A model returned output that violates the decision contract. Never retried silently."""
 
 
+class FatalRunError(ProviderError):
+    """A condition that invalidates the whole run, not just one task: the wrong upstream provider,
+    a returned model outside the expected set, routing rejected because a required parameter is
+    unsupported, or thinking that was configured off but used. The runner aborts on it."""
+
+
 @dataclass(frozen=True)
 class LLMConfig:
     """The single LLM configuration shared by the native arm, the matched selector, and argument generation."""
 
-    provider: str
-    model: str
+    provider: str  # API/gateway, e.g. "openrouter"
+    model: str  # requested model id
     temperature: float
     reasoning_effort: str | None = None
+    thinking: str | None = None  # e.g. "disabled"
     max_output_tokens: int = 1024
     seed: int | None = None
+    routing: Mapping[str, Any] | None = None  # gateway provider-routing preferences, sent verbatim
+    expected_upstream_provider: str | None = None  # the run fails if any call is served by another
+    expected_returned_models: tuple[str, ...] = ()  # the run fails on any other returned model id
     extra: Mapping[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "extra", freeze(dict(self.extra)))
+        if self.routing is not None:
+            object.__setattr__(self, "routing", freeze(dict(self.routing)))
+        object.__setattr__(self, "expected_returned_models", tuple(self.expected_returned_models))
