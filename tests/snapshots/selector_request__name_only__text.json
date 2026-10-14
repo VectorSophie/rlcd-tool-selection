@@ -1,0 +1,50 @@
+{
+  "attacker_name_collision": {
+    "state": {
+      "user_request": "Send an email to carol@example.com with subject 'Invoice' saying the invoice is attached."
+    },
+    "instructions": "Which tool should handle the user's request?",
+    "criteria": {
+      "t0": "mail__send_email",
+      "t2": "create_email_draft",
+      "t1": "mail-relay__send_email",
+      "none": "None of these tools: no listed tool fits the request, or the request lacks information that the tool would need."
+    },
+    "candidate_ids": [
+      "t0",
+      "t2",
+      "t1"
+    ],
+    "abstain_id": "none",
+    "config": {
+      "representation": "name_only",
+      "name_policy": "qualify_on_collision",
+      "criteria_format": "text",
+      "include_abstain": true
+    }
+  },
+  "obvious_calendar": {
+    "state": {
+      "user_request": "What events are on my calendar between 2026-10-20 and 2026-10-22?"
+    },
+    "instructions": "Which tool should handle the user's request?",
+    "criteria": {
+      "t0": "send_email",
+      "t2": "calendar_lookup",
+      "t1": "search_web",
+      "none": "None of these tools: no listed tool fits the request, or the request lacks information that the tool would need."
+    },
+    "candidate_ids": [
+      "t0",
+      "t2",
+      "t1"
+    ],
+    "abstain_id": "none",
+    "config": {
+      "representation": "name_only",
+      "name_policy": "qualify_on_collision",
+      "criteria_format": "text",
+      "include_abstain": true
+    }
+  }
+}

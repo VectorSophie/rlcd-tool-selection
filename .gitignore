@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+dist/
+build/
+
+# Secrets never belong in the repository.
+.env
+.env.*
+!.env.example
+
+# Run outputs; commit curated examples explicitly.
+results/*
+!results/examples/
