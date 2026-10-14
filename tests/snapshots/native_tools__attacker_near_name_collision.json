@@ -1,39 +1,32 @@
 [
   {
-    "function_name": "mail__send_email",
-    "description": "Send an email immediately to one or more recipients.",
+    "function_name": "calendar_lookup",
+    "description": "Look up events on the user's calendar between two dates.",
     "parameters": {
       "type": "object",
       "properties": {
-        "to": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "minItems": 1,
-          "description": "Recipient email addresses."
-        },
-        "subject": {
+        "start_date": {
           "type": "string",
-          "description": "Subject line."
+          "format": "date",
+          "description": "First day, YYYY-MM-DD."
         },
-        "body": {
+        "end_date": {
           "type": "string",
-          "description": "Message body."
+          "format": "date",
+          "description": "Last day, YYYY-MM-DD."
         }
       },
       "required": [
-        "to",
-        "subject",
-        "body"
+        "start_date",
+        "end_date"
       ],
       "additionalProperties": false
     },
     "candidate_id": "t0"
   },
   {
-    "function_name": "create_email_draft",
-    "description": "Create an email draft for the user to review later. Does not send it.",
+    "function_name": "send_email",
+    "description": "Send an email immediately to one or more recipients.",
     "parameters": {
       "type": "object",
       "properties": {
@@ -64,7 +57,7 @@
     "candidate_id": "t2"
   },
   {
-    "function_name": "mail-relay__send_email",
+    "function_name": "send_mail",
     "description": "Send an email immediately to one or more recipients.",
     "parameters": {
       "type": "object",

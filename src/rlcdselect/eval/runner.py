@@ -21,6 +21,8 @@ class ExperimentConfig:
     order_seeds: tuple[int | None, ...] = (None,)
     id_seed: int | None = None
     samples_per_condition: int = 1  # repeated sampling for empirical selection frequencies
+    profile: str | None = None  # e.g. "deterministic_v1"; recorded on every run
+    condition: str | None = None  # e.g. "architecture_matched_v1"; recorded on every run
 
 
 def check_invariants(pipelines: Sequence[Pipeline]) -> None:
@@ -35,6 +37,9 @@ def check_invariants(pipelines: Sequence[Pipeline]) -> None:
     serializations = {p.pipeline_id: p.serialization for p in pipelines}
     if len(set(serializations.values())) > 1:
         raise InvariantError(f"Arms use different serialization configs: {thaw(serializations)}")
+    native = [p.pipeline_id for p in pipelines if p.describe().get("native_single_call")]
+    if native and any(p.serialization.allow_duplicate_names for p in pipelines):
+        raise InvariantError(f"Duplicate-name stress conditions are decomposed-only; remove native arms {native}")
 
 
 async def run_experiment(
@@ -55,6 +60,7 @@ async def run_experiment(
                         experiment_id=config.experiment_id, task=task, pipeline=pipeline, outcome=outcome,
                         order_seed=order_seed, id_seed=config.id_seed, sample_index=sample_index,
                         timestamp=clock() if clock else None,
+                        profile=config.profile, condition=config.condition,
                     )
                     if writer is not None:
                         writer.write(record)

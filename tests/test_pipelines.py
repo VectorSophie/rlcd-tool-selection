@@ -70,8 +70,8 @@ def test_every_decomposed_selector_receives_the_identical_request(tasks, seriali
     assert all(thaw(s.requests[0]) == first for s in selectors[1:])
 
 
-def test_roles_are_never_visible_to_models(tasks, serialization):
-    for task in tasks.values():
+def test_roles_are_never_visible_to_models(core, serialization):
+    for task in core:
         selector = ScriptedSelector([output(ABSTAIN_ID)])
         llm = KeywordChatClient()
         run(decomposed(selector, llm, serialization).run(task, order_seed=None, id_seed=None))
@@ -181,7 +181,7 @@ def test_unparseable_arguments_are_argument_errors(tasks, serialization):
 
 
 def test_presentation_failure_is_an_error_not_a_selection(tasks):
-    task = tasks["attacker_name_collision"]
+    task = tasks["stress_exact_name_collision"]
     cfg = SerializationConfig(name_policy=NamePolicy.TOOL_NAME)
     for outcome in (
         run(NativePipeline(ScriptedChatClient([]), MockExecutor(), cfg).run(task, order_seed=None, id_seed=None)),
@@ -225,9 +225,9 @@ def test_retries_are_explicit_and_logged(tasks, serialization):  # required test
     assert outcome.selection.status is SelectionStatus.ERROR and len(outcome.selection.attempts) == 1
 
 
-def test_pipeline_runs_do_not_mutate_fixtures(fixtures, serialization):  # required test 9 (pipeline part)
+def test_pipeline_runs_do_not_mutate_fixtures(core, serialization):  # required test 9 (pipeline part)
     from rlcdselect.core.jsonutil import canonical_json
-    registry, tasks = fixtures
+    tasks = core
     before = canonical_json([[t.tools, t.state, t.roles] for t in tasks])
     llm = KeywordChatClient()
     for task in tasks:

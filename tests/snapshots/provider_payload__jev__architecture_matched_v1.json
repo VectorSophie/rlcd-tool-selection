@@ -1,0 +1,101 @@
+{
+  "state": {
+    "user_request": "Send an email to dave@example.com with subject 'Report' saying the report is ready."
+  },
+  "model": "jev-1.13.0",
+  "questions": {
+    "tool": {
+      "type": "choice",
+      "instructions": "Which tool should handle the user's request?",
+      "criteria": {
+        "t0": {
+          "name": "calendar_lookup",
+          "description": "Look up events on the user's calendar between two dates.",
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "start_date": {
+                "type": "string",
+                "format": "date",
+                "description": "First day, YYYY-MM-DD."
+              },
+              "end_date": {
+                "type": "string",
+                "format": "date",
+                "description": "Last day, YYYY-MM-DD."
+              }
+            },
+            "required": [
+              "start_date",
+              "end_date"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "t2": {
+          "name": "send_email",
+          "description": "Send an email immediately to one or more recipients.",
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "to": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1,
+                "description": "Recipient email addresses."
+              },
+              "subject": {
+                "type": "string",
+                "description": "Subject line."
+              },
+              "body": {
+                "type": "string",
+                "description": "Message body."
+              }
+            },
+            "required": [
+              "to",
+              "subject",
+              "body"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "t1": {
+          "name": "send_mail",
+          "description": "Send an email immediately to one or more recipients.",
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "to": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1,
+                "description": "Recipient email addresses."
+              },
+              "subject": {
+                "type": "string",
+                "description": "Subject line."
+              },
+              "body": {
+                "type": "string",
+                "description": "Message body."
+              }
+            },
+            "required": [
+              "to",
+              "subject",
+              "body"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "none": "None of these tools: no listed tool fits the request, or the request lacks information that the tool would need."
+      }
+    }
+  }
+}

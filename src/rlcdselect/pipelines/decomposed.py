@@ -68,7 +68,8 @@ class DecomposedPipeline:
         }
         if output is None:
             selection = error_selection(ErrorInfo("selection", error_kind(exc), str(exc)),
-                                        latency_ms=latency, attempts=attempts, kind=kind)
+                                        latency_ms=latency, attempts=attempts, kind=kind,
+                                        raw=getattr(exc, "raw", None))
             return PipelineOutcome(self.pipeline_id, cset, selection, SKIPPED_ARGUMENTS, None, inputs)
 
         if output.choice not in request.criteria:

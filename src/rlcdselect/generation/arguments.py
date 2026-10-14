@@ -61,7 +61,8 @@ class ArgumentGenerator:
         latency = total_latency(attempts)
         if response is None:
             err = ErrorInfo("arguments", error_kind(exc), str(exc))
-            return ArgumentResult(ArgumentStatus.ERROR, None, None, (), None, latency, None, err, attempts), request, None
+            raw = getattr(exc, "raw", None)
+            return ArgumentResult(ArgumentStatus.ERROR, None, None, (), raw, latency, None, err, attempts), request, None
         return self._interpret(response, tool_def, latency, attempts), request, response.request_payload
 
     @staticmethod

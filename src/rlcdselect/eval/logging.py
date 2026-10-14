@@ -63,7 +63,8 @@ def _tool_json(tool) -> dict[str, Any]:
 
 def build_record(*, experiment_id: str, task: Task, pipeline: Pipeline, outcome: PipelineOutcome,
                  order_seed: int | None, id_seed: int | None, sample_index: int,
-                 timestamp: datetime | None = None) -> dict[str, Any]:
+                 timestamp: datetime | None = None, profile: str | None = None,
+                 condition: str | None = None) -> dict[str, Any]:
     desc = pipeline.describe()
     sel, args, exe, cset = outcome.selection, outcome.arguments, outcome.execution, outcome.candidate_set
     scored = score(task, outcome)
@@ -90,6 +91,8 @@ def build_record(*, experiment_id: str, task: Task, pipeline: Pipeline, outcome:
         "schema_version": RECORD_SCHEMA_VERSION,
         "run_id": run_id(experiment_id, task.task_id, outcome.pipeline_id, order_seed, id_seed, sample_index),
         "experiment_id": experiment_id,
+        "profile": profile,
+        "condition": condition,
         "timestamp": (timestamp or datetime.now(timezone.utc)).isoformat(),
         "task_id": task.task_id,
         "task_tags": list(task.tags),

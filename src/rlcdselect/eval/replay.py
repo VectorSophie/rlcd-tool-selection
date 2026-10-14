@@ -41,6 +41,7 @@ def serialization_from_record(record: dict[str, Any]) -> SerializationConfig:
         name_policy=NamePolicy(s["name_policy"]),
         criteria_format=CriteriaFormat(s["criteria_format"]),
         include_abstain=s["include_abstain"],
+        allow_duplicate_names=s.get("allow_duplicate_names", False),
     )
 
 

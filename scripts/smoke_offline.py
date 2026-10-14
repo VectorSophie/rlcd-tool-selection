@@ -12,8 +12,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-from rlcdselect.core.serialization import NamePolicy, Representation, SerializationConfig
-from rlcdselect.datasets.fixtures import load_fixtures
+from rlcdselect.datasets.fixtures import core_tasks, load_fixtures
 from rlcdselect.eval.logging import JsonlWriter
 from rlcdselect.eval.metrics import selection_frequencies, summarize
 from rlcdselect.eval.runner import ExperimentConfig, run_experiment
@@ -22,15 +21,14 @@ from rlcdselect.generation.arguments import ArgumentGenerator
 from rlcdselect.llm.fake import KeywordChatClient
 from rlcdselect.pipelines.decomposed import DecomposedPipeline
 from rlcdselect.pipelines.native import NativePipeline
+from rlcdselect.profiles import ARCHITECTURE_MATCHED_V1
 from rlcdselect.selectors.mock import KeywordSelector
 
 
 async def main(out_dir: Path) -> None:
     _, tasks = load_fixtures()
-    serialization = SerializationConfig(
-        representation=Representation.NAME_DESCRIPTION,
-        name_policy=NamePolicy.QUALIFY_ON_COLLISION,  # the name-collision task needs qualification
-    )
+    tasks = core_tasks(tasks)  # decomposed-only stress tasks are excluded from cross-arm runs
+    serialization = ARCHITECTURE_MATCHED_V1
     llm = KeywordChatClient()  # one shared "LLM" for the native arm and argument generation
     executor = MockExecutor()
     pipelines = [
@@ -39,7 +37,8 @@ async def main(out_dir: Path) -> None:
     ]
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     path = out_dir / f"smoke-{stamp}.jsonl"
-    config = ExperimentConfig(experiment_id="smoke_offline_v1", order_seeds=(None, 1, 2))
+    config = ExperimentConfig(experiment_id="smoke_offline_v2", order_seeds=(None, 1, 2),
+                              profile="offline_fake", condition="architecture_matched_v1")
     records = await run_experiment(tasks, pipelines, config, JsonlWriter(path))
 
     print(f"Wrote {len(records)} records to {path}")

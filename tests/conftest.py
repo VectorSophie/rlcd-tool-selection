@@ -2,8 +2,8 @@ import asyncio
 
 import pytest
 
-from rlcdselect.core.serialization import NamePolicy, SerializationConfig
-from rlcdselect.datasets.fixtures import load_fixtures
+from rlcdselect.datasets.fixtures import core_tasks, load_fixtures
+from rlcdselect.profiles import ARCHITECTURE_MATCHED_V1
 
 
 @pytest.fixture
@@ -17,8 +17,14 @@ def tasks(fixtures):
 
 
 @pytest.fixture
+def core(fixtures):
+    """Cross-arm tasks only (no decomposed-only stress tasks)."""
+    return core_tasks(fixtures[1])
+
+
+@pytest.fixture
 def serialization():
-    return SerializationConfig(name_policy=NamePolicy.QUALIFY_ON_COLLISION)
+    return ARCHITECTURE_MATCHED_V1
 
 
 def run(coro):

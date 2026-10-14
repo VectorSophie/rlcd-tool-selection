@@ -69,6 +69,9 @@ class SerializationConfig:
     name_policy: NamePolicy = NamePolicy.TOOL_NAME
     criteria_format: CriteriaFormat = CriteriaFormat.TEXT
     include_abstain: bool = True
+    # Only for the decomposed-only exact-duplicate-name stress test. Native function calling cannot
+    # represent duplicate names, so the runner refuses to pair this with a native arm.
+    allow_duplicate_names: bool = False
 
 
 @dataclass(frozen=True)
@@ -107,7 +110,7 @@ class CandidateSet:
         return {c.candidate_id: c.tool.key for c in self.candidates}
 
 
-def _display_names(tools: Sequence[ToolSpec], policy: NamePolicy) -> list[str]:
+def _display_names(tools: Sequence[ToolSpec], policy: NamePolicy, *, allow_duplicates: bool = False) -> list[str]:
     counts = Counter(t.name for t in tools)
     names = []
     for t in tools:
@@ -119,7 +122,7 @@ def _display_names(tools: Sequence[ToolSpec], policy: NamePolicy) -> list[str]:
         else:
             names.append(t.name)
     duplicates = sorted(n for n, c in Counter(names).items() if c > 1)
-    if duplicates:
+    if duplicates and not allow_duplicates:
         raise SerializationError(
             f"Duplicate selector-visible names {duplicates} under name policy {policy.value!r}; "
             "use server_qualified or qualify_on_collision."
@@ -133,6 +136,7 @@ def present_candidates(
     name_policy: NamePolicy,
     order_seed: int | None = None,
     id_seed: int | None = None,
+    allow_duplicate_names: bool = False,
 ) -> CandidateSet:
     """Assign opaque ids and a presentation order.
 
@@ -141,7 +145,7 @@ def present_candidates(
     when `order_seed` is None, otherwise a seeded shuffle. The two seeds are independent factors.
     """
     tools = tuple(tools)
-    names = _display_names(tools, name_policy)
+    names = _display_names(tools, name_policy, allow_duplicates=allow_duplicate_names)
     n = len(tools)
     id_index = list(range(n))
     if id_seed is not None:
@@ -156,7 +160,8 @@ def present_candidates(
 
 
 def present_task(task: Task, config: SerializationConfig, *, order_seed: int | None, id_seed: int | None) -> CandidateSet:
-    return present_candidates(task.tools, name_policy=config.name_policy, order_seed=order_seed, id_seed=id_seed)
+    return present_candidates(task.tools, name_policy=config.name_policy, order_seed=order_seed, id_seed=id_seed,
+                              allow_duplicate_names=config.allow_duplicate_names)
 
 
 def criterion_for(candidate: Candidate, config: SerializationConfig) -> str | dict[str, Any]:
@@ -242,7 +247,11 @@ def build_native_tools(cset: CandidateSet) -> tuple[NativeToolDef, ...]:
     Native tool calling always exposes description and schema. That is inherent to the arm and is
     logged as such; the decomposed arms' representation is configured separately.
     """
-    return tuple(native_tool_def(c) for c in cset.candidates)
+    defs = tuple(native_tool_def(c) for c in cset.candidates)
+    duplicates = sorted(n for n, c in Counter(d.function_name for d in defs).items() if c > 1)
+    if duplicates:
+        raise SerializationError(f"Native function calling cannot represent duplicate function names {duplicates}")
+    return defs
 
 
 def render_state(state: Mapping[str, Any]) -> str:

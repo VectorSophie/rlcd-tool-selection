@@ -18,6 +18,11 @@ from rlcdselect.core.serialization import (
     present_task,
 )
 from rlcdselect.core.types import ToolSpec
+from rlcdselect.profiles import (
+    ARCHITECTURE_MATCHED_V1,
+    DUPLICATE_NAME_STRESS_V1,
+    ECOLOGICAL_NAME_DESCRIPTION_V1,
+)
 
 SNAPSHOTS = Path(__file__).parent / "snapshots"
 
@@ -52,10 +57,24 @@ def test_ids_are_opaque_and_real_name_is_visible(tasks):
     assert any(isinstance(c, str) and c.startswith("search_web: ") for c in req.criteria.values())
 
 
-def test_duplicate_names_fail_under_tool_name_policy(tasks):
-    task = tasks["attacker_name_collision"]
+def test_duplicate_names_are_an_error_by_default(tasks):
+    task = tasks["stress_exact_name_collision"]
     with pytest.raises(SerializationError):
         present_task(task, SerializationConfig(name_policy=NamePolicy.TOOL_NAME), order_seed=None, id_seed=None)
+
+
+def test_duplicate_names_allowed_only_for_decomposed_stress(tasks):
+    task = tasks["stress_exact_name_collision"]
+    cset = present_task(task, DUPLICATE_NAME_STRESS_V1, order_seed=None, id_seed=None)
+    assert [c.display_name for c in cset.candidates].count("send_email") == 2
+    req = build_selector_request(task.state, cset, DUPLICATE_NAME_STRESS_V1)
+    assert len(req.candidate_ids) == 3  # distinct opaque ids despite identical visible names
+    with pytest.raises(SerializationError, match="duplicate function names"):
+        build_native_tools(cset)
+
+
+def test_qualification_policies_remain_available(tasks):
+    task = tasks["stress_exact_name_collision"]
     cset = present_task(task, SerializationConfig(name_policy=NamePolicy.QUALIFY_ON_COLLISION), order_seed=None, id_seed=None)
     assert [c.display_name for c in cset.candidates] == ["mail__send_email", "mail-relay__send_email", "create_email_draft"]
     cset = present_task(task, SerializationConfig(name_policy=NamePolicy.SERVER_QUALIFIED), order_seed=None, id_seed=None)
@@ -99,14 +118,11 @@ def test_tool_spec_is_deeply_immutable(tasks):
 
 
 SNAPSHOT_CASES = {
-    "selector_request__name_description__text": SerializationConfig(name_policy=NamePolicy.QUALIFY_ON_COLLISION),
-    "selector_request__name_only__text": SerializationConfig(
-        representation=Representation.NAME_ONLY, name_policy=NamePolicy.QUALIFY_ON_COLLISION),
+    "selector_request__architecture_matched_v1": ARCHITECTURE_MATCHED_V1,
+    "selector_request__ecological_name_description_v1": ECOLOGICAL_NAME_DESCRIPTION_V1,
+    "selector_request__name_only__text": SerializationConfig(representation=Representation.NAME_ONLY),
     "selector_request__name_description_schema__text": SerializationConfig(
-        representation=Representation.NAME_DESCRIPTION_SCHEMA, name_policy=NamePolicy.QUALIFY_ON_COLLISION),
-    "selector_request__name_description_schema__object": SerializationConfig(
-        representation=Representation.NAME_DESCRIPTION_SCHEMA, name_policy=NamePolicy.QUALIFY_ON_COLLISION,
-        criteria_format=CriteriaFormat.OBJECT),
+        representation=Representation.NAME_DESCRIPTION_SCHEMA),
 }
 
 
@@ -114,17 +130,24 @@ SNAPSHOT_CASES = {
 def test_selector_request_snapshots(tasks, name):  # required test 18
     cfg = SNAPSHOT_CASES[name]
     out = {}
-    for task_id in ("attacker_name_collision", "obvious_calendar"):
+    for task_id in ("attacker_near_name_collision", "obvious_calendar"):
         task = tasks[task_id]
         req = build_selector_request(task.state, present_task(task, cfg, order_seed=11, id_seed=None), cfg)
         out[task_id] = thaw(req)
     _check_snapshot(name, out)
 
 
+def test_stress_selector_request_snapshot(tasks):
+    task = tasks["stress_exact_name_collision"]
+    cset = present_task(task, DUPLICATE_NAME_STRESS_V1, order_seed=11, id_seed=None)
+    _check_snapshot("selector_request__duplicate_name_stress_v1",
+                    thaw(build_selector_request(task.state, cset, DUPLICATE_NAME_STRESS_V1)))
+
+
 def test_native_tools_snapshot(tasks):
-    task = tasks["attacker_name_collision"]
-    cfg = SerializationConfig(name_policy=NamePolicy.QUALIFY_ON_COLLISION)
-    _check_snapshot("native_tools__attacker_name_collision", thaw(build_native_tools(present_task(task, cfg, order_seed=11, id_seed=None))))
+    task = tasks["attacker_near_name_collision"]
+    cset = present_task(task, ARCHITECTURE_MATCHED_V1, order_seed=11, id_seed=None)
+    _check_snapshot("native_tools__attacker_near_name_collision", thaw(build_native_tools(cset)))
 
 
 def _check_snapshot(name: str, value) -> None:

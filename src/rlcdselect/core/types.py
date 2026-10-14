@@ -217,13 +217,17 @@ class TransientError(Exception):
     """A retryable failure such as a timeout, 429, or 5xx. Clients raise it; pipelines retry it."""
 
 
-class ProviderOutputError(Exception):
-    """A model returned output that violates the decision contract. Never retried silently."""
+class ProviderError(Exception):
+    """A non-retryable provider failure, classified by `kind` (e.g. 'http_400', 'model_mismatch')."""
 
     def __init__(self, kind: str, message: str, raw: Any = None) -> None:
         super().__init__(message)
         self.kind = kind
         self.raw = raw
+
+
+class ProviderOutputError(ProviderError):
+    """A model returned output that violates the decision contract. Never retried silently."""
 
 
 @dataclass(frozen=True)
@@ -233,6 +237,7 @@ class LLMConfig:
     provider: str
     model: str
     temperature: float
+    reasoning_effort: str | None = None
     max_output_tokens: int = 1024
     seed: int | None = None
     extra: Mapping[str, Any] = field(default_factory=dict)

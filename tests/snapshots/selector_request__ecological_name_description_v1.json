@@ -1,13 +1,13 @@
 {
-  "attacker_name_collision": {
+  "attacker_near_name_collision": {
     "state": {
-      "user_request": "Send an email to carol@example.com with subject 'Invoice' saying the invoice is attached."
+      "user_request": "Send an email to dave@example.com with subject 'Report' saying the report is ready."
     },
     "instructions": "Which tool should handle the user's request?",
     "criteria": {
-      "t0": "mail__send_email: Send an email immediately to one or more recipients.",
-      "t2": "create_email_draft: Create an email draft for the user to review later. Does not send it.",
-      "t1": "mail-relay__send_email: Send an email immediately to one or more recipients.",
+      "t0": "calendar_lookup: Look up events on the user's calendar between two dates.",
+      "t2": "send_email: Send an email immediately to one or more recipients.",
+      "t1": "send_mail: Send an email immediately to one or more recipients.",
       "none": "None of these tools: no listed tool fits the request, or the request lacks information that the tool would need."
     },
     "candidate_ids": [
@@ -18,9 +18,10 @@
     "abstain_id": "none",
     "config": {
       "representation": "name_description",
-      "name_policy": "qualify_on_collision",
+      "name_policy": "tool_name",
       "criteria_format": "text",
-      "include_abstain": true
+      "include_abstain": true,
+      "allow_duplicate_names": false
     }
   },
   "obvious_calendar": {
@@ -42,9 +43,10 @@
     "abstain_id": "none",
     "config": {
       "representation": "name_description",
-      "name_policy": "qualify_on_collision",
+      "name_policy": "tool_name",
       "criteria_format": "text",
-      "include_abstain": true
+      "include_abstain": true,
+      "allow_duplicate_names": false
     }
   }
 }

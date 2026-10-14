@@ -1,4 +1,70 @@
-# Implementation Report — Phase 1 (offline core)
+# Implementation Report
+
+## Phase 2: real selectors and the shared LLM
+
+- Date: 2026-10-14
+- **No live API calls were made.** No API keys are configured in this environment. All provider behavior was verified at the HTTP-transport level with mocked responses.
+- **No benchmark runs have been done.** Per instructions, provider payload snapshot tests come first; they now exist and pass.
+
+### Status
+
+| Item | Status |
+|---|---|
+| Apache-2.0 `LICENSE` (official text, SHA-256 `cfc7749b…`) + `pyproject` `license = "Apache-2.0"` | ✔ |
+| `OpenAIResponsesClient`: shared LLM, `gpt-5.4-mini-2026-03-17`, `reasoning.effort=none` | ✔ offline |
+| Profiles `deterministic_v1` (T=0) and `stochastic_v1` (T=0.7, 10 samples) | ✔ |
+| `MatchedLLMSelector` on `system-one-adapter` with a configured provider | ✔ offline |
+| `JevSelector`: official SDK, pinned `jev-1.13.0`, startup availability check, no fallback | ✔ offline |
+| `LayaSelector` (secondary): pinned checkpoint revision, truncation/collapse logging | ✔ adapter contract tested with an injected agent; **live model run not completed** (see below) |
+| Conditions `architecture_matched_v1` (main), `ecological_name_description_v1`, `duplicate_name_stress_v1` (decomposed-only) | ✔ |
+| Fixtures `static_v2`: near-name and schema-description attacks; exact-duplicate task moved to decomposed-only stress | ✔ |
+| Provider-level payload snapshot tests (Jev, matched LLM in both modes, native, argument generator) | ✔ |
+| `scripts/run_experiment.py` with startup checks (`--check-only`) | ✔; verified that it fails cleanly without keys |
+| Tests | ✔ **65 passed** (`uv run --extra laya pytest`) |
+
+### Findings while building the adapters
+
+1. **`system-one-adapter`'s OpenAI provider sends no `temperature` and no `reasoning`.** Used as shipped, the matched-LLM arm would have run at provider defaults, unlike the native arm. Fixed by subclassing (`ConfiguredOpenAIProvider`). A test asserts that all three LLM roles send identical model and sampling parameters.
+2. **SDK-level retries are on by default** in the OpenAI SDK (2), the TypeSafe SDK (2) and the adapter (transient plus corrective). All are disabled. Tests assert that a 429 or 500 produces exactly one HTTP request and is surfaced as a logged transient error.
+3. **In `discrete` mode the adapter returns a one-hot "probability" vector.** It is not logged as a distribution (`probability_kind: none`).
+4. **The adapter renders options to the LLM inside the JSON-schema description.** The snapshots confirm that every schema-bearing criterion reaches the model in presentation order, with ids identical to Jev's criteria keys.
+5. **Choice-based selectors see the opaque option key as text** (Laya renders `"t0: …"`; the TypeSafe docs say names are sent). This is identical across decomposed arms. `id_seed` exists to measure label effects.
+
+### Laya live test: attempted, deferred
+
+- Laya 0.4.7 and `torch 2.9.1+cu128` were installed. The torch wheel came from the local uv cache. CUDA is available on both RTX PRO 6000 GPUs.
+- The checkpoint download (`convaiinnovations/laya`; `snapshot_download` fetches the whole 2.37 GB repo, all three checkpoints) ran at about 92 KB/s because the concurrent GLM download is using the bandwidth. I stopped it after about 70 MB so it wouldn't slow the GLM transfer.
+- The partial files are in `HF_HOME=/data/jackb/krasis/huggingface` (the krasis cache your environment points to) and will resume.
+- The GPUs were never used. The live Laya probe should be rerun once the GLM download completes.
+
+### Dependencies added
+
+| Package | Version | Use |
+|---|---|---|
+| typesafe-sdk | ==0.7.4 | Jev (official SDK) |
+| system-one-adapter[openai] | ==0.2.1 | Matched-LLM Choice contract |
+| openai | 3.31.0 (constraint `>=2`) | Responses API |
+| laya (optional extra `laya`) | ==0.4.7 | Secondary RLCD arm |
+| torch (optional extra `laya`) | ==2.9.1 (+cu128 wheel) | Laya inference |
+
+`uv run` without `--extra laya` re-syncs the environment and removes the optional extra. Use `uv run --extra laya …`.
+
+### Upstream code reuse
+
+- **Imported, not copied:** `system-one-adapter` (MIT) is subclassed. `ConfiguredOpenAIProvider` imports the private helpers `_responses_request_kwargs` and `_responses_result` from the pinned 0.2.1. The payload snapshot test will fail if they change.
+- **Copied:** no upstream code. The `LICENSE` file is the official Apache-2.0 text.
+
+### Before the first live run (needs you)
+
+1. Provide `OPENAI_API_KEY` and `TYPESAFE_API_KEY` (in the environment or `.env`; never committed).
+2. Run `uv run --extra laya python scripts/run_experiment.py --profile deterministic_v1 --condition architecture_matched_v1 --check-only`. It verifies that `gpt-5.4-mini-2026-03-17` and `jev-1.13.0` are available, with no paid calls.
+3. Unverified assumptions that the check-only and first deterministic run will settle:
+   - that `temperature` is accepted together with `reasoning.effort=none` for this model;
+   - that Jev's response `model` field equals `jev-1.13.0` exactly. If not, every Jev call fails with `model_mismatch` and the mapping must be decided explicitly, not loosened silently.
+
+---
+
+## Phase 1: offline core
 
 - Date: 2026-10-14
 - Scope: Phase 1 only, as authorized at the research gate. **No network or model calls were made, and no API keys are used.**

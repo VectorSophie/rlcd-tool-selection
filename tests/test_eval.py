@@ -38,8 +38,8 @@ def offline_arms(serialization, llm=None):
     ]
 
 
-def test_complete_offline_run_writes_valid_records(fixtures, serialization, tmp_path):  # required test 15
-    _, tasks = fixtures
+def test_complete_offline_run_writes_valid_records(core, serialization, tmp_path):  # required test 15
+    tasks = core
     path = tmp_path / "run.jsonl"
     config = ExperimentConfig("test", order_seeds=(None, 4))
     records = run(run_experiment(tasks, offline_arms(serialization), config, JsonlWriter(path, secrets=())))
@@ -52,8 +52,8 @@ def test_complete_offline_run_writes_valid_records(fixtures, serialization, tmp_
                                         else ABSTAIN if r["selection_status"] == "abstained" else None)
 
 
-def test_records_are_sufficient_to_reproduce_inputs(fixtures, serialization, tmp_path):  # required test 14
-    _, tasks = fixtures
+def test_records_are_sufficient_to_reproduce_inputs(core, serialization, tmp_path):  # required test 14
+    tasks = core
     path = tmp_path / "run.jsonl"
     for rep in Representation:
         cfg = SerializationConfig(representation=rep, name_policy=serialization.name_policy)
@@ -161,8 +161,8 @@ def test_probability_shift_refuses_selectors_without_probabilities(fixtures, ser
         probability_shift(native[0], native[1])
 
 
-def test_summary_and_frequencies_use_discrete_outcomes(fixtures, serialization):
-    _, tasks = fixtures
+def test_summary_and_frequencies_use_discrete_outcomes(core, serialization):
+    tasks = core
     records = run(run_experiment(tasks, offline_arms(serialization), ExperimentConfig("s", order_seeds=(None, 1, 2))))
     summary = summarize(records)
     assert set(summary) == {"native_llm", "mock_keyword"}
@@ -170,3 +170,18 @@ def test_summary_and_frequencies_use_discrete_outcomes(fixtures, serialization):
         assert math.isclose(sum(s["role_selection_rates"].values()), 1.0)
     for dist in selection_frequencies(records).values():
         assert math.isclose(sum(dist.values()), 1.0)
+
+
+def test_duplicate_name_stress_is_decomposed_only(fixtures):
+    from rlcdselect.datasets.fixtures import decomposed_only_tasks
+    from rlcdselect.profiles import DUPLICATE_NAME_STRESS_V1
+
+    llm = KeywordChatClient()
+    native = NativePipeline(llm, MockExecutor(), DUPLICATE_NAME_STRESS_V1)
+    decomposed = DecomposedPipeline(KeywordSelector(), ArgumentGenerator(llm), MockExecutor(), DUPLICATE_NAME_STRESS_V1)
+    with pytest.raises(InvariantError, match="decomposed-only"):
+        check_invariants([native, decomposed])
+    stress = decomposed_only_tasks(fixtures[1])
+    records = run(run_experiment(stress, [decomposed], ExperimentConfig("stress", condition="duplicate_name_stress_v1")))
+    assert records and all(r["selection_status"] != "error" for r in records)
+    assert all(r["condition"] == "duplicate_name_stress_v1" for r in records)

@@ -7,7 +7,8 @@ from typing import Any
 from rlcdselect.core.types import ExpectedOutcome, Task, ToolRole
 from rlcdselect.registry.static import StaticToolRegistry
 
-DEFAULT_FIXTURE = "static_v1.json"
+DEFAULT_FIXTURE = "static_v2.json"
+DECOMPOSED_ONLY_TAG = "decomposed_only"
 
 
 def load_fixture_data(name: str = DEFAULT_FIXTURE) -> dict[str, Any]:
@@ -35,3 +36,13 @@ def load_fixtures(name: str = DEFAULT_FIXTURE) -> tuple[StaticToolRegistry, tupl
             )
         )
     return registry, tuple(tasks)
+
+
+def core_tasks(tasks: tuple[Task, ...]) -> tuple[Task, ...]:
+    """Tasks valid for every arm (the cross-arm benchmark)."""
+    return tuple(t for t in tasks if DECOMPOSED_ONLY_TAG not in t.tags)
+
+
+def decomposed_only_tasks(tasks: tuple[Task, ...]) -> tuple[Task, ...]:
+    """Stress tasks that native function calling cannot represent (e.g. exact duplicate names)."""
+    return tuple(t for t in tasks if DECOMPOSED_ONLY_TAG in t.tags)

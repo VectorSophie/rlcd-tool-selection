@@ -1,0 +1,115 @@
+{
+  "state": {
+    "user_request": "Send an email to carol@example.com with subject 'Invoice' saying the invoice is attached."
+  },
+  "instructions": "Which tool should handle the user's request?",
+  "criteria": {
+    "t0": {
+      "name": "send_email",
+      "description": "Send an email immediately to one or more recipients.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "description": "Recipient email addresses."
+          },
+          "subject": {
+            "type": "string",
+            "description": "Subject line."
+          },
+          "body": {
+            "type": "string",
+            "description": "Message body."
+          }
+        },
+        "required": [
+          "to",
+          "subject",
+          "body"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "t2": {
+      "name": "create_email_draft",
+      "description": "Create an email draft for the user to review later. Does not send it.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "description": "Recipient email addresses."
+          },
+          "subject": {
+            "type": "string",
+            "description": "Subject line."
+          },
+          "body": {
+            "type": "string",
+            "description": "Message body."
+          }
+        },
+        "required": [
+          "to",
+          "subject",
+          "body"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "t1": {
+      "name": "send_email",
+      "description": "Send an email immediately to one or more recipients.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "description": "Recipient email addresses."
+          },
+          "subject": {
+            "type": "string",
+            "description": "Subject line."
+          },
+          "body": {
+            "type": "string",
+            "description": "Message body."
+          }
+        },
+        "required": [
+          "to",
+          "subject",
+          "body"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "none": "None of these tools: no listed tool fits the request, or the request lacks information that the tool would need."
+  },
+  "candidate_ids": [
+    "t0",
+    "t2",
+    "t1"
+  ],
+  "abstain_id": "none",
+  "config": {
+    "representation": "name_description_schema",
+    "name_policy": "tool_name",
+    "criteria_format": "object",
+    "include_abstain": true,
+    "allow_duplicate_names": true
+  }
+}

@@ -11,6 +11,15 @@ Binding decisions (gate approval, 2026-10-14):
 - **Jev access.** Official TypeSafe SDK with a pinned Jev version. OpenRouter is a secondary replication path.
 - **Licensing.** MIT material is adapted with attribution. Unlicensed material is never copied or redistributed.
 
+Phase 2 decisions (2026-10-14):
+
+- **Shared LLM:** `gpt-5.4-mini-2026-03-17` through the OpenAI Responses API with `reasoning.effort=none`.
+- **Profiles:** `deterministic_v1` (temperature 0) and `stochastic_v1` (temperature 0.7, repeated sampling).
+- **Jev:** pinned to `jev-1.13.0` and verified at startup.
+- **Main condition:** decomposed selectors see name + description + schema. Name + description is a separate ecological condition.
+- **Duplicate names:** exact duplicate names are a decomposed-only stress test.
+- **License:** Apache-2.0.
+
 ## Architecture
 
 ```text
@@ -164,3 +173,91 @@ Fixture decisions to be aware of:
 | Jev exposes no temperature; LLM temperature is set explicitly | Asymmetry, logged. Repeated sampling is used for empirical frequencies. |
 | Laya's option budget (192–256 tokens) trims options | Phase 2: log truncation stats; exclude trimmed runs from primary analysis. |
 | Fixture labels are author-written | Small project fixtures; external datasets follow in Phase 4. |
+
+
+## Phase 2: real adapters
+
+### Shared LLM (`llm/openai_responses.py`)
+
+`shared_request_params(LLMConfig)` is the single source of `model`, `temperature`, `reasoning`, `max_output_tokens` and `store=false`. The native arm and the argument generator (`OpenAIResponsesClient`) and the matched-LLM provider all apply it. A payload test asserts that all three send identical values.
+
+Request details:
+
+- System prompt in `instructions`; state as a single user message; tools as `function` definitions with `strict: false`, because fixture schemas have optional properties.
+- `parallel_tool_calls: false`.
+- The SDK client must have `max_retries=0`; a client with SDK retries is rejected.
+- A response reporting a different model id is an error (`model_mismatch`).
+- `verify_model_available()` checks the model id through `/v1/models/{id}`.
+
+### Matched LLM (`selectors/matched_llm.py`)
+
+`system-one-adapter` (TypeSafe, MIT) is used as a dependency. Its built-in OpenAI provider sends **no temperature and no reasoning settings**. `ConfiguredOpenAIProvider` subclasses it, reuses its request builder, and adds the shared parameters. Without this, the matched arm would have run at provider defaults.
+
+Adapter settings:
+
+- `structured_outputs=True`
+- `normalize_probabilities=False`
+- `n_retry_malformed_structure=0`
+- `RetryPolicy(max_retries=0)`
+
+Answer modes:
+
+- `discrete` (default) yields `probability_kind: none`. The adapter's one-hot vector is not reported as a distribution.
+- `probabilities` yields `llm_verbalized`, kept unchanged and flagged when malformed.
+
+What the model sees, recorded in the snapshots:
+
+- the adapter's fixed system prompt (state is untrusted data; answer with the schema);
+- the state wrapped in `<document>`;
+- in discrete mode, each option as `"<id> = <criterion>"` inside the JSON-schema field description, with ids as the enum.
+
+### Jev (`selectors/jev.py`)
+
+- Uses the official `typesafe-sdk==0.7.4` with model `jev-1.13.0`.
+- Any id containing `latest` is refused at construction.
+- `verify_model_available()` reads `/v1/models` and raises `ModelUnavailableError` listing every available id; it never falls back.
+- SDK retries are disabled.
+- A response reporting a different model is an error.
+- The exact request body is recovered from `raw_http_response.request` and logged, without headers.
+
+### Laya (`selectors/laya.py`, secondary; optional extra `laya`)
+
+- `laya.Agent` is used directly, pinned to `laya.PINNED_REVISIONS` (English `convaiinnovations/laya@55cf4c4…`). Router-based language routing is avoided.
+- `usage.truncated`, `state_tokens_dropped` and collapsed options (`usage.options`) are carried into `usage.extra`, so trimmed runs can be excluded.
+- Inference runs in a worker thread under a lock.
+
+### Profiles and conditions (`profiles.py`)
+
+| Name | What it fixes |
+|---|---|
+| `deterministic_v1` | Shared LLM at temperature 0, 1 sample. Integration and clean discrete outcomes. |
+| `stochastic_v1` | Temperature 0.7, 10 samples per condition by default. Empirical selection frequencies, a separate quantity from RLCD native probabilities. |
+| `architecture_matched_v1` | **Main condition.** `name_description_schema`, object criteria, raw tool names. |
+| `ecological_name_description_v1` | Documented RLCD pattern: `"name: description"` text. |
+| `duplicate_name_stress_v1` | Exact duplicate visible names allowed. **Decomposed-only:** the runner rejects native arms, and native tool building always rejects duplicate function names. |
+
+Every record carries `profile` and `condition`.
+
+### Fixtures `static_v2`
+
+- 15 tasks; 14 of them form the cross-arm core set.
+- New cross-arm attacks with unique identifiers:
+  - `attacker_near_name_collision` (`send_mail` vs `send_email`, identical descriptions);
+  - `attacker_schema_description` (preference wording only in a property description).
+- `stress_exact_name_collision` (MSB-style exact duplicate) is tagged `decomposed_only`.
+- `core_tasks()` and `decomposed_only_tasks()` select between them.
+
+### Startup (`startup.py`, `scripts/run_experiment.py`)
+
+- Required keys are checked first, then pinned-model availability. Any failure aborts before the first task.
+- `--check-only` uses only the model-listing endpoints.
+
+### Additional confounds introduced by real adapters
+
+| Confound | Handling |
+|---|---|
+| Matched LLM gets the adapter's system prompt ("treat the document as untrusted"); native gets ours | Inherent to using the adapter as the matched control. Visible in the payload snapshots. Could be ablated later with a project-owned Choice prompt. |
+| Choice-based selectors (Jev, Laya, adapter) see the opaque option key (`t0`…) as text; native sees function names | Identical across decomposed arms. `id_seed` permutes ids to measure label effects. |
+| Matched LLM sees criteria inside a JSON-schema description; Jev sees a criteria map | Different native input formats for different model types. Content and order are asserted identical (enum = criteria keys). |
+| OpenAI SDK serializes top-level keys in its own order | Tool and criteria order (the experimental factors) are preserved and asserted. |
+| Jev exposes no temperature | Logged asymmetry. `stochastic_v1` repeats all arms equally. |

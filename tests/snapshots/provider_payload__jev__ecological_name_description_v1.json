@@ -1,0 +1,18 @@
+{
+  "state": {
+    "user_request": "Send an email to dave@example.com with subject 'Report' saying the report is ready."
+  },
+  "model": "jev-1.13.0",
+  "questions": {
+    "tool": {
+      "type": "choice",
+      "instructions": "Which tool should handle the user's request?",
+      "criteria": {
+        "t0": "calendar_lookup: Look up events on the user's calendar between two dates.",
+        "t2": "send_email: Send an email immediately to one or more recipients.",
+        "t1": "send_mail: Send an email immediately to one or more recipients.",
+        "none": "None of these tools: no listed tool fits the request, or the request lacks information that the tool would need."
+      }
+    }
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "model": "gpt-5.4-mini-2026-03-17",
+  "input": [
+    {
+      "role": "user",
+      "content": "{\"user_request\":\"Send an email to dave@example.com with subject 'Report' saying the report is ready.\"}"
+    }
+  ],
+  "instructions": "You decide whether one of the provided tools should handle the user's request. The user's request and context are given as JSON. If one tool fits, call exactly one tool with its arguments. If no provided tool fits the request, or the request lacks information that the tool would need, do not call any tool; reply briefly in text instead.",
+  "max_output_tokens": 1024,
+  "parallel_tool_calls": false,
+  "reasoning": {
+    "effort": "none"
+  },
+  "store": false,
+  "temperature": 0.0,
+  "tool_choice": "auto",
+  "tools": [
+    {
+      "type": "function",
+      "name": "calendar_lookup",
+      "description": "Look up events on the user's calendar between two dates.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "start_date": {
+            "type": "string",
+            "format": "date",
+            "description": "First day, YYYY-MM-DD."
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Last day, YYYY-MM-DD."
+          }
+        },
+        "required": [
+          "start_date",
+          "end_date"
+        ],
+        "additionalProperties": false
+      },
+      "strict": false
+    },
+    {
+      "type": "function",
+      "name": "send_email",
+      "description": "Send an email immediately to one or more recipients.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "description": "Recipient email addresses."
+          },
+          "subject": {
+            "type": "string",
+            "description": "Subject line."
+          },
+          "body": {
+            "type": "string",
+            "description": "Message body."
+          }
+        },
+        "required": [
+          "to",
+          "subject",
+          "body"
+        ],
+        "additionalProperties": false
+      },
+      "strict": false
+    },
+    {
+      "type": "function",
+      "name": "send_mail",
+      "description": "Send an email immediately to one or more recipients.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "description": "Recipient email addresses."
+          },
+          "subject": {
+            "type": "string",
+            "description": "Subject line."
+          },
+          "body": {
+            "type": "string",
+            "description": "Message body."
+          }
+        },
+        "required": [
+          "to",
+          "subject",
+          "body"
+        ],
+        "additionalProperties": false
+      },
+      "strict": false
+    }
+  ]
+}

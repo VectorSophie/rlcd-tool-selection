@@ -4,7 +4,7 @@ import time
 from collections.abc import Awaitable, Callable
 from typing import TypeVar
 
-from rlcdselect.core.types import AttemptLog, ProviderOutputError, RetryPolicy, TransientError
+from rlcdselect.core.types import AttemptLog, ProviderError, RetryPolicy, TransientError
 
 T = TypeVar("T")
 
@@ -12,7 +12,7 @@ T = TypeVar("T")
 def error_kind(exc: BaseException) -> str:
     if isinstance(exc, TransientError):
         return "transient"
-    if isinstance(exc, ProviderOutputError):
+    if isinstance(exc, ProviderError):
         return exc.kind
     return "provider_error"
 
