@@ -270,7 +270,7 @@ class OpenRouterCatalog:
                 f"{provider_name!r} endpoint for {model!r} does not support {missing}; "
                 f"supported: {sorted(set(matching[0].get('supported_parameters') or []))}")
         return {"model": model, "provider": provider_name, "tag": best.get("tag"),
-                "supported_parameters": best.get("supported_parameters")}
+                "supported_parameters": best.get("supported_parameters"), "pricing": best.get("pricing")}
 
     async def aclose(self) -> None:
         await self._http.aclose()

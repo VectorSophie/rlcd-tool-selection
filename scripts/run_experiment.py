@@ -18,6 +18,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from rlcdselect.datasets.fixtures import core_tasks, decomposed_only_tasks, load_fixtures
+from rlcdselect.eval.budget import BudgetGuard, estimate_run_cost, prices_from_catalog
 from rlcdselect.eval.logging import JsonlWriter
 from rlcdselect.eval.metrics import summarize
 from rlcdselect.eval.runner import ExperimentConfig, run_experiment
@@ -45,8 +46,21 @@ async def main(args: argparse.Namespace) -> None:
     finally:
         await catalog.aclose()
     print(f"Verified (no paid calls): {json.dumps(verified, indent=2)}")
+
+    _, all_tasks = load_fixtures()
+    tasks = decomposed_only_tasks(all_tasks) if stress else core_tasks(all_tasks)
+    seeds = tuple(None if s == "none" else int(s) for s in args.order_seeds.split(","))
+    samples = args.samples or profile.samples_per_condition
+    pipeline_ids = ([] if stress else ["native_llm"]) + ["matched_llm", "jev"] + (["laya"] if args.with_laya else [])
+    prices = prices_from_catalog(verified["llm"], verified.get("jev"))
+    estimate = estimate_run_cost(tasks, pipeline_ids, condition, prices, len(seeds), samples, args.matched_mode)
+    print(f"Estimated cost (conservative): {json.dumps(estimate, indent=2)}")
     if args.check_only:
         return
+    if args.budget_usd is None:
+        raise SystemExit("--budget-usd is required for live runs")
+    budget = BudgetGuard(cap_usd=args.budget_usd, prices=prices)
+    budget.check_estimate(estimate)
 
     llm = OpenRouterChatClient(profile.llm)
 
@@ -64,17 +78,16 @@ async def main(args: argparse.Namespace) -> None:
 
         pipelines.append(DecomposedPipeline(LayaSelector(device=args.laya_device), arguments, executor, condition))
 
-    _, tasks = load_fixtures()
-    tasks = decomposed_only_tasks(tasks) if stress else core_tasks(tasks)
-    seeds = tuple(None if s == "none" else int(s) for s in args.order_seeds.split(","))
     config = ExperimentConfig(
         experiment_id=f"{profile.name}__{args.condition}", order_seeds=seeds,
-        samples_per_condition=args.samples or profile.samples_per_condition,
-        profile=profile.name, condition=args.condition,
+        samples_per_condition=samples, profile=profile.name, condition=args.condition,
     )
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     path = Path(args.out) / f"{config.experiment_id}__{stamp}.jsonl"
-    records = await run_experiment(tasks, pipelines, config, JsonlWriter(path))
+    try:
+        records = await run_experiment(tasks, pipelines, config, JsonlWriter(path), budget=budget)
+    finally:
+        print(f"Spend: {json.dumps(budget.summary(), indent=2)}  (estimate was ${estimate['total_usd']:.4f})")
     print(f"Wrote {len(records)} records to {path}")
     print(json.dumps(summarize(records), indent=2))
 
@@ -89,5 +102,7 @@ if __name__ == "__main__":
     parser.add_argument("--with-laya", action="store_true")
     parser.add_argument("--laya-device", default="cuda:1")
     parser.add_argument("--check-only", action="store_true")
+    parser.add_argument("--budget-usd", type=float, default=None,
+                        help="hard cap for this run; refused up front if the estimate exceeds it")
     parser.add_argument("--out", default="results/live")
     asyncio.run(main(parser.parse_args()))

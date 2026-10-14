@@ -17,7 +17,8 @@
 | Per-call logging of requested/returned model, provider (+ source), generation id, request id, `x-request-id`, temperature, thinking, routing, cost, tokens | ✔ (`*_provider_meta`, record schema v2) |
 | Startup checks via the endpoint listing (free) | ✔, run live |
 | OpenAI Responses client removed (superseded) | ✔ |
-| Tests | ✔ **77 passed** |
+| Budget guard: conservative pre-run estimate from live prices, `--budget-usd` cap, refusal up front, stop on reaching the cap, actual vs estimated spend | ✔ |
+| Tests | ✔ **82 passed** |
 
 ### Findings during the revision
 
@@ -33,10 +34,13 @@
 - **Whether the response carries `provider`,** or the generation-API fallback is needed.
 - **Whether strict `json_schema` output works for Claude via OpenRouter** in the matched arm. If not, the failures are recorded as `malformed_output`.
 
-### Next steps (need your OpenRouter key; total well under $0.05)
+### Next steps (need your OpenRouter key)
 
-1. `--check-only`, which is free.
-2. One deterministic fixture run: 14 tasks × 3 arms × 1 ordering, about $0.05.
+Conservative estimates use live prices: Haiku 4.5 at $1 / $5 per million tokens, Jev at $0.042 per million input tokens.
+
+1. `--check-only`. Free; prints the estimate.
+2. First deterministic fixture run: 14 tasks × 3 arms × 1 ordering, 42 runs. Estimate **≤ $0.09**; suggested cap `--budget-usd 0.25`.
+3. Later: 3 orderings × 2 conditions, about $0.54. Stochastic (3 orderings × 10 samples), about $2.78.
 
 ---
 

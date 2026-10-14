@@ -278,3 +278,12 @@ Answer modes:
 | OpenRouter translates our OpenAI-style request into Anthropic's Messages API | Not observable from our side. Requests are logged at the OpenRouter boundary. |
 | Jev exposes no temperature | Logged asymmetry. `stochastic_v1` repeats all arms equally. |
 | Strict `json_schema` support for Claude via OpenRouter is untested live | The first deterministic run will show it. Failures are recorded as `malformed_output` selection errors, not hidden. |
+
+### Budget guard (`eval/budget.py`)
+
+- **Before the run:** `estimate_run_cost` builds the same requests the pipelines would send and estimates their cost. Tokens are counted as characters / 3, with fixed output allowances and a ×1.25 margin. Prices come from OpenRouter's endpoint listing at startup.
+- **Refusal:** a live run requires `--budget-usd`, and it is refused up front if the estimate exceeds the cap.
+- **During the run:** `BudgetGuard` charges each record's actual cost. That is OpenRouter's reported `usage.cost` when present, otherwise the token counts × prices, and the record says which. The run stops with a `run_aborted` record (`budget_exceeded`) as soon as spend reaches the cap, before the next call.
+- **Fatal aborts:** a call that triggered a fatal check was still billed, so its reported cost is charged too.
+- **Local selectors** (Laya, mocks) cost nothing; only their argument generation is charged.
+- **Records** carry `cost_charged_usd` and `budget_spent_usd`, and the script prints actual versus estimated spend.
