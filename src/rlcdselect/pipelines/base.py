@@ -52,12 +52,12 @@ SKIPPED_ARGUMENTS = ArgumentResult(ArgumentStatus.SKIPPED, None, None, (), None,
 
 
 def error_selection(error: ErrorInfo, *, latency_ms: float = 0.0, attempts=(), raw=None,
-                    kind: ProbabilityKind = ProbabilityKind.NONE) -> SelectionResult:
+                    kind: ProbabilityKind = ProbabilityKind.NONE, provider_meta=None) -> SelectionResult:
     return SelectionResult(
         status=SelectionStatus.ERROR, selected_candidate_id=None, selected_tool_key=None,
         probabilities=None, probability_kind=kind, probability_issues=(), confidence=None,
         raw_response=raw, latency_ms=latency_ms, usage=None, model_reported=None, error=error,
-        attempts=tuple(attempts),
+        attempts=tuple(attempts), provider_meta=provider_meta,
     )
 
 

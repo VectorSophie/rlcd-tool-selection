@@ -222,10 +222,11 @@ class TransientError(Exception):
 class ProviderError(Exception):
     """A non-retryable provider failure, classified by `kind` (e.g. 'http_400', 'model_mismatch')."""
 
-    def __init__(self, kind: str, message: str, raw: Any = None) -> None:
+    def __init__(self, kind: str, message: str, raw: Any = None, provider_meta: Any = None) -> None:
         super().__init__(message)
         self.kind = kind
         self.raw = raw
+        self.provider_meta = provider_meta  # set when the failing call was served (and billed)
 
 
 class ProviderOutputError(ProviderError):

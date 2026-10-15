@@ -100,6 +100,10 @@ def _metas(meta: Any) -> list[Mapping[str, Any]]:
     return [meta]
 
 
+def _call_key(meta: Mapping[str, Any]) -> Any:
+    return meta.get("generation_id") or json.dumps(thaw(meta), sort_keys=True, default=str)
+
+
 @dataclass
 class BudgetGuard:
     cap_usd: float
@@ -119,9 +123,13 @@ class BudgetGuard:
     def charge(self, record: Mapping[str, Any]) -> float:
         """Add one run record's cost. Returns the amount charged."""
         cost = 0.0
+        seen: list[Any] = []  # native records repeat the selection call's metadata on the arguments
         stages = (("selection_provider_meta", "selector_usage"), ("argument_provider_meta", "argument_usage"))
         for meta_key, usage_key in stages:
-            metas = _metas(record.get(meta_key))
+            metas = [m for m in _metas(record.get(meta_key)) if _call_key(m) not in seen]
+            if not metas and record.get(meta_key):
+                continue  # every call in this stage was already charged
+            seen += [_call_key(m) for m in metas]
             reported = [m.get("cost") for m in metas if m.get("cost") is not None]
             if metas and len(reported) == len(metas):
                 amount = float(sum(reported))

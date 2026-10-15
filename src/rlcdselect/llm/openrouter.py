@@ -200,13 +200,13 @@ class OpenRouterChatClient:
 def parse_chat_completion(body: dict[str, Any], sent: dict[str, Any], meta: dict[str, Any]) -> ChatResponse:
     choices = body.get("choices") or []
     if len(choices) != 1:
-        raise ProviderOutputError("malformed_output", f"Expected 1 choice, got {len(choices)}", raw=body)
+        raise ProviderOutputError("malformed_output", f"Expected 1 choice, got {len(choices)}", raw=body, provider_meta=meta)
     choice = choices[0]
     if choice.get("finish_reason") not in ("stop", "tool_calls", None):
-        raise ProviderOutputError("incomplete_response", f"finish_reason={choice.get('finish_reason')!r}", raw=body)
+        raise ProviderOutputError("incomplete_response", f"finish_reason={choice.get('finish_reason')!r}", raw=body, provider_meta=meta)
     message = choice.get("message") or {}
     if message.get("refusal"):
-        raise ProviderOutputError("refusal", str(message["refusal"]), raw=body)
+        raise ProviderOutputError("refusal", str(message["refusal"]), raw=body, provider_meta=meta)
     calls = []
     for tc in message.get("tool_calls") or []:
         fn = tc.get("function") or {}

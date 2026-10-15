@@ -77,7 +77,8 @@ class NativePipeline:
 
         if response is None:
             selection = error_selection(ErrorInfo("selection", error_kind(exc), str(exc)), latency_ms=latency,
-                                        attempts=attempts, raw=getattr(exc, "raw", None))
+                                        attempts=attempts, raw=getattr(exc, "raw", None),
+                                        provider_meta=getattr(exc, "provider_meta", None))
             return PipelineOutcome(self.pipeline_id, cset, selection, SKIPPED_ARGUMENTS, None, inputs)
 
         raw = {"tool_calls": [thaw(c) for c in response.tool_calls], "text": response.text, "provider": response.raw}

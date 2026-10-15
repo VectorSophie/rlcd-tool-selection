@@ -1,6 +1,7 @@
 import json
 import math
 import re
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -103,10 +104,14 @@ _SECRET_PATTERNS = [re.compile(p) for p in (r"sk-[A-Za-z0-9_-]{20,}", r"sk-ant-[
 
 
 def test_no_secrets_in_repository():  # required test 16
-    skip = {".venv", ".git", "__pycache__", ".pytest_cache", "results"}
+    # Every file git would commit (tracked, or untracked and not ignored). A key in the git-ignored
+    # .env is the intended setup; the last assertion checks that .env stays ignored.
+    listed = subprocess.run(["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"],
+                            cwd=REPO, capture_output=True, check=True).stdout.decode().split("\0")
     offenders = []
-    for path in REPO.rglob("*"):
-        if path.is_dir() or skip & set(path.relative_to(REPO).parts):
+    for name in filter(None, listed):
+        path = REPO / name
+        if not path.is_file() or name.startswith("results/"):
             continue
         try:
             text = path.read_text(encoding="utf-8")
@@ -115,6 +120,7 @@ def test_no_secrets_in_repository():  # required test 16
         if any(p.search(text) for p in _SECRET_PATTERNS):
             offenders.append(str(path.relative_to(REPO)))
     assert not offenders
+    assert ".env" not in listed
     assert not (REPO / ".env").exists() or ".env" in (REPO / ".gitignore").read_text()
 
 

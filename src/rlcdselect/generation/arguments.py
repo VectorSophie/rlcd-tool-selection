@@ -63,7 +63,9 @@ class ArgumentGenerator:
         if response is None:
             err = ErrorInfo("arguments", error_kind(exc), str(exc))
             raw = getattr(exc, "raw", None)
-            return ArgumentResult(ArgumentStatus.ERROR, None, None, (), raw, latency, None, err, attempts), request, None
+            result = ArgumentResult(ArgumentStatus.ERROR, None, None, (), raw, latency, None, err, attempts,
+                                    provider_meta=getattr(exc, "provider_meta", None))
+            return result, request, None
         result = dataclasses.replace(self._interpret(response, tool_def, latency, attempts),
                                      provider_meta=response.provider_meta)
         return result, request, response.request_payload

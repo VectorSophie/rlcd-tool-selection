@@ -109,6 +109,10 @@ def translate_typesafe_error(exc: Exception) -> Exception:
     return exc
 
 
+def _combined_meta(metas: list[dict[str, Any]]) -> dict[str, Any]:
+    return metas[0] if len(metas) == 1 else {"calls": metas}
+
+
 class MatchedLLMSelector:
     def __init__(self, config: LLMConfig, *, answer_mode: AnswerMode = "discrete",
                  client: openai.AsyncOpenAI | None = None) -> None:
@@ -152,6 +156,9 @@ class MatchedLLMSelector:
                 translated = translate_typesafe_error(exc)
                 if translated is exc:
                     raise
+                if isinstance(translated, ProviderError) and self._provider.calls:
+                    # The call was served and billed before the adapter rejected its output.
+                    translated.provider_meta = _combined_meta([c["meta"] for c in self._provider.calls])
                 raise translated from exc
             calls = list(self._provider.calls)
 
@@ -174,5 +181,5 @@ class MatchedLLMSelector:
             model_reported=reported,
             raw={"answer": answer.model_dump(mode="json"), "debug": response.debug},
             request_payload=payloads[0] if len(payloads) == 1 else payloads,
-            provider_meta=metas[0] if len(metas) == 1 else {"calls": metas},
+            provider_meta=_combined_meta(metas),
         )
