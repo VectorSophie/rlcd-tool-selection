@@ -16,7 +16,7 @@ Jev is not deterministic for identical requests, so decomposed arms can repeat t
 
 Tools can come from a static fixture registry or from MCP servers through the official MCP Python SDK (`--registry static|mcp`, `--executor mock|mcp`). Adapters for When2Call, MetaTool and BFCL (single-call subsets) convert benchmark rows into tasks with per-item provenance and exclusion reports. Their data is fetched from pinned upstream commits and never committed.
 
-Status: a 14-task fixture pilot (1,554 runs) plus one 126-run regression check have been run. Their results are fixture-level pilot observations and hypotheses, not general findings; see `IMPLEMENTATION_REPORT.md`. No external benchmark has been run yet.
+Status: a 14-task fixture pilot (1,554 runs), one 126-run regression check and a controlled 750-task external pilot have been run. The external pilot used one ordering per task across When2Call, MetaTool S1/S3 and four BFCL single-call subsets ($3.22; see `results/external_pilot/SUMMARY.md`). All results are pilot observations and hypotheses, not general findings; see `IMPLEMENTATION_REPORT.md`.
 
 - Design: [`DESIGN.md`](DESIGN.md)
 - Status: [`IMPLEMENTATION_REPORT.md`](IMPLEMENTATION_REPORT.md)
@@ -31,6 +31,9 @@ uv run --extra laya python scripts/smoke_offline.py --mcp                 # loca
 uv run --extra laya python -m rlcdselect.datasets.mcp_fixture_server mail  # a local fixture MCP server over stdio
 uv run --extra laya python scripts/fetch_datasets.py                       # pinned When2Call / MetaTool / BFCL files -> data/external/
 uv run --extra laya python scripts/adapt_datasets.py                       # offline inclusion/exclusion report
+uv run --extra laya python scripts/plan_external_pilot.py                   # sample, estimate, freeze manifests (no model calls)
+uv run --extra laya python scripts/run_experiment.py --manifest results/external_pilot/A/manifest.json   # paid; verifies the manifest first
+uv run --extra laya python scripts/analyze_external_pilot.py results/external_pilot                   # summary.json + SUMMARY.md
 uv run --extra laya python scripts/run_experiment.py \
     --profile deterministic_v1 --condition architecture_matched_v1 --check-only   # needs OPENROUTER_API_KEY; no paid calls
 ```

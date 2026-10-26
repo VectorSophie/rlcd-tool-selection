@@ -1,0 +1,1244 @@
+{
+  "note": "BFCL items excluded from primary results; full gold and schemas in the local diagnostics_bfcl.jsonl",
+  "items": 173,
+  "by_reason": {
+    "bfcl_ambiguous_empty_alternative": 2,
+    "bfcl_na_gold": 20,
+    "bfcl_schema_inconsistent": 173
+  },
+  "ids": [
+    {
+      "task_id": "bfcl:simple_python_307",
+      "split": "simple_python",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_30-8-0",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_31-8-1",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_58-27-0",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_59-28-0",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_70-34-0",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_71-35-0",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_81-42-0",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_82-43-0",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_90-51-0",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_103-61-1",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_104-61-2",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_106-63-0",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent",
+        "bfcl_ambiguous_empty_alternative"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_112-68-0",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent",
+        "bfcl_ambiguous_empty_alternative"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_118-74-0",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_141-94-0",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent",
+        "bfcl_na_gold"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_142-94-1",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent",
+        "bfcl_na_gold"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_143-95-0",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent",
+        "bfcl_na_gold"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_144-95-1",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent",
+        "bfcl_na_gold"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_145-95-2",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent",
+        "bfcl_na_gold"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_146-95-3",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent",
+        "bfcl_na_gold"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_147-95-4",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent",
+        "bfcl_na_gold"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_148-95-5",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent",
+        "bfcl_na_gold"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_149-95-6",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent",
+        "bfcl_na_gold"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_150-95-7",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent",
+        "bfcl_na_gold"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_151-95-8",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent",
+        "bfcl_na_gold"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_152-95-9",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent",
+        "bfcl_na_gold"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_153-95-10",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent",
+        "bfcl_na_gold"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_154-95-11",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent",
+        "bfcl_na_gold"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_155-95-12",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent",
+        "bfcl_na_gold"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_156-95-13",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent",
+        "bfcl_na_gold"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_157-95-14",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent",
+        "bfcl_na_gold"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_158-95-15",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent",
+        "bfcl_na_gold"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_159-95-16",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent",
+        "bfcl_na_gold"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_160-95-17",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent",
+        "bfcl_na_gold"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_184-109-0",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_185-110-0",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_186-111-0",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_188-113-0",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_230-121-0",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_233-123-0",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_simple_234-123-1",
+      "split": "live_simple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_23-5-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_24-5-1",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_50-20-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_61-23-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_87-38-4",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_139-53-1",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_143-55-1",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_144-56-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_146-58-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_147-58-1",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_148-58-2",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_149-58-3",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_150-58-4",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_151-58-5",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_152-58-6",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_153-58-7",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_154-58-8",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_155-58-9",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_158-61-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_171-71-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_172-71-1",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_190-84-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_203-90-5",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_207-91-1",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_209-91-3",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_211-91-5",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_212-91-6",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_218-94-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_219-94-1",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_220-94-2",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_226-100-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_229-103-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_230-103-1",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_231-104-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_232-104-1",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_233-105-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_265-127-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_266-127-1",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_272-127-7",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_301-131-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_302-131-1",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_303-131-2",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_304-131-3",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_306-131-5",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_307-131-6",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_308-131-7",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_338-133-2",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_342-133-6",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_343-133-7",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_344-133-8",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_345-133-9",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_350-133-14",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_351-133-15",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_352-133-16",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_354-133-18",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_414-141-3",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_416-141-5",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_417-141-6",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_421-141-10",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_424-141-13",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_427-141-16",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_431-141-20",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_433-141-22",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_507-149-4",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_552-153-1",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_553-153-2",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_595-158-1",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_596-158-2",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_731-167-2",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_732-167-3",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_733-167-4",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_734-167-5",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_735-167-6",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_736-167-7",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_737-167-8",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_750-169-5",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_756-169-11",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_787-174-1",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_789-174-3",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_790-174-4",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_791-174-5",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_818-177-1",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_821-177-4",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_835-178-10",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_848-179-2",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_851-179-5",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_871-182-8",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_912-191-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_913-191-1",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_915-191-3",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_916-191-4",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_918-191-6",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_919-191-7",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_920-191-8",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_921-191-9",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_922-191-10",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_923-191-11",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_924-191-12",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_926-191-14",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_927-191-15",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_928-191-16",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_929-191-17",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_930-191-18",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_931-191-19",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_933-191-21",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_934-191-22",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_947-197-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_956-203-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_964-207-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_970-211-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_971-212-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_972-212-1",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_973-213-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_974-214-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_975-214-1",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_976-215-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_977-215-1",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_978-215-2",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_979-215-3",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_980-215-4",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_981-215-5",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_982-215-6",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_983-215-7",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_984-215-8",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_995-226-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_1005-234-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_1008-237-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_1028-256-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_1034-262-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_1038-265-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    },
+    {
+      "task_id": "bfcl:live_multiple_1041-268-0",
+      "split": "live_multiple",
+      "reasons": [
+        "bfcl_schema_inconsistent"
+      ]
+    }
+  ]
+}

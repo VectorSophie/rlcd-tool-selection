@@ -1,0 +1,4854 @@
+{
+  "manifests": [
+    {
+      "group": "A",
+      "manifest_hash": "f300e18e9399eece29284885fce41dfc372d04fdc762b531ff73fa7ae5a8434d",
+      "git_commit": "92824d3a79e7efb4119a0977fc02377af138a4f2",
+      "estimate_usd": 2.8020880249999998,
+      "budget_cap_usd": 4.203132
+    },
+    {
+      "group": "B",
+      "manifest_hash": "513e54111c7d063085878b78bb70ed13e37c8c485fb3e8fec859b47547a4cfcc",
+      "git_commit": "92824d3a79e7efb4119a0977fc02377af138a4f2",
+      "estimate_usd": 1.2414973083333334,
+      "budget_cap_usd": 1.862245
+    },
+    {
+      "group": "C",
+      "manifest_hash": "56c70adcd7f34bfbd5bf1ddbd7e3a80abe03ae6a011ded09a52e7f6606f4ff8d",
+      "git_commit": "92824d3a79e7efb4119a0977fc02377af138a4f2",
+      "estimate_usd": 1.5182350916666665,
+      "budget_cap_usd": 2.277352
+    }
+  ],
+  "records": 2250,
+  "runs": 2250,
+  "aborted": 0,
+  "abort_details": [],
+  "manifest_hashes_in_records": [
+    "513e54111c7d063085878b78bb70ed13e37c8c485fb3e8fec859b47547a4cfcc",
+    "56c70adcd7f34bfbd5bf1ddbd7e3a80abe03ae6a011ded09a52e7f6606f4ff8d",
+    "f300e18e9399eece29284885fce41dfc372d04fdc762b531ff73fa7ae5a8434d"
+  ],
+  "datasets": {
+    "bfcl_irrelevance": {
+      "role": "primary",
+      "condition": "architecture_matched_v1",
+      "source_rows": 240,
+      "eligible": 240,
+      "sampled": 100,
+      "not_eligible_by_reason": {},
+      "clusters_in_sample": null,
+      "arms": {
+        "native_llm": {
+          "n": 100,
+          "selection_accuracy": {
+            "k": 88,
+            "n": 100,
+            "rate": 0.88,
+            "ci95": [
+              0.8018790050092598,
+              0.9300059359263032
+            ]
+          },
+          "action_selection_accuracy": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "ci95": null
+          },
+          "task_success": {
+            "k": 88,
+            "n": 100,
+            "rate": 0.88,
+            "ci95": [
+              0.8018790050092598,
+              0.9300059359263032
+            ]
+          },
+          "grounded_task_success": {
+            "k": 88,
+            "n": 100,
+            "rate": 0.88,
+            "ci95": [
+              0.8018790050092598,
+              0.9300059359263032
+            ]
+          },
+          "abstention_rate": {
+            "k": 88,
+            "n": 100,
+            "rate": 0.88,
+            "ci95": [
+              0.8018790050092598,
+              0.9300059359263032
+            ]
+          },
+          "by_source_label": {
+            "irrelevance": {
+              "n": 100,
+              "abstained": {
+                "k": 88,
+                "n": 100,
+                "rate": 0.88,
+                "ci95": [
+                  0.8018790050092598,
+                  0.9300059359263032
+                ]
+              },
+              "correct": {
+                "k": 88,
+                "n": 100,
+                "rate": 0.88,
+                "ci95": [
+                  0.8018790050092598,
+                  0.9300059359263032
+                ]
+              }
+            }
+          },
+          "selector_error_rate": {
+            "k": 2,
+            "n": 100,
+            "rate": 0.02,
+            "ci95": [
+              0.0055019675006616475,
+              0.07001179131757478
+            ]
+          },
+          "argument_error_rate": {
+            "k": 0,
+            "n": 10,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.2775328030260577
+            ]
+          },
+          "execution_error_rate": {
+            "k": 0,
+            "n": 10,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.2775328030260577
+            ]
+          },
+          "attacker_or_wrong_tool_rate": {
+            "k": 10,
+            "n": 100,
+            "rate": 0.1,
+            "ci95": [
+              0.0552291368050726,
+              0.17436566221012445
+            ]
+          },
+          "arguments_match": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "ci95": null
+          },
+          "grounding": {
+            "placeholder_argument_count": 0,
+            "unsupported_required_argument_count": 5,
+            "unsupported_optional_argument_count": 5,
+            "unknown_argument_count": 5
+          },
+          "error_kinds": {
+            "multiple_tool_calls": 2
+          }
+        },
+        "matched_llm": {
+          "n": 100,
+          "selection_accuracy": {
+            "k": 88,
+            "n": 100,
+            "rate": 0.88,
+            "ci95": [
+              0.8018790050092598,
+              0.9300059359263032
+            ]
+          },
+          "action_selection_accuracy": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "ci95": null
+          },
+          "task_success": {
+            "k": 88,
+            "n": 100,
+            "rate": 0.88,
+            "ci95": [
+              0.8018790050092598,
+              0.9300059359263032
+            ]
+          },
+          "grounded_task_success": {
+            "k": 88,
+            "n": 100,
+            "rate": 0.88,
+            "ci95": [
+              0.8018790050092598,
+              0.9300059359263032
+            ]
+          },
+          "abstention_rate": {
+            "k": 88,
+            "n": 100,
+            "rate": 0.88,
+            "ci95": [
+              0.8018790050092598,
+              0.9300059359263032
+            ]
+          },
+          "by_source_label": {
+            "irrelevance": {
+              "n": 100,
+              "abstained": {
+                "k": 88,
+                "n": 100,
+                "rate": 0.88,
+                "ci95": [
+                  0.8018790050092598,
+                  0.9300059359263032
+                ]
+              },
+              "correct": {
+                "k": 88,
+                "n": 100,
+                "rate": 0.88,
+                "ci95": [
+                  0.8018790050092598,
+                  0.9300059359263032
+                ]
+              }
+            }
+          },
+          "selector_error_rate": {
+            "k": 0,
+            "n": 100,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03699349876899627
+            ]
+          },
+          "argument_error_rate": {
+            "k": 1,
+            "n": 12,
+            "rate": 0.08333333333333333,
+            "ci95": [
+              0.014865094239669363,
+              0.35387991372124555
+            ]
+          },
+          "execution_error_rate": {
+            "k": 1,
+            "n": 11,
+            "rate": 0.09090909090909091,
+            "ci95": [
+              0.016232172705325593,
+              0.3773584391082959
+            ]
+          },
+          "attacker_or_wrong_tool_rate": {
+            "k": 12,
+            "n": 100,
+            "rate": 0.12,
+            "ci95": [
+              0.06999406407369686,
+              0.19812099499074032
+            ]
+          },
+          "arguments_match": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "ci95": null
+          },
+          "grounding": {
+            "placeholder_argument_count": 2,
+            "unsupported_required_argument_count": 9,
+            "unsupported_optional_argument_count": 4,
+            "unknown_argument_count": 2
+          },
+          "error_kinds": {
+            "invalid_arguments": 1,
+            "multiple_tool_calls": 1
+          }
+        },
+        "jev": {
+          "n": 100,
+          "selection_accuracy": {
+            "k": 93,
+            "n": 100,
+            "rate": 0.93,
+            "ci95": [
+              0.8625048519384759,
+              0.9656807391201874
+            ]
+          },
+          "action_selection_accuracy": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "ci95": null
+          },
+          "task_success": {
+            "k": 93,
+            "n": 100,
+            "rate": 0.93,
+            "ci95": [
+              0.8625048519384759,
+              0.9656807391201874
+            ]
+          },
+          "grounded_task_success": {
+            "k": 93,
+            "n": 100,
+            "rate": 0.93,
+            "ci95": [
+              0.8625048519384759,
+              0.9656807391201874
+            ]
+          },
+          "abstention_rate": {
+            "k": 93,
+            "n": 100,
+            "rate": 0.93,
+            "ci95": [
+              0.8625048519384759,
+              0.9656807391201874
+            ]
+          },
+          "by_source_label": {
+            "irrelevance": {
+              "n": 100,
+              "abstained": {
+                "k": 93,
+                "n": 100,
+                "rate": 0.93,
+                "ci95": [
+                  0.8625048519384759,
+                  0.9656807391201874
+                ]
+              },
+              "correct": {
+                "k": 93,
+                "n": 100,
+                "rate": 0.93,
+                "ci95": [
+                  0.8625048519384759,
+                  0.9656807391201874
+                ]
+              }
+            }
+          },
+          "selector_error_rate": {
+            "k": 0,
+            "n": 100,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03699349876899627
+            ]
+          },
+          "argument_error_rate": {
+            "k": 1,
+            "n": 7,
+            "rate": 0.14285714285714285,
+            "ci95": [
+              0.025679624057823897,
+              0.5131278321392249
+            ]
+          },
+          "execution_error_rate": {
+            "k": 1,
+            "n": 6,
+            "rate": 0.16666666666666666,
+            "ci95": [
+              0.030053369411815023,
+              0.5635028250257673
+            ]
+          },
+          "attacker_or_wrong_tool_rate": {
+            "k": 7,
+            "n": 100,
+            "rate": 0.07,
+            "ci95": [
+              0.0343192608798127,
+              0.13749514806152413
+            ]
+          },
+          "arguments_match": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "ci95": null
+          },
+          "grounding": {
+            "placeholder_argument_count": 2,
+            "unsupported_required_argument_count": 1,
+            "unsupported_optional_argument_count": 0,
+            "unknown_argument_count": 0
+          },
+          "error_kinds": {
+            "invalid_arguments": 1,
+            "multiple_tool_calls": 1
+          }
+        }
+      },
+      "native_vs_matched": {
+        "n_pairs": 100,
+        "counts": {
+          "both_correct": 85,
+          "native_only": 3,
+          "matched_only": 3,
+          "both_wrong": 9
+        },
+        "task_ids": {
+          "both_correct": [
+            "bfcl:irrelevance_104",
+            "bfcl:irrelevance_105",
+            "bfcl:irrelevance_106",
+            "bfcl:irrelevance_108",
+            "bfcl:irrelevance_117",
+            "bfcl:irrelevance_119",
+            "bfcl:irrelevance_122",
+            "bfcl:irrelevance_13",
+            "bfcl:irrelevance_130",
+            "bfcl:irrelevance_131",
+            "bfcl:irrelevance_132",
+            "bfcl:irrelevance_133",
+            "bfcl:irrelevance_137",
+            "bfcl:irrelevance_138",
+            "bfcl:irrelevance_14",
+            "bfcl:irrelevance_141",
+            "bfcl:irrelevance_144",
+            "bfcl:irrelevance_145",
+            "bfcl:irrelevance_146",
+            "bfcl:irrelevance_152",
+            "bfcl:irrelevance_153",
+            "bfcl:irrelevance_154",
+            "bfcl:irrelevance_155",
+            "bfcl:irrelevance_158",
+            "bfcl:irrelevance_159",
+            "bfcl:irrelevance_160",
+            "bfcl:irrelevance_162",
+            "bfcl:irrelevance_163",
+            "bfcl:irrelevance_168",
+            "bfcl:irrelevance_170",
+            "bfcl:irrelevance_174",
+            "bfcl:irrelevance_175",
+            "bfcl:irrelevance_176",
+            "bfcl:irrelevance_177",
+            "bfcl:irrelevance_18",
+            "bfcl:irrelevance_180",
+            "bfcl:irrelevance_184",
+            "bfcl:irrelevance_186",
+            "bfcl:irrelevance_187",
+            "bfcl:irrelevance_190",
+            "bfcl:irrelevance_191",
+            "bfcl:irrelevance_196",
+            "bfcl:irrelevance_20",
+            "bfcl:irrelevance_205",
+            "bfcl:irrelevance_210",
+            "bfcl:irrelevance_215",
+            "bfcl:irrelevance_216",
+            "bfcl:irrelevance_217",
+            "bfcl:irrelevance_218",
+            "bfcl:irrelevance_221",
+            "bfcl:irrelevance_224",
+            "bfcl:irrelevance_230",
+            "bfcl:irrelevance_231",
+            "bfcl:irrelevance_232",
+            "bfcl:irrelevance_234",
+            "bfcl:irrelevance_24",
+            "bfcl:irrelevance_29",
+            "bfcl:irrelevance_3",
+            "bfcl:irrelevance_35",
+            "bfcl:irrelevance_41",
+            "bfcl:irrelevance_42",
+            "bfcl:irrelevance_45",
+            "bfcl:irrelevance_47",
+            "bfcl:irrelevance_51",
+            "bfcl:irrelevance_55",
+            "bfcl:irrelevance_57",
+            "bfcl:irrelevance_59",
+            "bfcl:irrelevance_6",
+            "bfcl:irrelevance_61",
+            "bfcl:irrelevance_63",
+            "bfcl:irrelevance_64",
+            "bfcl:irrelevance_66",
+            "bfcl:irrelevance_7",
+            "bfcl:irrelevance_70",
+            "bfcl:irrelevance_75",
+            "bfcl:irrelevance_78",
+            "bfcl:irrelevance_79",
+            "bfcl:irrelevance_80",
+            "bfcl:irrelevance_81",
+            "bfcl:irrelevance_84",
+            "bfcl:irrelevance_85",
+            "bfcl:irrelevance_87",
+            "bfcl:irrelevance_88",
+            "bfcl:irrelevance_89",
+            "bfcl:irrelevance_96"
+          ],
+          "native_only": [
+            "bfcl:irrelevance_16",
+            "bfcl:irrelevance_22",
+            "bfcl:irrelevance_44"
+          ],
+          "matched_only": [
+            "bfcl:irrelevance_101",
+            "bfcl:irrelevance_111",
+            "bfcl:irrelevance_74"
+          ],
+          "both_wrong": [
+            "bfcl:irrelevance_115",
+            "bfcl:irrelevance_121",
+            "bfcl:irrelevance_165",
+            "bfcl:irrelevance_223",
+            "bfcl:irrelevance_226",
+            "bfcl:irrelevance_236",
+            "bfcl:irrelevance_27",
+            "bfcl:irrelevance_33",
+            "bfcl:irrelevance_43"
+          ]
+        },
+        "selection_disagreement": {
+          "k": 7,
+          "n": 100,
+          "rate": 0.07,
+          "ci95": [
+            0.0343192608798127,
+            0.13749514806152413
+          ]
+        },
+        "disagreements": [
+          {
+            "task_id": "bfcl:irrelevance_101",
+            "native": null,
+            "matched": "__abstain__"
+          },
+          {
+            "task_id": "bfcl:irrelevance_111",
+            "native": "bfcl/geo_location_based_products_fetch_eco_friendly_products",
+            "matched": "__abstain__"
+          },
+          {
+            "task_id": "bfcl:irrelevance_16",
+            "native": "__abstain__",
+            "matched": "bfcl/calculate_projectile_range"
+          },
+          {
+            "task_id": "bfcl:irrelevance_22",
+            "native": "__abstain__",
+            "matched": "bfcl/magnetic_field_intensity"
+          },
+          {
+            "task_id": "bfcl:irrelevance_236",
+            "native": null,
+            "matched": "bfcl/get_flight_duration"
+          },
+          {
+            "task_id": "bfcl:irrelevance_44",
+            "native": "__abstain__",
+            "matched": "bfcl/gene_sequencer"
+          },
+          {
+            "task_id": "bfcl:irrelevance_74",
+            "native": "bfcl/investment_analysis_calculate_profit",
+            "matched": "__abstain__"
+          }
+        ],
+        "mcnemar_exact_p": 1.0
+      },
+      "jev_stability": {
+        "n_tasks": 100,
+        "draws_per_task": [
+          10
+        ],
+        "tasks_with_any_flip": {
+          "k": 2,
+          "n": 100,
+          "rate": 0.02,
+          "ci95": [
+            0.0055019675006616475,
+            0.07001179131757478
+          ]
+        },
+        "mean_flip_rate": 0.008222222222222221,
+        "mean_entropy_bits": 0.01603218994118055,
+        "max_entropy_bits": 0.8812908992306927,
+        "mean_max_probability_range": 0.014400000000000007,
+        "max_probability_range": 0.12000000000000005,
+        "mean_max_probability_std": 0.004216311496146473,
+        "executed_choice_equals_majority": {
+          "k": 100,
+          "n": 100,
+          "rate": 1.0,
+          "ci95": [
+            0.9630065012310038,
+            1.0
+          ]
+        },
+        "unstable_tasks": [
+          {
+            "task_id": "bfcl:irrelevance_22",
+            "frequencies": {
+              "__abstain__": 0.8,
+              "bfcl/magnetic_field_intensity": 0.2
+            },
+            "executed": "__abstain__",
+            "majority": "__abstain__"
+          },
+          {
+            "task_id": "bfcl:irrelevance_74",
+            "frequencies": {
+              "__abstain__": 0.7,
+              "bfcl/investment_analysis_calculate_profit": 0.3
+            },
+            "executed": "__abstain__",
+            "majority": "__abstain__"
+          }
+        ],
+        "note": "Jev native probabilities and empirical choice frequencies are different quantities; neither is compared numerically with Claude outputs."
+      }
+    },
+    "bfcl_live_irrelevance": {
+      "role": "primary",
+      "condition": "architecture_matched_v1",
+      "source_rows": 884,
+      "eligible": 871,
+      "sampled": 100,
+      "not_eligible_by_reason": {
+        "adapter:conversation_history": 8,
+        "adapter:multiple_user_messages": 1,
+        "adapter:no_candidate_tools": 4
+      },
+      "clusters_in_sample": null,
+      "arms": {
+        "native_llm": {
+          "n": 100,
+          "selection_accuracy": {
+            "k": 86,
+            "n": 100,
+            "rate": 0.86,
+            "ci95": [
+              0.7786281171512964,
+              0.9147365637350263
+            ]
+          },
+          "action_selection_accuracy": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "ci95": null
+          },
+          "task_success": {
+            "k": 86,
+            "n": 100,
+            "rate": 0.86,
+            "ci95": [
+              0.7786281171512964,
+              0.9147365637350263
+            ]
+          },
+          "grounded_task_success": {
+            "k": 86,
+            "n": 100,
+            "rate": 0.86,
+            "ci95": [
+              0.7786281171512964,
+              0.9147365637350263
+            ]
+          },
+          "abstention_rate": {
+            "k": 86,
+            "n": 100,
+            "rate": 0.86,
+            "ci95": [
+              0.7786281171512964,
+              0.9147365637350263
+            ]
+          },
+          "by_source_label": {
+            "irrelevance": {
+              "n": 100,
+              "abstained": {
+                "k": 86,
+                "n": 100,
+                "rate": 0.86,
+                "ci95": [
+                  0.7786281171512964,
+                  0.9147365637350263
+                ]
+              },
+              "correct": {
+                "k": 86,
+                "n": 100,
+                "rate": 0.86,
+                "ci95": [
+                  0.7786281171512964,
+                  0.9147365637350263
+                ]
+              }
+            }
+          },
+          "selector_error_rate": {
+            "k": 1,
+            "n": 100,
+            "rate": 0.01,
+            "ci95": [
+              0.0017674320446096452,
+              0.05448619674900669
+            ]
+          },
+          "argument_error_rate": {
+            "k": 0,
+            "n": 13,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.22809537513180025
+            ]
+          },
+          "execution_error_rate": {
+            "k": 0,
+            "n": 13,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.22809537513180025
+            ]
+          },
+          "attacker_or_wrong_tool_rate": {
+            "k": 13,
+            "n": 100,
+            "rate": 0.13,
+            "ci95": [
+              0.07757167395660301,
+              0.20980351513245427
+            ]
+          },
+          "arguments_match": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "ci95": null
+          },
+          "grounding": {
+            "placeholder_argument_count": 0,
+            "unsupported_required_argument_count": 8,
+            "unsupported_optional_argument_count": 4,
+            "unknown_argument_count": 4
+          },
+          "error_kinds": {
+            "incomplete_response": 1
+          }
+        },
+        "matched_llm": {
+          "n": 100,
+          "selection_accuracy": {
+            "k": 80,
+            "n": 100,
+            "rate": 0.8,
+            "ci95": [
+              0.7111708336357507,
+              0.8666330671028517
+            ]
+          },
+          "action_selection_accuracy": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "ci95": null
+          },
+          "task_success": {
+            "k": 80,
+            "n": 100,
+            "rate": 0.8,
+            "ci95": [
+              0.7111708336357507,
+              0.8666330671028517
+            ]
+          },
+          "grounded_task_success": {
+            "k": 80,
+            "n": 100,
+            "rate": 0.8,
+            "ci95": [
+              0.7111708336357507,
+              0.8666330671028517
+            ]
+          },
+          "abstention_rate": {
+            "k": 80,
+            "n": 100,
+            "rate": 0.8,
+            "ci95": [
+              0.7111708336357507,
+              0.8666330671028517
+            ]
+          },
+          "by_source_label": {
+            "irrelevance": {
+              "n": 100,
+              "abstained": {
+                "k": 80,
+                "n": 100,
+                "rate": 0.8,
+                "ci95": [
+                  0.7111708336357507,
+                  0.8666330671028517
+                ]
+              },
+              "correct": {
+                "k": 80,
+                "n": 100,
+                "rate": 0.8,
+                "ci95": [
+                  0.7111708336357507,
+                  0.8666330671028517
+                ]
+              }
+            }
+          },
+          "selector_error_rate": {
+            "k": 0,
+            "n": 100,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03699349876899627
+            ]
+          },
+          "argument_error_rate": {
+            "k": 0,
+            "n": 20,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.16112516018512965
+            ]
+          },
+          "execution_error_rate": {
+            "k": 6,
+            "n": 20,
+            "rate": 0.3,
+            "ci95": [
+              0.14547724402157294,
+              0.518972820052479
+            ]
+          },
+          "attacker_or_wrong_tool_rate": {
+            "k": 20,
+            "n": 100,
+            "rate": 0.2,
+            "ci95": [
+              0.13336693289714838,
+              0.2888291663642495
+            ]
+          },
+          "arguments_match": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "ci95": null
+          },
+          "grounding": {
+            "placeholder_argument_count": 10,
+            "unsupported_required_argument_count": 7,
+            "unsupported_optional_argument_count": 2,
+            "unknown_argument_count": 4
+          },
+          "error_kinds": {
+            "placeholder_arguments": 4,
+            "invalid_arguments": 2
+          }
+        },
+        "jev": {
+          "n": 100,
+          "selection_accuracy": {
+            "k": 79,
+            "n": 100,
+            "rate": 0.79,
+            "ci95": [
+              0.7002003108844285,
+              0.8583434598295537
+            ]
+          },
+          "action_selection_accuracy": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "ci95": null
+          },
+          "task_success": {
+            "k": 79,
+            "n": 100,
+            "rate": 0.79,
+            "ci95": [
+              0.7002003108844285,
+              0.8583434598295537
+            ]
+          },
+          "grounded_task_success": {
+            "k": 79,
+            "n": 100,
+            "rate": 0.79,
+            "ci95": [
+              0.7002003108844285,
+              0.8583434598295537
+            ]
+          },
+          "abstention_rate": {
+            "k": 79,
+            "n": 100,
+            "rate": 0.79,
+            "ci95": [
+              0.7002003108844285,
+              0.8583434598295537
+            ]
+          },
+          "by_source_label": {
+            "irrelevance": {
+              "n": 100,
+              "abstained": {
+                "k": 79,
+                "n": 100,
+                "rate": 0.79,
+                "ci95": [
+                  0.7002003108844285,
+                  0.8583434598295537
+                ]
+              },
+              "correct": {
+                "k": 79,
+                "n": 100,
+                "rate": 0.79,
+                "ci95": [
+                  0.7002003108844285,
+                  0.8583434598295537
+                ]
+              }
+            }
+          },
+          "selector_error_rate": {
+            "k": 0,
+            "n": 100,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03699349876899627
+            ]
+          },
+          "argument_error_rate": {
+            "k": 0,
+            "n": 21,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.15463902098714374
+            ]
+          },
+          "execution_error_rate": {
+            "k": 7,
+            "n": 21,
+            "rate": 0.3333333333333333,
+            "ci95": [
+              0.1719475251228901,
+              0.5462654818728245
+            ]
+          },
+          "attacker_or_wrong_tool_rate": {
+            "k": 21,
+            "n": 100,
+            "rate": 0.21,
+            "ci95": [
+              0.14165654017044627,
+              0.2997996891155716
+            ]
+          },
+          "arguments_match": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "ci95": null
+          },
+          "grounding": {
+            "placeholder_argument_count": 13,
+            "unsupported_required_argument_count": 7,
+            "unsupported_optional_argument_count": 5,
+            "unknown_argument_count": 9
+          },
+          "error_kinds": {
+            "placeholder_arguments": 5,
+            "invalid_arguments": 2
+          }
+        }
+      },
+      "native_vs_matched": {
+        "n_pairs": 100,
+        "counts": {
+          "both_correct": 77,
+          "native_only": 9,
+          "matched_only": 3,
+          "both_wrong": 11
+        },
+        "task_ids": {
+          "both_correct": [
+            "bfcl:live_irrelevance_105-4-1",
+            "bfcl:live_irrelevance_11-1-1",
+            "bfcl:live_irrelevance_116-7-6",
+            "bfcl:live_irrelevance_12-2-0",
+            "bfcl:live_irrelevance_154-17-1",
+            "bfcl:live_irrelevance_162-20-1",
+            "bfcl:live_irrelevance_163-20-2",
+            "bfcl:live_irrelevance_165-21-1",
+            "bfcl:live_irrelevance_17-2-5",
+            "bfcl:live_irrelevance_18-2-6",
+            "bfcl:live_irrelevance_202-32-15",
+            "bfcl:live_irrelevance_209-32-22",
+            "bfcl:live_irrelevance_213-34-2",
+            "bfcl:live_irrelevance_22-2-10",
+            "bfcl:live_irrelevance_224-34-13",
+            "bfcl:live_irrelevance_228-35-3",
+            "bfcl:live_irrelevance_231-37-0",
+            "bfcl:live_irrelevance_232-38-0",
+            "bfcl:live_irrelevance_272-57-7",
+            "bfcl:live_irrelevance_294-73-1",
+            "bfcl:live_irrelevance_295-73-2",
+            "bfcl:live_irrelevance_297-73-4",
+            "bfcl:live_irrelevance_305-76-3",
+            "bfcl:live_irrelevance_311-76-9",
+            "bfcl:live_irrelevance_355-81-16",
+            "bfcl:live_irrelevance_363-81-24",
+            "bfcl:live_irrelevance_364-81-25",
+            "bfcl:live_irrelevance_369-81-30",
+            "bfcl:live_irrelevance_376-81-37",
+            "bfcl:live_irrelevance_401-83-1",
+            "bfcl:live_irrelevance_415-94-0",
+            "bfcl:live_irrelevance_42-2-30",
+            "bfcl:live_irrelevance_420-98-0",
+            "bfcl:live_irrelevance_434-108-0",
+            "bfcl:live_irrelevance_435-108-1",
+            "bfcl:live_irrelevance_441-112-0",
+            "bfcl:live_irrelevance_447-116-1",
+            "bfcl:live_irrelevance_448-117-0",
+            "bfcl:live_irrelevance_460-125-1",
+            "bfcl:live_irrelevance_473-132-1",
+            "bfcl:live_irrelevance_485-139-0",
+            "bfcl:live_irrelevance_490-142-1",
+            "bfcl:live_irrelevance_53-2-41",
+            "bfcl:live_irrelevance_533-165-0",
+            "bfcl:live_irrelevance_55-2-43",
+            "bfcl:live_irrelevance_569-177-0",
+            "bfcl:live_irrelevance_582-182-2",
+            "bfcl:live_irrelevance_600-193-2",
+            "bfcl:live_irrelevance_602-193-4",
+            "bfcl:live_irrelevance_630-199-2",
+            "bfcl:live_irrelevance_645-204-1",
+            "bfcl:live_irrelevance_66-2-54",
+            "bfcl:live_irrelevance_663-211-3",
+            "bfcl:live_irrelevance_68-2-56",
+            "bfcl:live_irrelevance_70-2-58",
+            "bfcl:live_irrelevance_708-232-0",
+            "bfcl:live_irrelevance_711-235-0",
+            "bfcl:live_irrelevance_728-244-0",
+            "bfcl:live_irrelevance_73-2-61",
+            "bfcl:live_irrelevance_736-250-0",
+            "bfcl:live_irrelevance_742-254-2",
+            "bfcl:live_irrelevance_746-257-0",
+            "bfcl:live_irrelevance_749-260-0",
+            "bfcl:live_irrelevance_762-272-1",
+            "bfcl:live_irrelevance_769-278-0",
+            "bfcl:live_irrelevance_770-279-0",
+            "bfcl:live_irrelevance_784-293-0",
+            "bfcl:live_irrelevance_788-297-0",
+            "bfcl:live_irrelevance_794-303-0",
+            "bfcl:live_irrelevance_808-307-0",
+            "bfcl:live_irrelevance_813-311-0",
+            "bfcl:live_irrelevance_816-314-0",
+            "bfcl:live_irrelevance_824-317-0",
+            "bfcl:live_irrelevance_834-325-1",
+            "bfcl:live_irrelevance_859-348-0",
+            "bfcl:live_irrelevance_89-2-77",
+            "bfcl:live_irrelevance_92-2-80"
+          ],
+          "native_only": [
+            "bfcl:live_irrelevance_254-53-2",
+            "bfcl:live_irrelevance_589-184-0",
+            "bfcl:live_irrelevance_591-186-0",
+            "bfcl:live_irrelevance_628-199-0",
+            "bfcl:live_irrelevance_640-203-0",
+            "bfcl:live_irrelevance_651-206-0",
+            "bfcl:live_irrelevance_669-213-1",
+            "bfcl:live_irrelevance_712-236-0",
+            "bfcl:live_irrelevance_753-264-0"
+          ],
+          "matched_only": [
+            "bfcl:live_irrelevance_104-4-0",
+            "bfcl:live_irrelevance_343-81-4",
+            "bfcl:live_irrelevance_370-81-31"
+          ],
+          "both_wrong": [
+            "bfcl:live_irrelevance_251-52-0",
+            "bfcl:live_irrelevance_333-78-0",
+            "bfcl:live_irrelevance_338-80-1",
+            "bfcl:live_irrelevance_387-81-48",
+            "bfcl:live_irrelevance_422-100-0",
+            "bfcl:live_irrelevance_504-148-1",
+            "bfcl:live_irrelevance_505-148-2",
+            "bfcl:live_irrelevance_507-149-0",
+            "bfcl:live_irrelevance_512-151-1",
+            "bfcl:live_irrelevance_576-179-5",
+            "bfcl:live_irrelevance_827-320-0"
+          ]
+        },
+        "selection_disagreement": {
+          "k": 12,
+          "n": 100,
+          "rate": 0.12,
+          "ci95": [
+            0.06999406407369686,
+            0.19812099499074032
+          ]
+        },
+        "disagreements": [
+          {
+            "task_id": "bfcl:live_irrelevance_104-4-0",
+            "native": "bfcl/ChaFod",
+            "matched": "__abstain__"
+          },
+          {
+            "task_id": "bfcl:live_irrelevance_254-53-2",
+            "native": "__abstain__",
+            "matched": "bfcl/dartfx_help"
+          },
+          {
+            "task_id": "bfcl:live_irrelevance_343-81-4",
+            "native": "bfcl/requests_get",
+            "matched": "__abstain__"
+          },
+          {
+            "task_id": "bfcl:live_irrelevance_370-81-31",
+            "native": null,
+            "matched": "__abstain__"
+          },
+          {
+            "task_id": "bfcl:live_irrelevance_589-184-0",
+            "native": "__abstain__",
+            "matched": "bfcl/Restaurants_2_FindRestaurants"
+          },
+          {
+            "task_id": "bfcl:live_irrelevance_591-186-0",
+            "native": "__abstain__",
+            "matched": "bfcl/Hotels_2_SearchHouse"
+          },
+          {
+            "task_id": "bfcl:live_irrelevance_628-199-0",
+            "native": "__abstain__",
+            "matched": "bfcl/Events_3_FindEvents"
+          },
+          {
+            "task_id": "bfcl:live_irrelevance_640-203-0",
+            "native": "__abstain__",
+            "matched": "bfcl/Homes_2_FindHomeByArea"
+          },
+          {
+            "task_id": "bfcl:live_irrelevance_651-206-0",
+            "native": "__abstain__",
+            "matched": "bfcl/Services_1_FindProvider"
+          },
+          {
+            "task_id": "bfcl:live_irrelevance_669-213-1",
+            "native": "__abstain__",
+            "matched": "bfcl/Movies_3_FindMovies"
+          },
+          {
+            "task_id": "bfcl:live_irrelevance_712-236-0",
+            "native": "__abstain__",
+            "matched": "bfcl/get_service_providers"
+          },
+          {
+            "task_id": "bfcl:live_irrelevance_753-264-0",
+            "native": "__abstain__",
+            "matched": "bfcl/releases_api_ReleasesApi_get_all_releases"
+          }
+        ],
+        "mcnemar_exact_p": 0.14599609375
+      },
+      "jev_stability": {
+        "n_tasks": 100,
+        "draws_per_task": [
+          10
+        ],
+        "tasks_with_any_flip": {
+          "k": 2,
+          "n": 100,
+          "rate": 0.02,
+          "ci95": [
+            0.0055019675006616475,
+            0.07001179131757478
+          ]
+        },
+        "mean_flip_rate": 0.003999999999999999,
+        "mean_entropy_bits": 0.009379911871785624,
+        "max_entropy_bits": 0.4689955935892812,
+        "mean_max_probability_range": 0.02410000000000001,
+        "max_probability_range": 0.18,
+        "mean_max_probability_std": 0.007564611257463731,
+        "executed_choice_equals_majority": {
+          "k": 99,
+          "n": 100,
+          "rate": 0.99,
+          "ci95": [
+            0.9455138032509935,
+            0.9982325679553905
+          ]
+        },
+        "unstable_tasks": [
+          {
+            "task_id": "bfcl:live_irrelevance_232-38-0",
+            "frequencies": {
+              "__abstain__": 0.1,
+              "bfcl/add_postgres_server": 0.9
+            },
+            "executed": "bfcl/add_postgres_server",
+            "majority": "bfcl/add_postgres_server"
+          },
+          {
+            "task_id": "bfcl:live_irrelevance_507-149-0",
+            "frequencies": {
+              "__abstain__": 0.1,
+              "bfcl/requests_get": 0.9
+            },
+            "executed": "__abstain__",
+            "majority": "bfcl/requests_get"
+          }
+        ],
+        "note": "Jev native probabilities and empirical choice frequencies are different quantities; neither is compared numerically with Claude outputs."
+      }
+    },
+    "bfcl_live_simple": {
+      "role": "primary",
+      "condition": "architecture_matched_v1",
+      "source_rows": 258,
+      "eligible": 217,
+      "sampled": 100,
+      "not_eligible_by_reason": {
+        "bfcl_ambiguous_empty_alternative": 2,
+        "bfcl_na_gold": 20,
+        "bfcl_schema_inconsistent": 41
+      },
+      "clusters_in_sample": null,
+      "arms": {
+        "native_llm": {
+          "n": 100,
+          "selection_accuracy": {
+            "k": 93,
+            "n": 100,
+            "rate": 0.93,
+            "ci95": [
+              0.8625048519384759,
+              0.9656807391201874
+            ]
+          },
+          "action_selection_accuracy": {
+            "k": 93,
+            "n": 100,
+            "rate": 0.93,
+            "ci95": [
+              0.8625048519384759,
+              0.9656807391201874
+            ]
+          },
+          "task_success": {
+            "k": 86,
+            "n": 100,
+            "rate": 0.86,
+            "ci95": [
+              0.7786281171512964,
+              0.9147365637350263
+            ]
+          },
+          "grounded_task_success": {
+            "k": 86,
+            "n": 100,
+            "rate": 0.86,
+            "ci95": [
+              0.7786281171512964,
+              0.9147365637350263
+            ]
+          },
+          "abstention_rate": {
+            "k": 6,
+            "n": 100,
+            "rate": 0.06,
+            "ci95": [
+              0.027786123800628143,
+              0.12476815511608857
+            ]
+          },
+          "by_source_label": {
+            "call": {
+              "n": 100,
+              "abstained": {
+                "k": 6,
+                "n": 100,
+                "rate": 0.06,
+                "ci95": [
+                  0.027786123800628143,
+                  0.12476815511608857
+                ]
+              },
+              "correct": {
+                "k": 93,
+                "n": 100,
+                "rate": 0.93,
+                "ci95": [
+                  0.8625048519384759,
+                  0.9656807391201874
+                ]
+              }
+            }
+          },
+          "selector_error_rate": {
+            "k": 1,
+            "n": 100,
+            "rate": 0.01,
+            "ci95": [
+              0.0017674320446096452,
+              0.05448619674900669
+            ]
+          },
+          "argument_error_rate": {
+            "k": 0,
+            "n": 93,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03966750321269624
+            ]
+          },
+          "execution_error_rate": {
+            "k": 0,
+            "n": 93,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03966750321269624
+            ]
+          },
+          "attacker_or_wrong_tool_rate": {
+            "k": 0,
+            "n": 100,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03699349876899627
+            ]
+          },
+          "arguments_match": {
+            "k": 85,
+            "n": 92,
+            "rate": 0.9239130434782609,
+            "ci95": [
+              0.8511875985097996,
+              0.9626564404943077
+            ]
+          },
+          "grounding": {
+            "placeholder_argument_count": 0,
+            "unsupported_required_argument_count": 0,
+            "unsupported_optional_argument_count": 0,
+            "unknown_argument_count": 29
+          },
+          "error_kinds": {
+            "http_400": 1
+          }
+        },
+        "matched_llm": {
+          "n": 100,
+          "selection_accuracy": {
+            "k": 97,
+            "n": 100,
+            "rate": 0.97,
+            "ci95": [
+              0.9154806351014251,
+              0.9897454760557185
+            ]
+          },
+          "action_selection_accuracy": {
+            "k": 97,
+            "n": 100,
+            "rate": 0.97,
+            "ci95": [
+              0.9154806351014251,
+              0.9897454760557185
+            ]
+          },
+          "task_success": {
+            "k": 89,
+            "n": 100,
+            "rate": 0.89,
+            "ci95": [
+              0.8136870342543766,
+              0.9374580367058064
+            ]
+          },
+          "grounded_task_success": {
+            "k": 89,
+            "n": 100,
+            "rate": 0.89,
+            "ci95": [
+              0.8136870342543766,
+              0.9374580367058064
+            ]
+          },
+          "abstention_rate": {
+            "k": 3,
+            "n": 100,
+            "rate": 0.03,
+            "ci95": [
+              0.010254523944281516,
+              0.08451936489857499
+            ]
+          },
+          "by_source_label": {
+            "call": {
+              "n": 100,
+              "abstained": {
+                "k": 3,
+                "n": 100,
+                "rate": 0.03,
+                "ci95": [
+                  0.010254523944281516,
+                  0.08451936489857499
+                ]
+              },
+              "correct": {
+                "k": 97,
+                "n": 100,
+                "rate": 0.97,
+                "ci95": [
+                  0.9154806351014251,
+                  0.9897454760557185
+                ]
+              }
+            }
+          },
+          "selector_error_rate": {
+            "k": 0,
+            "n": 100,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03699349876899627
+            ]
+          },
+          "argument_error_rate": {
+            "k": 1,
+            "n": 97,
+            "rate": 0.010309278350515464,
+            "ci95": [
+              0.0018221647881505286,
+              0.05610499082918524
+            ]
+          },
+          "execution_error_rate": {
+            "k": 0,
+            "n": 96,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03847558844130279
+            ]
+          },
+          "attacker_or_wrong_tool_rate": {
+            "k": 0,
+            "n": 100,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03699349876899627
+            ]
+          },
+          "arguments_match": {
+            "k": 88,
+            "n": 96,
+            "rate": 0.9166666666666666,
+            "ci95": [
+              0.84410096689647,
+              0.957169376069111
+            ]
+          },
+          "grounding": {
+            "placeholder_argument_count": 0,
+            "unsupported_required_argument_count": 0,
+            "unsupported_optional_argument_count": 0,
+            "unknown_argument_count": 29
+          },
+          "error_kinds": {
+            "http_400": 1
+          }
+        },
+        "jev": {
+          "n": 100,
+          "selection_accuracy": {
+            "k": 95,
+            "n": 100,
+            "rate": 0.95,
+            "ci95": [
+              0.8882495301258955,
+              0.9784563209820079
+            ]
+          },
+          "action_selection_accuracy": {
+            "k": 95,
+            "n": 100,
+            "rate": 0.95,
+            "ci95": [
+              0.8882495301258955,
+              0.9784563209820079
+            ]
+          },
+          "task_success": {
+            "k": 87,
+            "n": 100,
+            "rate": 0.87,
+            "ci95": [
+              0.7901964848675458,
+              0.922428326043397
+            ]
+          },
+          "grounded_task_success": {
+            "k": 87,
+            "n": 100,
+            "rate": 0.87,
+            "ci95": [
+              0.7901964848675458,
+              0.922428326043397
+            ]
+          },
+          "abstention_rate": {
+            "k": 5,
+            "n": 100,
+            "rate": 0.05,
+            "ci95": [
+              0.021543679017992173,
+              0.1117504698741045
+            ]
+          },
+          "by_source_label": {
+            "call": {
+              "n": 100,
+              "abstained": {
+                "k": 5,
+                "n": 100,
+                "rate": 0.05,
+                "ci95": [
+                  0.021543679017992173,
+                  0.1117504698741045
+                ]
+              },
+              "correct": {
+                "k": 95,
+                "n": 100,
+                "rate": 0.95,
+                "ci95": [
+                  0.8882495301258955,
+                  0.9784563209820079
+                ]
+              }
+            }
+          },
+          "selector_error_rate": {
+            "k": 0,
+            "n": 100,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03699349876899627
+            ]
+          },
+          "argument_error_rate": {
+            "k": 1,
+            "n": 95,
+            "rate": 0.010526315789473684,
+            "ci95": [
+              0.0018605762417867565,
+              0.05723870201058426
+            ]
+          },
+          "execution_error_rate": {
+            "k": 0,
+            "n": 94,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03926207688661476
+            ]
+          },
+          "attacker_or_wrong_tool_rate": {
+            "k": 0,
+            "n": 100,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03699349876899627
+            ]
+          },
+          "arguments_match": {
+            "k": 86,
+            "n": 94,
+            "rate": 0.9148936170212766,
+            "ci95": [
+              0.8409635520065142,
+              0.956244511853529
+            ]
+          },
+          "grounding": {
+            "placeholder_argument_count": 0,
+            "unsupported_required_argument_count": 0,
+            "unsupported_optional_argument_count": 0,
+            "unknown_argument_count": 29
+          },
+          "error_kinds": {
+            "http_400": 1
+          }
+        }
+      },
+      "native_vs_matched": {
+        "n_pairs": 100,
+        "counts": {
+          "both_correct": 91,
+          "native_only": 2,
+          "matched_only": 6,
+          "both_wrong": 1
+        },
+        "task_ids": {
+          "both_correct": [
+            "bfcl:live_simple_10-3-6",
+            "bfcl:live_simple_100-59-1",
+            "bfcl:live_simple_101-60-0",
+            "bfcl:live_simple_105-62-0",
+            "bfcl:live_simple_107-64-0",
+            "bfcl:live_simple_109-66-0",
+            "bfcl:live_simple_111-67-1",
+            "bfcl:live_simple_114-70-0",
+            "bfcl:live_simple_116-72-0",
+            "bfcl:live_simple_119-75-0",
+            "bfcl:live_simple_12-3-8",
+            "bfcl:live_simple_125-81-0",
+            "bfcl:live_simple_126-82-0",
+            "bfcl:live_simple_127-82-1",
+            "bfcl:live_simple_13-3-9",
+            "bfcl:live_simple_130-84-0",
+            "bfcl:live_simple_133-86-0",
+            "bfcl:live_simple_134-87-0",
+            "bfcl:live_simple_136-89-0",
+            "bfcl:live_simple_137-90-0",
+            "bfcl:live_simple_14-3-10",
+            "bfcl:live_simple_163-96-2",
+            "bfcl:live_simple_166-99-0",
+            "bfcl:live_simple_17-3-13",
+            "bfcl:live_simple_172-99-6",
+            "bfcl:live_simple_174-100-0",
+            "bfcl:live_simple_176-102-0",
+            "bfcl:live_simple_177-103-0",
+            "bfcl:live_simple_178-103-1",
+            "bfcl:live_simple_179-104-0",
+            "bfcl:live_simple_18-3-14",
+            "bfcl:live_simple_183-108-0",
+            "bfcl:live_simple_189-114-0",
+            "bfcl:live_simple_19-3-15",
+            "bfcl:live_simple_190-115-0",
+            "bfcl:live_simple_192-116-0",
+            "bfcl:live_simple_197-116-5",
+            "bfcl:live_simple_198-116-6",
+            "bfcl:live_simple_20-4-0",
+            "bfcl:live_simple_200-116-8",
+            "bfcl:live_simple_202-116-10",
+            "bfcl:live_simple_203-116-11",
+            "bfcl:live_simple_206-116-14",
+            "bfcl:live_simple_210-117-2",
+            "bfcl:live_simple_212-117-4",
+            "bfcl:live_simple_215-117-7",
+            "bfcl:live_simple_220-117-12",
+            "bfcl:live_simple_224-117-16",
+            "bfcl:live_simple_226-118-0",
+            "bfcl:live_simple_227-118-1",
+            "bfcl:live_simple_228-119-0",
+            "bfcl:live_simple_229-120-0",
+            "bfcl:live_simple_23-5-1",
+            "bfcl:live_simple_238-125-1",
+            "bfcl:live_simple_24-5-2",
+            "bfcl:live_simple_242-126-0",
+            "bfcl:live_simple_247-129-0",
+            "bfcl:live_simple_251-133-0",
+            "bfcl:live_simple_254-136-0",
+            "bfcl:live_simple_27-7-0",
+            "bfcl:live_simple_35-12-0",
+            "bfcl:live_simple_36-13-0",
+            "bfcl:live_simple_37-14-0",
+            "bfcl:live_simple_42-17-2",
+            "bfcl:live_simple_44-18-0",
+            "bfcl:live_simple_46-19-0",
+            "bfcl:live_simple_49-21-1",
+            "bfcl:live_simple_5-3-1",
+            "bfcl:live_simple_51-23-0",
+            "bfcl:live_simple_52-23-1",
+            "bfcl:live_simple_53-24-0",
+            "bfcl:live_simple_54-25-0",
+            "bfcl:live_simple_55-25-1",
+            "bfcl:live_simple_56-26-0",
+            "bfcl:live_simple_57-26-1",
+            "bfcl:live_simple_60-29-0",
+            "bfcl:live_simple_62-29-2",
+            "bfcl:live_simple_63-29-3",
+            "bfcl:live_simple_64-29-4",
+            "bfcl:live_simple_65-29-5",
+            "bfcl:live_simple_68-32-0",
+            "bfcl:live_simple_69-33-0",
+            "bfcl:live_simple_77-38-0",
+            "bfcl:live_simple_80-41-0",
+            "bfcl:live_simple_86-47-0",
+            "bfcl:live_simple_89-50-0",
+            "bfcl:live_simple_9-3-5",
+            "bfcl:live_simple_91-52-0",
+            "bfcl:live_simple_92-53-0",
+            "bfcl:live_simple_96-57-0",
+            "bfcl:live_simple_98-58-0"
+          ],
+          "native_only": [
+            "bfcl:live_simple_25-5-3",
+            "bfcl:live_simple_88-49-0"
+          ],
+          "matched_only": [
+            "bfcl:live_simple_110-67-0",
+            "bfcl:live_simple_122-78-0",
+            "bfcl:live_simple_223-117-15",
+            "bfcl:live_simple_252-134-0",
+            "bfcl:live_simple_32-9-0",
+            "bfcl:live_simple_67-31-0"
+          ],
+          "both_wrong": [
+            "bfcl:live_simple_29-7-2"
+          ]
+        },
+        "selection_disagreement": {
+          "k": 8,
+          "n": 100,
+          "rate": 0.08,
+          "ci95": [
+            0.04109346127318457,
+            0.1499810776927723
+          ]
+        },
+        "disagreements": [
+          {
+            "task_id": "bfcl:live_simple_110-67-0",
+            "native": "__abstain__",
+            "matched": "bfcl/record"
+          },
+          {
+            "task_id": "bfcl:live_simple_122-78-0",
+            "native": "__abstain__",
+            "matched": "bfcl/process_data"
+          },
+          {
+            "task_id": "bfcl:live_simple_223-117-15",
+            "native": "__abstain__",
+            "matched": "bfcl/Movies_3_FindMovies"
+          },
+          {
+            "task_id": "bfcl:live_simple_25-5-3",
+            "native": "bfcl/ChaFod",
+            "matched": "__abstain__"
+          },
+          {
+            "task_id": "bfcl:live_simple_252-134-0",
+            "native": "__abstain__",
+            "matched": "bfcl/flight_status_check"
+          },
+          {
+            "task_id": "bfcl:live_simple_32-9-0",
+            "native": "__abstain__",
+            "matched": "bfcl/answer_string"
+          },
+          {
+            "task_id": "bfcl:live_simple_67-31-0",
+            "native": null,
+            "matched": "bfcl/obtener_cotizacion_de_creditos"
+          },
+          {
+            "task_id": "bfcl:live_simple_88-49-0",
+            "native": "bfcl/log_food",
+            "matched": "__abstain__"
+          }
+        ],
+        "mcnemar_exact_p": 0.2890625
+      },
+      "jev_stability": {
+        "n_tasks": 100,
+        "draws_per_task": [
+          10
+        ],
+        "tasks_with_any_flip": {
+          "k": 0,
+          "n": 100,
+          "rate": 0.0,
+          "ci95": [
+            0.0,
+            0.03699349876899627
+          ]
+        },
+        "mean_flip_rate": 0.0,
+        "mean_entropy_bits": 0.0,
+        "max_entropy_bits": -0.0,
+        "mean_max_probability_range": 0.016000000000000007,
+        "max_probability_range": 0.13,
+        "mean_max_probability_std": 0.0050413188573584546,
+        "executed_choice_equals_majority": {
+          "k": 100,
+          "n": 100,
+          "rate": 1.0,
+          "ci95": [
+            0.9630065012310038,
+            1.0
+          ]
+        },
+        "unstable_tasks": [],
+        "note": "Jev native probabilities and empirical choice frequencies are different quantities; neither is compared numerically with Claude outputs."
+      }
+    },
+    "bfcl_simple_python": {
+      "role": "primary",
+      "condition": "architecture_matched_v1",
+      "source_rows": 400,
+      "eligible": 399,
+      "sampled": 100,
+      "not_eligible_by_reason": {
+        "bfcl_schema_inconsistent": 1
+      },
+      "clusters_in_sample": null,
+      "arms": {
+        "native_llm": {
+          "n": 100,
+          "selection_accuracy": {
+            "k": 99,
+            "n": 100,
+            "rate": 0.99,
+            "ci95": [
+              0.9455138032509935,
+              0.9982325679553905
+            ]
+          },
+          "action_selection_accuracy": {
+            "k": 99,
+            "n": 100,
+            "rate": 0.99,
+            "ci95": [
+              0.9455138032509935,
+              0.9982325679553905
+            ]
+          },
+          "task_success": {
+            "k": 97,
+            "n": 100,
+            "rate": 0.97,
+            "ci95": [
+              0.9154806351014251,
+              0.9897454760557185
+            ]
+          },
+          "grounded_task_success": {
+            "k": 97,
+            "n": 100,
+            "rate": 0.97,
+            "ci95": [
+              0.9154806351014251,
+              0.9897454760557185
+            ]
+          },
+          "abstention_rate": {
+            "k": 1,
+            "n": 100,
+            "rate": 0.01,
+            "ci95": [
+              0.0017674320446096452,
+              0.05448619674900669
+            ]
+          },
+          "by_source_label": {
+            "call": {
+              "n": 100,
+              "abstained": {
+                "k": 1,
+                "n": 100,
+                "rate": 0.01,
+                "ci95": [
+                  0.0017674320446096452,
+                  0.05448619674900669
+                ]
+              },
+              "correct": {
+                "k": 99,
+                "n": 100,
+                "rate": 0.99,
+                "ci95": [
+                  0.9455138032509935,
+                  0.9982325679553905
+                ]
+              }
+            }
+          },
+          "selector_error_rate": {
+            "k": 0,
+            "n": 100,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03699349876899627
+            ]
+          },
+          "argument_error_rate": {
+            "k": 0,
+            "n": 99,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03735321263509084
+            ]
+          },
+          "execution_error_rate": {
+            "k": 0,
+            "n": 99,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03735321263509084
+            ]
+          },
+          "attacker_or_wrong_tool_rate": {
+            "k": 0,
+            "n": 100,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03699349876899627
+            ]
+          },
+          "arguments_match": {
+            "k": 97,
+            "n": 99,
+            "rate": 0.9797979797979798,
+            "ci95": [
+              0.9293096877341527,
+              0.9944422799392454
+            ]
+          },
+          "grounding": {
+            "placeholder_argument_count": 0,
+            "unsupported_required_argument_count": 1,
+            "unsupported_optional_argument_count": 0,
+            "unknown_argument_count": 22
+          },
+          "error_kinds": {}
+        },
+        "matched_llm": {
+          "n": 100,
+          "selection_accuracy": {
+            "k": 100,
+            "n": 100,
+            "rate": 1.0,
+            "ci95": [
+              0.9630065012310038,
+              1.0
+            ]
+          },
+          "action_selection_accuracy": {
+            "k": 100,
+            "n": 100,
+            "rate": 1.0,
+            "ci95": [
+              0.9630065012310038,
+              1.0
+            ]
+          },
+          "task_success": {
+            "k": 98,
+            "n": 100,
+            "rate": 0.98,
+            "ci95": [
+              0.9299882086824253,
+              0.9944980324993383
+            ]
+          },
+          "grounded_task_success": {
+            "k": 98,
+            "n": 100,
+            "rate": 0.98,
+            "ci95": [
+              0.9299882086824253,
+              0.9944980324993383
+            ]
+          },
+          "abstention_rate": {
+            "k": 0,
+            "n": 100,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03699349876899627
+            ]
+          },
+          "by_source_label": {
+            "call": {
+              "n": 100,
+              "abstained": {
+                "k": 0,
+                "n": 100,
+                "rate": 0.0,
+                "ci95": [
+                  0.0,
+                  0.03699349876899627
+                ]
+              },
+              "correct": {
+                "k": 100,
+                "n": 100,
+                "rate": 1.0,
+                "ci95": [
+                  0.9630065012310038,
+                  1.0
+                ]
+              }
+            }
+          },
+          "selector_error_rate": {
+            "k": 0,
+            "n": 100,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03699349876899627
+            ]
+          },
+          "argument_error_rate": {
+            "k": 0,
+            "n": 100,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03699349876899627
+            ]
+          },
+          "execution_error_rate": {
+            "k": 0,
+            "n": 100,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03699349876899627
+            ]
+          },
+          "attacker_or_wrong_tool_rate": {
+            "k": 0,
+            "n": 100,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03699349876899627
+            ]
+          },
+          "arguments_match": {
+            "k": 98,
+            "n": 100,
+            "rate": 0.98,
+            "ci95": [
+              0.9299882086824253,
+              0.9944980324993383
+            ]
+          },
+          "grounding": {
+            "placeholder_argument_count": 0,
+            "unsupported_required_argument_count": 1,
+            "unsupported_optional_argument_count": 0,
+            "unknown_argument_count": 23
+          },
+          "error_kinds": {}
+        },
+        "jev": {
+          "n": 100,
+          "selection_accuracy": {
+            "k": 99,
+            "n": 100,
+            "rate": 0.99,
+            "ci95": [
+              0.9455138032509935,
+              0.9982325679553905
+            ]
+          },
+          "action_selection_accuracy": {
+            "k": 99,
+            "n": 100,
+            "rate": 0.99,
+            "ci95": [
+              0.9455138032509935,
+              0.9982325679553905
+            ]
+          },
+          "task_success": {
+            "k": 97,
+            "n": 100,
+            "rate": 0.97,
+            "ci95": [
+              0.9154806351014251,
+              0.9897454760557185
+            ]
+          },
+          "grounded_task_success": {
+            "k": 97,
+            "n": 100,
+            "rate": 0.97,
+            "ci95": [
+              0.9154806351014251,
+              0.9897454760557185
+            ]
+          },
+          "abstention_rate": {
+            "k": 1,
+            "n": 100,
+            "rate": 0.01,
+            "ci95": [
+              0.0017674320446096452,
+              0.05448619674900669
+            ]
+          },
+          "by_source_label": {
+            "call": {
+              "n": 100,
+              "abstained": {
+                "k": 1,
+                "n": 100,
+                "rate": 0.01,
+                "ci95": [
+                  0.0017674320446096452,
+                  0.05448619674900669
+                ]
+              },
+              "correct": {
+                "k": 99,
+                "n": 100,
+                "rate": 0.99,
+                "ci95": [
+                  0.9455138032509935,
+                  0.9982325679553905
+                ]
+              }
+            }
+          },
+          "selector_error_rate": {
+            "k": 0,
+            "n": 100,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03699349876899627
+            ]
+          },
+          "argument_error_rate": {
+            "k": 0,
+            "n": 99,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03735321263509084
+            ]
+          },
+          "execution_error_rate": {
+            "k": 0,
+            "n": 99,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03735321263509084
+            ]
+          },
+          "attacker_or_wrong_tool_rate": {
+            "k": 0,
+            "n": 100,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03699349876899627
+            ]
+          },
+          "arguments_match": {
+            "k": 97,
+            "n": 99,
+            "rate": 0.9797979797979798,
+            "ci95": [
+              0.9293096877341527,
+              0.9944422799392454
+            ]
+          },
+          "grounding": {
+            "placeholder_argument_count": 0,
+            "unsupported_required_argument_count": 1,
+            "unsupported_optional_argument_count": 0,
+            "unknown_argument_count": 22
+          },
+          "error_kinds": {}
+        }
+      },
+      "native_vs_matched": {
+        "n_pairs": 100,
+        "counts": {
+          "both_correct": 99,
+          "native_only": 0,
+          "matched_only": 1,
+          "both_wrong": 0
+        },
+        "task_ids": {
+          "both_correct": [
+            "bfcl:simple_python_100",
+            "bfcl:simple_python_107",
+            "bfcl:simple_python_11",
+            "bfcl:simple_python_110",
+            "bfcl:simple_python_111",
+            "bfcl:simple_python_112",
+            "bfcl:simple_python_115",
+            "bfcl:simple_python_118",
+            "bfcl:simple_python_123",
+            "bfcl:simple_python_125",
+            "bfcl:simple_python_127",
+            "bfcl:simple_python_138",
+            "bfcl:simple_python_140",
+            "bfcl:simple_python_141",
+            "bfcl:simple_python_142",
+            "bfcl:simple_python_143",
+            "bfcl:simple_python_147",
+            "bfcl:simple_python_15",
+            "bfcl:simple_python_152",
+            "bfcl:simple_python_162",
+            "bfcl:simple_python_163",
+            "bfcl:simple_python_165",
+            "bfcl:simple_python_176",
+            "bfcl:simple_python_178",
+            "bfcl:simple_python_18",
+            "bfcl:simple_python_181",
+            "bfcl:simple_python_182",
+            "bfcl:simple_python_187",
+            "bfcl:simple_python_191",
+            "bfcl:simple_python_195",
+            "bfcl:simple_python_197",
+            "bfcl:simple_python_198",
+            "bfcl:simple_python_2",
+            "bfcl:simple_python_20",
+            "bfcl:simple_python_200",
+            "bfcl:simple_python_204",
+            "bfcl:simple_python_21",
+            "bfcl:simple_python_213",
+            "bfcl:simple_python_215",
+            "bfcl:simple_python_219",
+            "bfcl:simple_python_22",
+            "bfcl:simple_python_222",
+            "bfcl:simple_python_223",
+            "bfcl:simple_python_224",
+            "bfcl:simple_python_238",
+            "bfcl:simple_python_24",
+            "bfcl:simple_python_242",
+            "bfcl:simple_python_244",
+            "bfcl:simple_python_247",
+            "bfcl:simple_python_248",
+            "bfcl:simple_python_256",
+            "bfcl:simple_python_259",
+            "bfcl:simple_python_260",
+            "bfcl:simple_python_264",
+            "bfcl:simple_python_282",
+            "bfcl:simple_python_285",
+            "bfcl:simple_python_286",
+            "bfcl:simple_python_289",
+            "bfcl:simple_python_292",
+            "bfcl:simple_python_293",
+            "bfcl:simple_python_299",
+            "bfcl:simple_python_305",
+            "bfcl:simple_python_313",
+            "bfcl:simple_python_318",
+            "bfcl:simple_python_32",
+            "bfcl:simple_python_321",
+            "bfcl:simple_python_322",
+            "bfcl:simple_python_323",
+            "bfcl:simple_python_329",
+            "bfcl:simple_python_330",
+            "bfcl:simple_python_333",
+            "bfcl:simple_python_334",
+            "bfcl:simple_python_345",
+            "bfcl:simple_python_346",
+            "bfcl:simple_python_352",
+            "bfcl:simple_python_355",
+            "bfcl:simple_python_358",
+            "bfcl:simple_python_359",
+            "bfcl:simple_python_363",
+            "bfcl:simple_python_366",
+            "bfcl:simple_python_370",
+            "bfcl:simple_python_374",
+            "bfcl:simple_python_375",
+            "bfcl:simple_python_384",
+            "bfcl:simple_python_386",
+            "bfcl:simple_python_396",
+            "bfcl:simple_python_398",
+            "bfcl:simple_python_51",
+            "bfcl:simple_python_65",
+            "bfcl:simple_python_76",
+            "bfcl:simple_python_79",
+            "bfcl:simple_python_8",
+            "bfcl:simple_python_84",
+            "bfcl:simple_python_85",
+            "bfcl:simple_python_89",
+            "bfcl:simple_python_9",
+            "bfcl:simple_python_92",
+            "bfcl:simple_python_98",
+            "bfcl:simple_python_99"
+          ],
+          "native_only": [],
+          "matched_only": [
+            "bfcl:simple_python_202"
+          ],
+          "both_wrong": []
+        },
+        "selection_disagreement": {
+          "k": 1,
+          "n": 100,
+          "rate": 0.01,
+          "ci95": [
+            0.0017674320446096452,
+            0.05448619674900669
+          ]
+        },
+        "disagreements": [
+          {
+            "task_id": "bfcl:simple_python_202",
+            "native": "__abstain__",
+            "matched": "bfcl/calculate_emission_savings"
+          }
+        ],
+        "mcnemar_exact_p": 1.0
+      },
+      "jev_stability": {
+        "n_tasks": 100,
+        "draws_per_task": [
+          10
+        ],
+        "tasks_with_any_flip": {
+          "k": 2,
+          "n": 100,
+          "rate": 0.02,
+          "ci95": [
+            0.0055019675006616475,
+            0.07001179131757478
+          ]
+        },
+        "mean_flip_rate": 0.008222222222222221,
+        "mean_entropy_bits": 0.01603218994118055,
+        "max_entropy_bits": 0.8812908992306927,
+        "mean_max_probability_range": 0.006800000000000005,
+        "max_probability_range": 0.09000000000000008,
+        "mean_max_probability_std": 0.002243980029049962,
+        "executed_choice_equals_majority": {
+          "k": 99,
+          "n": 100,
+          "rate": 0.99,
+          "ci95": [
+            0.9455138032509935,
+            0.9982325679553905
+          ]
+        },
+        "unstable_tasks": [
+          {
+            "task_id": "bfcl:simple_python_238",
+            "frequencies": {
+              "__abstain__": 0.3,
+              "bfcl/us_history_get_president": 0.7
+            },
+            "executed": "bfcl/us_history_get_president",
+            "majority": "bfcl/us_history_get_president"
+          },
+          {
+            "task_id": "bfcl:simple_python_352",
+            "frequencies": {
+              "__abstain__": 0.2,
+              "bfcl/gamespot_getAverageUserScore": 0.8
+            },
+            "executed": "__abstain__",
+            "majority": "bfcl/gamespot_getAverageUserScore"
+          }
+        ],
+        "note": "Jev native probabilities and empirical choice frequencies are different quantities; neither is compared numerically with Claude outputs."
+      }
+    },
+    "metatool_s1": {
+      "role": "primary",
+      "condition": "ecological_name_description_v1",
+      "source_rows": 995,
+      "eligible": 995,
+      "sampled": 100,
+      "not_eligible_by_reason": {},
+      "clusters_in_sample": null,
+      "arms": {
+        "native_llm": {
+          "n": 100,
+          "selection_accuracy": {
+            "k": 56,
+            "n": 100,
+            "rate": 0.56,
+            "ci95": [
+              0.46228104575723733,
+              0.6532797343904831
+            ]
+          },
+          "action_selection_accuracy": {
+            "k": 56,
+            "n": 100,
+            "rate": 0.56,
+            "ci95": [
+              0.46228104575723733,
+              0.6532797343904831
+            ]
+          },
+          "task_success": {
+            "k": 56,
+            "n": 100,
+            "rate": 0.56,
+            "ci95": [
+              0.46228104575723733,
+              0.6532797343904831
+            ]
+          },
+          "grounded_task_success": {
+            "k": 56,
+            "n": 100,
+            "rate": 0.56,
+            "ci95": [
+              0.46228104575723733,
+              0.6532797343904831
+            ]
+          },
+          "abstention_rate": {
+            "k": 33,
+            "n": 100,
+            "rate": 0.33,
+            "ci95": [
+              0.24563122674486615,
+              0.4269465628365927
+            ]
+          },
+          "by_source_label": {
+            "tool": {
+              "n": 100,
+              "abstained": {
+                "k": 33,
+                "n": 100,
+                "rate": 0.33,
+                "ci95": [
+                  0.24563122674486615,
+                  0.4269465628365927
+                ]
+              },
+              "correct": {
+                "k": 56,
+                "n": 100,
+                "rate": 0.56,
+                "ci95": [
+                  0.46228104575723733,
+                  0.6532797343904831
+                ]
+              }
+            }
+          },
+          "selector_error_rate": {
+            "k": 2,
+            "n": 100,
+            "rate": 0.02,
+            "ci95": [
+              0.0055019675006616475,
+              0.07001179131757478
+            ]
+          },
+          "argument_error_rate": {
+            "k": 0,
+            "n": 65,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.05580153215404492
+            ]
+          },
+          "execution_error_rate": {
+            "k": 0,
+            "n": 65,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.05580153215404492
+            ]
+          },
+          "attacker_or_wrong_tool_rate": {
+            "k": 9,
+            "n": 100,
+            "rate": 0.09,
+            "ci95": [
+              0.04807253976868698,
+              0.16226212922188998
+            ]
+          },
+          "arguments_match": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "ci95": null
+          },
+          "grounding": {
+            "placeholder_argument_count": 0,
+            "unsupported_required_argument_count": 0,
+            "unsupported_optional_argument_count": 0,
+            "unknown_argument_count": 0
+          },
+          "error_kinds": {
+            "multiple_tool_calls": 2
+          }
+        },
+        "matched_llm": {
+          "n": 100,
+          "selection_accuracy": {
+            "k": 78,
+            "n": 100,
+            "rate": 0.78,
+            "ci95": [
+              0.6892964640723263,
+              0.8499871766170359
+            ]
+          },
+          "action_selection_accuracy": {
+            "k": 78,
+            "n": 100,
+            "rate": 0.78,
+            "ci95": [
+              0.6892964640723263,
+              0.8499871766170359
+            ]
+          },
+          "task_success": {
+            "k": 78,
+            "n": 100,
+            "rate": 0.78,
+            "ci95": [
+              0.6892964640723263,
+              0.8499871766170359
+            ]
+          },
+          "grounded_task_success": {
+            "k": 78,
+            "n": 100,
+            "rate": 0.78,
+            "ci95": [
+              0.6892964640723263,
+              0.8499871766170359
+            ]
+          },
+          "abstention_rate": {
+            "k": 10,
+            "n": 100,
+            "rate": 0.1,
+            "ci95": [
+              0.0552291368050726,
+              0.17436566221012445
+            ]
+          },
+          "by_source_label": {
+            "tool": {
+              "n": 100,
+              "abstained": {
+                "k": 10,
+                "n": 100,
+                "rate": 0.1,
+                "ci95": [
+                  0.0552291368050726,
+                  0.17436566221012445
+                ]
+              },
+              "correct": {
+                "k": 78,
+                "n": 100,
+                "rate": 0.78,
+                "ci95": [
+                  0.6892964640723263,
+                  0.8499871766170359
+                ]
+              }
+            }
+          },
+          "selector_error_rate": {
+            "k": 0,
+            "n": 100,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03699349876899627
+            ]
+          },
+          "argument_error_rate": {
+            "k": 0,
+            "n": 90,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.04093562618368095
+            ]
+          },
+          "execution_error_rate": {
+            "k": 0,
+            "n": 90,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.04093562618368095
+            ]
+          },
+          "attacker_or_wrong_tool_rate": {
+            "k": 12,
+            "n": 100,
+            "rate": 0.12,
+            "ci95": [
+              0.06999406407369686,
+              0.19812099499074032
+            ]
+          },
+          "arguments_match": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "ci95": null
+          },
+          "grounding": {
+            "placeholder_argument_count": 0,
+            "unsupported_required_argument_count": 0,
+            "unsupported_optional_argument_count": 1,
+            "unknown_argument_count": 1
+          },
+          "error_kinds": {}
+        },
+        "jev": {
+          "n": 100,
+          "selection_accuracy": {
+            "k": 73,
+            "n": 100,
+            "rate": 0.73,
+            "ci95": [
+              0.6356788315330401,
+              0.8073041590332216
+            ]
+          },
+          "action_selection_accuracy": {
+            "k": 73,
+            "n": 100,
+            "rate": 0.73,
+            "ci95": [
+              0.6356788315330401,
+              0.8073041590332216
+            ]
+          },
+          "task_success": {
+            "k": 73,
+            "n": 100,
+            "rate": 0.73,
+            "ci95": [
+              0.6356788315330401,
+              0.8073041590332216
+            ]
+          },
+          "grounded_task_success": {
+            "k": 73,
+            "n": 100,
+            "rate": 0.73,
+            "ci95": [
+              0.6356788315330401,
+              0.8073041590332216
+            ]
+          },
+          "abstention_rate": {
+            "k": 12,
+            "n": 100,
+            "rate": 0.12,
+            "ci95": [
+              0.06999406407369686,
+              0.19812099499074032
+            ]
+          },
+          "by_source_label": {
+            "tool": {
+              "n": 100,
+              "abstained": {
+                "k": 12,
+                "n": 100,
+                "rate": 0.12,
+                "ci95": [
+                  0.06999406407369686,
+                  0.19812099499074032
+                ]
+              },
+              "correct": {
+                "k": 73,
+                "n": 100,
+                "rate": 0.73,
+                "ci95": [
+                  0.6356788315330401,
+                  0.8073041590332216
+                ]
+              }
+            }
+          },
+          "selector_error_rate": {
+            "k": 0,
+            "n": 100,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03699349876899627
+            ]
+          },
+          "argument_error_rate": {
+            "k": 0,
+            "n": 88,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.04182706729714562
+            ]
+          },
+          "execution_error_rate": {
+            "k": 0,
+            "n": 88,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.04182706729714562
+            ]
+          },
+          "attacker_or_wrong_tool_rate": {
+            "k": 15,
+            "n": 100,
+            "rate": 0.15,
+            "ci95": [
+              0.09305985248417561,
+              0.23283559665412182
+            ]
+          },
+          "arguments_match": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "ci95": null
+          },
+          "grounding": {
+            "placeholder_argument_count": 0,
+            "unsupported_required_argument_count": 0,
+            "unsupported_optional_argument_count": 1,
+            "unknown_argument_count": 2
+          },
+          "error_kinds": {}
+        }
+      },
+      "native_vs_matched": {
+        "n_pairs": 100,
+        "counts": {
+          "both_correct": 56,
+          "native_only": 0,
+          "matched_only": 22,
+          "both_wrong": 22
+        },
+        "task_ids": {
+          "both_correct": [
+            "metatool:Task2-Subtask1:102",
+            "metatool:Task2-Subtask1:128",
+            "metatool:Task2-Subtask1:131",
+            "metatool:Task2-Subtask1:161",
+            "metatool:Task2-Subtask1:165",
+            "metatool:Task2-Subtask1:175",
+            "metatool:Task2-Subtask1:184",
+            "metatool:Task2-Subtask1:192",
+            "metatool:Task2-Subtask1:194",
+            "metatool:Task2-Subtask1:210",
+            "metatool:Task2-Subtask1:247",
+            "metatool:Task2-Subtask1:258",
+            "metatool:Task2-Subtask1:281",
+            "metatool:Task2-Subtask1:295",
+            "metatool:Task2-Subtask1:296",
+            "metatool:Task2-Subtask1:303",
+            "metatool:Task2-Subtask1:316",
+            "metatool:Task2-Subtask1:327",
+            "metatool:Task2-Subtask1:335",
+            "metatool:Task2-Subtask1:361",
+            "metatool:Task2-Subtask1:39",
+            "metatool:Task2-Subtask1:391",
+            "metatool:Task2-Subtask1:413",
+            "metatool:Task2-Subtask1:418",
+            "metatool:Task2-Subtask1:424",
+            "metatool:Task2-Subtask1:433",
+            "metatool:Task2-Subtask1:44",
+            "metatool:Task2-Subtask1:461",
+            "metatool:Task2-Subtask1:467",
+            "metatool:Task2-Subtask1:502",
+            "metatool:Task2-Subtask1:578",
+            "metatool:Task2-Subtask1:605",
+            "metatool:Task2-Subtask1:640",
+            "metatool:Task2-Subtask1:643",
+            "metatool:Task2-Subtask1:647",
+            "metatool:Task2-Subtask1:667",
+            "metatool:Task2-Subtask1:684",
+            "metatool:Task2-Subtask1:730",
+            "metatool:Task2-Subtask1:74",
+            "metatool:Task2-Subtask1:754",
+            "metatool:Task2-Subtask1:758",
+            "metatool:Task2-Subtask1:772",
+            "metatool:Task2-Subtask1:825",
+            "metatool:Task2-Subtask1:833",
+            "metatool:Task2-Subtask1:854",
+            "metatool:Task2-Subtask1:865",
+            "metatool:Task2-Subtask1:869",
+            "metatool:Task2-Subtask1:890",
+            "metatool:Task2-Subtask1:90",
+            "metatool:Task2-Subtask1:905",
+            "metatool:Task2-Subtask1:924",
+            "metatool:Task2-Subtask1:934",
+            "metatool:Task2-Subtask1:937",
+            "metatool:Task2-Subtask1:945",
+            "metatool:Task2-Subtask1:946",
+            "metatool:Task2-Subtask1:970"
+          ],
+          "native_only": [],
+          "matched_only": [
+            "metatool:Task2-Subtask1:156",
+            "metatool:Task2-Subtask1:215",
+            "metatool:Task2-Subtask1:266",
+            "metatool:Task2-Subtask1:267",
+            "metatool:Task2-Subtask1:272",
+            "metatool:Task2-Subtask1:287",
+            "metatool:Task2-Subtask1:367",
+            "metatool:Task2-Subtask1:431",
+            "metatool:Task2-Subtask1:448",
+            "metatool:Task2-Subtask1:494",
+            "metatool:Task2-Subtask1:499",
+            "metatool:Task2-Subtask1:547",
+            "metatool:Task2-Subtask1:619",
+            "metatool:Task2-Subtask1:664",
+            "metatool:Task2-Subtask1:704",
+            "metatool:Task2-Subtask1:794",
+            "metatool:Task2-Subtask1:812",
+            "metatool:Task2-Subtask1:839",
+            "metatool:Task2-Subtask1:847",
+            "metatool:Task2-Subtask1:859",
+            "metatool:Task2-Subtask1:860",
+            "metatool:Task2-Subtask1:879"
+          ],
+          "both_wrong": [
+            "metatool:Task2-Subtask1:117",
+            "metatool:Task2-Subtask1:132",
+            "metatool:Task2-Subtask1:148",
+            "metatool:Task2-Subtask1:228",
+            "metatool:Task2-Subtask1:286",
+            "metatool:Task2-Subtask1:306",
+            "metatool:Task2-Subtask1:456",
+            "metatool:Task2-Subtask1:56",
+            "metatool:Task2-Subtask1:628",
+            "metatool:Task2-Subtask1:671",
+            "metatool:Task2-Subtask1:709",
+            "metatool:Task2-Subtask1:759",
+            "metatool:Task2-Subtask1:769",
+            "metatool:Task2-Subtask1:77",
+            "metatool:Task2-Subtask1:799",
+            "metatool:Task2-Subtask1:80",
+            "metatool:Task2-Subtask1:800",
+            "metatool:Task2-Subtask1:820",
+            "metatool:Task2-Subtask1:846",
+            "metatool:Task2-Subtask1:856",
+            "metatool:Task2-Subtask1:900",
+            "metatool:Task2-Subtask1:992"
+          ]
+        },
+        "selection_disagreement": {
+          "k": 27,
+          "n": 100,
+          "rate": 0.27,
+          "ci95": [
+            0.19269584096677833,
+            0.36432116846696
+          ]
+        },
+        "disagreements": [
+          {
+            "task_id": "metatool:Task2-Subtask1:156",
+            "native": "__abstain__",
+            "matched": "metatool/Figlet"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:215",
+            "native": "__abstain__",
+            "matched": "metatool/wpinteract"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:266",
+            "native": "__abstain__",
+            "matched": "metatool/word_counter"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:267",
+            "native": "__abstain__",
+            "matched": "metatool/word_counter"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:272",
+            "native": "__abstain__",
+            "matched": "metatool/web_scraper"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:286",
+            "native": "__abstain__",
+            "matched": "metatool/PDF_URLTool"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:287",
+            "native": "__abstain__",
+            "matched": "metatool/universal"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:306",
+            "native": "__abstain__",
+            "matched": "metatool/create_qr_code"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:367",
+            "native": null,
+            "matched": "metatool/AusSurfReport"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:431",
+            "native": "__abstain__",
+            "matched": "metatool/locator"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:448",
+            "native": "__abstain__",
+            "matched": "metatool/CTCP"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:494",
+            "native": "__abstain__",
+            "matched": "metatool/TicTacToe"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:499",
+            "native": "__abstain__",
+            "matched": "metatool/deployscript"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:547",
+            "native": "__abstain__",
+            "matched": "metatool/bramework"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:619",
+            "native": "__abstain__",
+            "matched": "metatool/C3_Glide"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:664",
+            "native": "metatool/Magnetis",
+            "matched": "metatool/portfoliopilot"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:704",
+            "native": "__abstain__",
+            "matched": "metatool/AppyPieAIAppBuilder"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:769",
+            "native": "__abstain__",
+            "matched": "metatool/FinanceTool"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:794",
+            "native": "__abstain__",
+            "matched": "metatool/CourseTool"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:80",
+            "native": "__abstain__",
+            "matched": "metatool/seoanalysis"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:812",
+            "native": "__abstain__",
+            "matched": "metatool/MemoryTool"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:839",
+            "native": "metatool/jini",
+            "matched": "metatool/CompanyInfoTool"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:847",
+            "native": "__abstain__",
+            "matched": "metatool/MemeTool"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:859",
+            "native": "__abstain__",
+            "matched": "metatool/PDF_URLTool"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:860",
+            "native": "__abstain__",
+            "matched": "metatool/VideoSummarizeTool"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:879",
+            "native": null,
+            "matched": "metatool/WebsiteTool"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:992",
+            "native": "__abstain__",
+            "matched": "metatool/ProductSearch"
+          }
+        ],
+        "mcnemar_exact_p": 4.76837158203125e-07
+      },
+      "jev_stability": {
+        "n_tasks": 100,
+        "draws_per_task": [
+          10
+        ],
+        "tasks_with_any_flip": {
+          "k": 5,
+          "n": 100,
+          "rate": 0.05,
+          "ci95": [
+            0.021543679017992173,
+            0.1117504698741045
+          ]
+        },
+        "mean_flip_rate": 0.020444444444444442,
+        "mean_entropy_bits": 0.04203854833339819,
+        "max_entropy_bits": 1.1567796494470395,
+        "mean_max_probability_range": 0.031000000000000007,
+        "max_probability_range": 0.18,
+        "mean_max_probability_std": 0.009701900779602991,
+        "executed_choice_equals_majority": {
+          "k": 99,
+          "n": 100,
+          "rate": 0.99,
+          "ci95": [
+            0.9455138032509935,
+            0.9982325679553905
+          ]
+        },
+        "unstable_tasks": [
+          {
+            "task_id": "metatool:Task2-Subtask1:117",
+            "frequencies": {
+              "__abstain__": 0.8,
+              "metatool/jini": 0.2
+            },
+            "executed": "__abstain__",
+            "majority": "__abstain__"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:165",
+            "frequencies": {
+              "__abstain__": 0.2,
+              "metatool/ai_council": 0.1,
+              "metatool/ph_ai_news_query": 0.7
+            },
+            "executed": "__abstain__",
+            "majority": "metatool/ph_ai_news_query"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:286",
+            "frequencies": {
+              "__abstain__": 0.2,
+              "metatool/universal": 0.8
+            },
+            "executed": "metatool/universal",
+            "majority": "metatool/universal"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:80",
+            "frequencies": {
+              "metatool/MixerBox_WebSearchG_web_search": 0.7,
+              "metatool/internetSearch": 0.3
+            },
+            "executed": "metatool/MixerBox_WebSearchG_web_search",
+            "majority": "metatool/MixerBox_WebSearchG_web_search"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask1:860",
+            "frequencies": {
+              "__abstain__": 0.2,
+              "metatool/VideoSummarizeTool": 0.8
+            },
+            "executed": "metatool/VideoSummarizeTool",
+            "majority": "metatool/VideoSummarizeTool"
+          }
+        ],
+        "note": "Jev native probabilities and empirical choice frequencies are different quantities; neither is compared numerically with Claude outputs."
+      }
+    },
+    "metatool_s3": {
+      "role": "primary",
+      "condition": "ecological_name_description_v1",
+      "source_rows": 995,
+      "eligible": 995,
+      "sampled": 100,
+      "not_eligible_by_reason": {},
+      "clusters_in_sample": null,
+      "arms": {
+        "native_llm": {
+          "n": 100,
+          "selection_accuracy": {
+            "k": 95,
+            "n": 100,
+            "rate": 0.95,
+            "ci95": [
+              0.8882495301258955,
+              0.9784563209820079
+            ]
+          },
+          "action_selection_accuracy": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "ci95": null
+          },
+          "task_success": {
+            "k": 95,
+            "n": 100,
+            "rate": 0.95,
+            "ci95": [
+              0.8882495301258955,
+              0.9784563209820079
+            ]
+          },
+          "grounded_task_success": {
+            "k": 95,
+            "n": 100,
+            "rate": 0.95,
+            "ci95": [
+              0.8882495301258955,
+              0.9784563209820079
+            ]
+          },
+          "abstention_rate": {
+            "k": 95,
+            "n": 100,
+            "rate": 0.95,
+            "ci95": [
+              0.8882495301258955,
+              0.9784563209820079
+            ]
+          },
+          "by_source_label": {
+            "none_in_list": {
+              "n": 100,
+              "abstained": {
+                "k": 95,
+                "n": 100,
+                "rate": 0.95,
+                "ci95": [
+                  0.8882495301258955,
+                  0.9784563209820079
+                ]
+              },
+              "correct": {
+                "k": 95,
+                "n": 100,
+                "rate": 0.95,
+                "ci95": [
+                  0.8882495301258955,
+                  0.9784563209820079
+                ]
+              }
+            }
+          },
+          "selector_error_rate": {
+            "k": 0,
+            "n": 100,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03699349876899627
+            ]
+          },
+          "argument_error_rate": {
+            "k": 0,
+            "n": 5,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.43448246865939283
+            ]
+          },
+          "execution_error_rate": {
+            "k": 0,
+            "n": 5,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.43448246865939283
+            ]
+          },
+          "attacker_or_wrong_tool_rate": {
+            "k": 5,
+            "n": 100,
+            "rate": 0.05,
+            "ci95": [
+              0.021543679017992173,
+              0.1117504698741045
+            ]
+          },
+          "arguments_match": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "ci95": null
+          },
+          "grounding": {
+            "placeholder_argument_count": 0,
+            "unsupported_required_argument_count": 0,
+            "unsupported_optional_argument_count": 0,
+            "unknown_argument_count": 1
+          },
+          "error_kinds": {}
+        },
+        "matched_llm": {
+          "n": 100,
+          "selection_accuracy": {
+            "k": 84,
+            "n": 100,
+            "rate": 0.84,
+            "ci95": [
+              0.7557973053553682,
+              0.8990471154817143
+            ]
+          },
+          "action_selection_accuracy": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "ci95": null
+          },
+          "task_success": {
+            "k": 84,
+            "n": 100,
+            "rate": 0.84,
+            "ci95": [
+              0.7557973053553682,
+              0.8990471154817143
+            ]
+          },
+          "grounded_task_success": {
+            "k": 84,
+            "n": 100,
+            "rate": 0.84,
+            "ci95": [
+              0.7557973053553682,
+              0.8990471154817143
+            ]
+          },
+          "abstention_rate": {
+            "k": 84,
+            "n": 100,
+            "rate": 0.84,
+            "ci95": [
+              0.7557973053553682,
+              0.8990471154817143
+            ]
+          },
+          "by_source_label": {
+            "none_in_list": {
+              "n": 100,
+              "abstained": {
+                "k": 84,
+                "n": 100,
+                "rate": 0.84,
+                "ci95": [
+                  0.7557973053553682,
+                  0.8990471154817143
+                ]
+              },
+              "correct": {
+                "k": 84,
+                "n": 100,
+                "rate": 0.84,
+                "ci95": [
+                  0.7557973053553682,
+                  0.8990471154817143
+                ]
+              }
+            }
+          },
+          "selector_error_rate": {
+            "k": 0,
+            "n": 100,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03699349876899627
+            ]
+          },
+          "argument_error_rate": {
+            "k": 0,
+            "n": 16,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.1936076829974049
+            ]
+          },
+          "execution_error_rate": {
+            "k": 1,
+            "n": 16,
+            "rate": 0.0625,
+            "ci95": [
+              0.011119344641247308,
+              0.283287377981482
+            ]
+          },
+          "attacker_or_wrong_tool_rate": {
+            "k": 16,
+            "n": 100,
+            "rate": 0.16,
+            "ci95": [
+              0.10095288451828571,
+              0.2442026946446318
+            ]
+          },
+          "arguments_match": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "ci95": null
+          },
+          "grounding": {
+            "placeholder_argument_count": 1,
+            "unsupported_required_argument_count": 0,
+            "unsupported_optional_argument_count": 4,
+            "unknown_argument_count": 2
+          },
+          "error_kinds": {
+            "placeholder_arguments": 1
+          }
+        },
+        "jev": {
+          "n": 100,
+          "selection_accuracy": {
+            "k": 93,
+            "n": 100,
+            "rate": 0.93,
+            "ci95": [
+              0.8625048519384759,
+              0.9656807391201874
+            ]
+          },
+          "action_selection_accuracy": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "ci95": null
+          },
+          "task_success": {
+            "k": 93,
+            "n": 100,
+            "rate": 0.93,
+            "ci95": [
+              0.8625048519384759,
+              0.9656807391201874
+            ]
+          },
+          "grounded_task_success": {
+            "k": 93,
+            "n": 100,
+            "rate": 0.93,
+            "ci95": [
+              0.8625048519384759,
+              0.9656807391201874
+            ]
+          },
+          "abstention_rate": {
+            "k": 93,
+            "n": 100,
+            "rate": 0.93,
+            "ci95": [
+              0.8625048519384759,
+              0.9656807391201874
+            ]
+          },
+          "by_source_label": {
+            "none_in_list": {
+              "n": 100,
+              "abstained": {
+                "k": 93,
+                "n": 100,
+                "rate": 0.93,
+                "ci95": [
+                  0.8625048519384759,
+                  0.9656807391201874
+                ]
+              },
+              "correct": {
+                "k": 93,
+                "n": 100,
+                "rate": 0.93,
+                "ci95": [
+                  0.8625048519384759,
+                  0.9656807391201874
+                ]
+              }
+            }
+          },
+          "selector_error_rate": {
+            "k": 0,
+            "n": 100,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.03699349876899627
+            ]
+          },
+          "argument_error_rate": {
+            "k": 0,
+            "n": 7,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.35433043867586833
+            ]
+          },
+          "execution_error_rate": {
+            "k": 0,
+            "n": 7,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.35433043867586833
+            ]
+          },
+          "attacker_or_wrong_tool_rate": {
+            "k": 7,
+            "n": 100,
+            "rate": 0.07,
+            "ci95": [
+              0.0343192608798127,
+              0.13749514806152413
+            ]
+          },
+          "arguments_match": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "ci95": null
+          },
+          "grounding": {
+            "placeholder_argument_count": 0,
+            "unsupported_required_argument_count": 0,
+            "unsupported_optional_argument_count": 2,
+            "unknown_argument_count": 2
+          },
+          "error_kinds": {}
+        }
+      },
+      "native_vs_matched": {
+        "n_pairs": 100,
+        "counts": {
+          "both_correct": 84,
+          "native_only": 11,
+          "matched_only": 0,
+          "both_wrong": 5
+        },
+        "task_ids": {
+          "both_correct": [
+            "metatool:Task2-Subtask3:11",
+            "metatool:Task2-Subtask3:121",
+            "metatool:Task2-Subtask3:123",
+            "metatool:Task2-Subtask3:124",
+            "metatool:Task2-Subtask3:127",
+            "metatool:Task2-Subtask3:135",
+            "metatool:Task2-Subtask3:137",
+            "metatool:Task2-Subtask3:14",
+            "metatool:Task2-Subtask3:172",
+            "metatool:Task2-Subtask3:181",
+            "metatool:Task2-Subtask3:197",
+            "metatool:Task2-Subtask3:21",
+            "metatool:Task2-Subtask3:212",
+            "metatool:Task2-Subtask3:213",
+            "metatool:Task2-Subtask3:234",
+            "metatool:Task2-Subtask3:237",
+            "metatool:Task2-Subtask3:251",
+            "metatool:Task2-Subtask3:256",
+            "metatool:Task2-Subtask3:257",
+            "metatool:Task2-Subtask3:261",
+            "metatool:Task2-Subtask3:273",
+            "metatool:Task2-Subtask3:3",
+            "metatool:Task2-Subtask3:31",
+            "metatool:Task2-Subtask3:335",
+            "metatool:Task2-Subtask3:339",
+            "metatool:Task2-Subtask3:34",
+            "metatool:Task2-Subtask3:341",
+            "metatool:Task2-Subtask3:358",
+            "metatool:Task2-Subtask3:366",
+            "metatool:Task2-Subtask3:408",
+            "metatool:Task2-Subtask3:412",
+            "metatool:Task2-Subtask3:424",
+            "metatool:Task2-Subtask3:44",
+            "metatool:Task2-Subtask3:442",
+            "metatool:Task2-Subtask3:45",
+            "metatool:Task2-Subtask3:450",
+            "metatool:Task2-Subtask3:454",
+            "metatool:Task2-Subtask3:464",
+            "metatool:Task2-Subtask3:467",
+            "metatool:Task2-Subtask3:48",
+            "metatool:Task2-Subtask3:488",
+            "metatool:Task2-Subtask3:508",
+            "metatool:Task2-Subtask3:514",
+            "metatool:Task2-Subtask3:527",
+            "metatool:Task2-Subtask3:535",
+            "metatool:Task2-Subtask3:536",
+            "metatool:Task2-Subtask3:538",
+            "metatool:Task2-Subtask3:608",
+            "metatool:Task2-Subtask3:620",
+            "metatool:Task2-Subtask3:625",
+            "metatool:Task2-Subtask3:634",
+            "metatool:Task2-Subtask3:646",
+            "metatool:Task2-Subtask3:658",
+            "metatool:Task2-Subtask3:669",
+            "metatool:Task2-Subtask3:673",
+            "metatool:Task2-Subtask3:684",
+            "metatool:Task2-Subtask3:689",
+            "metatool:Task2-Subtask3:69",
+            "metatool:Task2-Subtask3:703",
+            "metatool:Task2-Subtask3:705",
+            "metatool:Task2-Subtask3:708",
+            "metatool:Task2-Subtask3:71",
+            "metatool:Task2-Subtask3:719",
+            "metatool:Task2-Subtask3:723",
+            "metatool:Task2-Subtask3:731",
+            "metatool:Task2-Subtask3:776",
+            "metatool:Task2-Subtask3:781",
+            "metatool:Task2-Subtask3:791",
+            "metatool:Task2-Subtask3:825",
+            "metatool:Task2-Subtask3:829",
+            "metatool:Task2-Subtask3:851",
+            "metatool:Task2-Subtask3:862",
+            "metatool:Task2-Subtask3:870",
+            "metatool:Task2-Subtask3:889",
+            "metatool:Task2-Subtask3:907",
+            "metatool:Task2-Subtask3:910",
+            "metatool:Task2-Subtask3:922",
+            "metatool:Task2-Subtask3:93",
+            "metatool:Task2-Subtask3:94",
+            "metatool:Task2-Subtask3:944",
+            "metatool:Task2-Subtask3:948",
+            "metatool:Task2-Subtask3:956",
+            "metatool:Task2-Subtask3:99",
+            "metatool:Task2-Subtask3:990"
+          ],
+          "native_only": [
+            "metatool:Task2-Subtask3:170",
+            "metatool:Task2-Subtask3:244",
+            "metatool:Task2-Subtask3:29",
+            "metatool:Task2-Subtask3:314",
+            "metatool:Task2-Subtask3:370",
+            "metatool:Task2-Subtask3:47",
+            "metatool:Task2-Subtask3:566",
+            "metatool:Task2-Subtask3:576",
+            "metatool:Task2-Subtask3:879",
+            "metatool:Task2-Subtask3:88",
+            "metatool:Task2-Subtask3:914"
+          ],
+          "matched_only": [],
+          "both_wrong": [
+            "metatool:Task2-Subtask3:119",
+            "metatool:Task2-Subtask3:143",
+            "metatool:Task2-Subtask3:144",
+            "metatool:Task2-Subtask3:56",
+            "metatool:Task2-Subtask3:571"
+          ]
+        },
+        "selection_disagreement": {
+          "k": 11,
+          "n": 100,
+          "rate": 0.11,
+          "ci95": [
+            0.06254196329419368,
+            0.18631296574562342
+          ]
+        },
+        "disagreements": [
+          {
+            "task_id": "metatool:Task2-Subtask3:170",
+            "native": "__abstain__",
+            "matched": "metatool/speak"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask3:244",
+            "native": "__abstain__",
+            "matched": "metatool/web_requests"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask3:29",
+            "native": "__abstain__",
+            "matched": "metatool/placid"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask3:314",
+            "native": "__abstain__",
+            "matched": "metatool/web_requests"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask3:370",
+            "native": "__abstain__",
+            "matched": "metatool/CourseTool"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask3:47",
+            "native": "__abstain__",
+            "matched": "metatool/web_scraper"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask3:566",
+            "native": "__abstain__",
+            "matched": "metatool/DataRetrievalTool"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask3:576",
+            "native": "__abstain__",
+            "matched": "metatool/ai_council"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask3:879",
+            "native": "__abstain__",
+            "matched": "metatool/web_requests"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask3:88",
+            "native": "__abstain__",
+            "matched": "metatool/MemoryTool"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask3:914",
+            "native": "__abstain__",
+            "matched": "metatool/MixerBox_WebSearchG_web_search"
+          }
+        ],
+        "mcnemar_exact_p": 0.0009765625
+      },
+      "jev_stability": {
+        "n_tasks": 100,
+        "draws_per_task": [
+          10
+        ],
+        "tasks_with_any_flip": {
+          "k": 2,
+          "n": 100,
+          "rate": 0.02,
+          "ci95": [
+            0.0055019675006616475,
+            0.07001179131757478
+          ]
+        },
+        "mean_flip_rate": 0.01,
+        "mean_entropy_bits": 0.018522414936853613,
+        "max_entropy_bits": 0.9709505944546686,
+        "mean_max_probability_range": 0.019400000000000014,
+        "max_probability_range": 0.15000000000000008,
+        "mean_max_probability_std": 0.006104593761087112,
+        "executed_choice_equals_majority": {
+          "k": 99,
+          "n": 100,
+          "rate": 0.99,
+          "ci95": [
+            0.9455138032509935,
+            0.9982325679553905
+          ]
+        },
+        "unstable_tasks": [
+          {
+            "task_id": "metatool:Task2-Subtask3:314",
+            "frequencies": {
+              "__abstain__": 0.6,
+              "metatool/web_requests": 0.4
+            },
+            "executed": "metatool/web_requests",
+            "majority": "__abstain__"
+          },
+          {
+            "task_id": "metatool:Task2-Subtask3:45",
+            "frequencies": {
+              "__abstain__": 0.7,
+              "metatool/web_scraper": 0.3
+            },
+            "executed": "__abstain__",
+            "majority": "__abstain__"
+          }
+        ],
+        "note": "Jev native probabilities and empirical choice frequencies are different quantities; neither is compared numerically with Claude outputs."
+      }
+    },
+    "when2call": {
+      "role": "primary",
+      "condition": "architecture_matched_v1",
+      "source_rows": 3652,
+      "eligible": 3394,
+      "sampled": 150,
+      "not_eligible_by_reason": {
+        "adapter:no_candidate_tools": 258
+      },
+      "clusters_in_sample": 146,
+      "arms": {
+        "native_llm": {
+          "n": 150,
+          "selection_accuracy": {
+            "k": 122,
+            "n": 150,
+            "rate": 0.8133333333333334,
+            "ci95": [
+              0.7434428010905826,
+              0.8675758455313943
+            ]
+          },
+          "action_selection_accuracy": {
+            "k": 40,
+            "n": 50,
+            "rate": 0.8,
+            "ci95": [
+              0.6696289395351799,
+              0.8875625003576518
+            ]
+          },
+          "task_success": {
+            "k": 119,
+            "n": 150,
+            "rate": 0.7933333333333333,
+            "ci95": [
+              0.72160639757297,
+              0.8504110588390935
+            ]
+          },
+          "grounded_task_success": {
+            "k": 115,
+            "n": 150,
+            "rate": 0.7666666666666667,
+            "ci95": [
+              0.6928421841602659,
+              0.8271736853052465
+            ]
+          },
+          "abstention_rate": {
+            "k": 88,
+            "n": 150,
+            "rate": 0.5866666666666667,
+            "ci95": [
+              0.5066585669337845,
+              0.6623465906425069
+            ]
+          },
+          "by_source_label": {
+            "cannot_answer": {
+              "n": 50,
+              "abstained": {
+                "k": 42,
+                "n": 50,
+                "rate": 0.84,
+                "ci95": [
+                  0.7148578382325514,
+                  0.916625793645991
+                ]
+              },
+              "correct": {
+                "k": 42,
+                "n": 50,
+                "rate": 0.84,
+                "ci95": [
+                  0.7148578382325514,
+                  0.916625793645991
+                ]
+              }
+            },
+            "request_for_info": {
+              "n": 50,
+              "abstained": {
+                "k": 40,
+                "n": 50,
+                "rate": 0.8,
+                "ci95": [
+                  0.6696289395351799,
+                  0.8875625003576518
+                ]
+              },
+              "correct": {
+                "k": 40,
+                "n": 50,
+                "rate": 0.8,
+                "ci95": [
+                  0.6696289395351799,
+                  0.8875625003576518
+                ]
+              }
+            },
+            "tool_call": {
+              "n": 50,
+              "abstained": {
+                "k": 6,
+                "n": 50,
+                "rate": 0.12,
+                "ci95": [
+                  0.056176001181193605,
+                  0.23804817495455316
+                ]
+              },
+              "correct": {
+                "k": 40,
+                "n": 50,
+                "rate": 0.8,
+                "ci95": [
+                  0.6696289395351799,
+                  0.8875625003576518
+                ]
+              }
+            }
+          },
+          "selector_error_rate": {
+            "k": 5,
+            "n": 150,
+            "rate": 0.03333333333333333,
+            "ci95": [
+              0.014320431807431248,
+              0.07565179662792221
+            ]
+          },
+          "argument_error_rate": {
+            "k": 0,
+            "n": 57,
+            "rate": 0.0,
+            "ci95": [
+              0.0,
+              0.0631388357861509
+            ]
+          },
+          "execution_error_rate": {
+            "k": 3,
+            "n": 57,
+            "rate": 0.05263157894736842,
+            "ci95": [
+              0.01806029549306183,
+              0.14369550494717842
+            ]
+          },
+          "attacker_or_wrong_tool_rate": {
+            "k": 17,
+            "n": 150,
+            "rate": 0.11333333333333333,
+            "ci95": [
+              0.0719742388824878,
+              0.1740027503925193
+            ]
+          },
+          "arguments_match": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "ci95": null
+          },
+          "grounding": {
+            "placeholder_argument_count": 0,
+            "unsupported_required_argument_count": 7,
+            "unsupported_optional_argument_count": 10,
+            "unknown_argument_count": 28
+          },
+          "error_kinds": {
+            "multiple_tool_calls": 5,
+            "invalid_arguments": 3
+          }
+        },
+        "matched_llm": {
+          "n": 150,
+          "selection_accuracy": {
+            "k": 104,
+            "n": 150,
+            "rate": 0.6933333333333334,
+            "ci95": [
+              0.6154815480392916,
+              0.7615299573232049
+            ]
+          },
+          "action_selection_accuracy": {
+            "k": 47,
+            "n": 50,
+            "rate": 0.94,
+            "ci95": [
+              0.8378290820312557,
+              0.9793850298115638
+            ]
+          },
+          "task_success": {
+            "k": 98,
+            "n": 150,
+            "rate": 0.6533333333333333,
+            "ci95": [
+              0.5742042140291462,
+              0.7248049109135234
+            ]
+          },
+          "grounded_task_success": {
+            "k": 93,
+            "n": 150,
+            "rate": 0.62,
+            "ci95": [
+              0.5402444131787827,
+              0.6937627280806977
+            ]
+          },
+          "abstention_rate": {
+            "k": 60,
+            "n": 150,
+            "rate": 0.4,
+            "ci95": [
+              0.3250432068046245,
+              0.4799508421458083
+            ]
+          },
+          "by_source_label": {
+            "cannot_answer": {
+              "n": 50,
+              "abstained": {
+                "k": 35,
+                "n": 50,
+                "rate": 0.7,
+                "ci95": [
+                  0.5624964942316114,
+                  0.8089644656969429
+                ]
+              },
+              "correct": {
+                "k": 35,
+                "n": 50,
+                "rate": 0.7,
+                "ci95": [
+                  0.5624964942316114,
+                  0.8089644656969429
+                ]
+              }
+            },
+            "request_for_info": {
+              "n": 50,
+              "abstained": {
+                "k": 22,
+                "n": 50,
+                "rate": 0.44,
+                "ci95": [
+                  0.31162199120253675,
+                  0.576939720818897
+                ]
+              },
+              "correct": {
+                "k": 22,
+                "n": 50,
+                "rate": 0.44,
+                "ci95": [
+                  0.31162199120253675,
+                  0.576939720818897
+                ]
+              }
+            },
+            "tool_call": {
+              "n": 50,
+              "abstained": {
+                "k": 3,
+                "n": 50,
+                "rate": 0.06,
+                "ci95": [
+                  0.020614970188436152,
+                  0.16217091796874428
+                ]
+              },
+              "correct": {
+                "k": 47,
+                "n": 50,
+                "rate": 0.94,
+                "ci95": [
+                  0.8378290820312557,
+                  0.9793850298115638
+                ]
+              }
+            }
+          },
+          "selector_error_rate": {
+            "k": 0,
+            "n": 150,
+            "rate": 0.0,
+            "ci95": [
+              1.734723475976807e-18,
+              0.024970244752164417
+            ]
+          },
+          "argument_error_rate": {
+            "k": 5,
+            "n": 90,
+            "rate": 0.05555555555555555,
+            "ci95": [
+              0.023960971465289575,
+              0.12353736292020459
+            ]
+          },
+          "execution_error_rate": {
+            "k": 14,
+            "n": 85,
+            "rate": 0.16470588235294117,
+            "ci95": [
+              0.10072462026031169,
+              0.25768303402911663
+            ]
+          },
+          "attacker_or_wrong_tool_rate": {
+            "k": 43,
+            "n": 150,
+            "rate": 0.2866666666666667,
+            "ci95": [
+              0.2203381263998494,
+              0.36364917802774066
+            ]
+          },
+          "arguments_match": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "ci95": null
+          },
+          "grounding": {
+            "placeholder_argument_count": 14,
+            "unsupported_required_argument_count": 21,
+            "unsupported_optional_argument_count": 12,
+            "unknown_argument_count": 40
+          },
+          "error_kinds": {
+            "placeholder_arguments": 9,
+            "multiple_tool_calls": 5,
+            "invalid_arguments": 5
+          }
+        },
+        "jev": {
+          "n": 150,
+          "selection_accuracy": {
+            "k": 108,
+            "n": 150,
+            "rate": 0.72,
+            "ci95": [
+              0.6433434983193677,
+              0.78566959398968
+            ]
+          },
+          "action_selection_accuracy": {
+            "k": 49,
+            "n": 50,
+            "rate": 0.98,
+            "ci95": [
+              0.8950455630610349,
+              0.9964607407674954
+            ]
+          },
+          "task_success": {
+            "k": 102,
+            "n": 150,
+            "rate": 0.68,
+            "ci95": [
+              0.6016560019646627,
+              0.7493547099245582
+            ]
+          },
+          "grounded_task_success": {
+            "k": 96,
+            "n": 150,
+            "rate": 0.64,
+            "ci95": [
+              0.560574163442394,
+              0.7124341680270001
+            ]
+          },
+          "abstention_rate": {
+            "k": 60,
+            "n": 150,
+            "rate": 0.4,
+            "ci95": [
+              0.3250432068046245,
+              0.4799508421458083
+            ]
+          },
+          "by_source_label": {
+            "cannot_answer": {
+              "n": 50,
+              "abstained": {
+                "k": 39,
+                "n": 50,
+                "rate": 0.78,
+                "ci95": [
+                  0.6475845030451719,
+                  0.8724608408548042
+                ]
+              },
+              "correct": {
+                "k": 39,
+                "n": 50,
+                "rate": 0.78,
+                "ci95": [
+                  0.6475845030451719,
+                  0.8724608408548042
+                ]
+              }
+            },
+            "request_for_info": {
+              "n": 50,
+              "abstained": {
+                "k": 20,
+                "n": 50,
+                "rate": 0.4,
+                "ci95": [
+                  0.27608389644428605,
+                  0.5381856235914368
+                ]
+              },
+              "correct": {
+                "k": 20,
+                "n": 50,
+                "rate": 0.4,
+                "ci95": [
+                  0.27608389644428605,
+                  0.5381856235914368
+                ]
+              }
+            },
+            "tool_call": {
+              "n": 50,
+              "abstained": {
+                "k": 1,
+                "n": 50,
+                "rate": 0.02,
+                "ci95": [
+                  0.003539259232504602,
+                  0.10495443693896496
+                ]
+              },
+              "correct": {
+                "k": 49,
+                "n": 50,
+                "rate": 0.98,
+                "ci95": [
+                  0.8950455630610349,
+                  0.9964607407674954
+                ]
+              }
+            }
+          },
+          "selector_error_rate": {
+            "k": 0,
+            "n": 150,
+            "rate": 0.0,
+            "ci95": [
+              1.734723475976807e-18,
+              0.024970244752164417
+            ]
+          },
+          "argument_error_rate": {
+            "k": 6,
+            "n": 90,
+            "rate": 0.06666666666666667,
+            "ci95": [
+              0.030909927565024732,
+              0.1379009484608321
+            ]
+          },
+          "execution_error_rate": {
+            "k": 19,
+            "n": 84,
+            "rate": 0.2261904761904762,
+            "ci95": [
+              0.1498602078767705,
+              0.3264690723306335
+            ]
+          },
+          "attacker_or_wrong_tool_rate": {
+            "k": 41,
+            "n": 150,
+            "rate": 0.2733333333333333,
+            "ci95": [
+              0.20834143157443102,
+              0.3496450793798834
+            ]
+          },
+          "arguments_match": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "ci95": null
+          },
+          "grounding": {
+            "placeholder_argument_count": 19,
+            "unsupported_required_argument_count": 19,
+            "unsupported_optional_argument_count": 12,
+            "unknown_argument_count": 39
+          },
+          "error_kinds": {
+            "placeholder_arguments": 14,
+            "multiple_tool_calls": 6,
+            "invalid_arguments": 5
+          }
+        }
+      },
+      "native_vs_matched": {
+        "n_pairs": 150,
+        "counts": {
+          "both_correct": 96,
+          "native_only": 26,
+          "matched_only": 8,
+          "both_wrong": 20
+        },
+        "task_ids": {
+          "both_correct": [
+            "when2call:04fed8c1-e347-416c-8887-16d2b020a36c",
+            "when2call:066a229a-8769-495a-aa20-fc1aa3e857c9",
+            "when2call:071a6369-008d-4f51-bbef-520cdbdb967d",
+            "when2call:089a3405-89ca-4608-9058-a19ced3201bc",
+            "when2call:08abb2e6-71e5-44b8-ad9d-a73792fc9027",
+            "when2call:092f1707-46ff-4fe6-a9e9-830d2bd0c942",
+            "when2call:0a594572-ccae-497a-bb70-7e5d2586087d",
+            "when2call:0a822271-0e12-4d5f-a4f3-35d92b17d3fc",
+            "when2call:0ae0015a-6cfd-43d0-a820-e3b723fcbf5a",
+            "when2call:0bcc59ba-e2c1-4c83-b8b9-93c5804b27a2",
+            "when2call:0bd9f0cb-a963-4c38-8ea9-7b17c71e6148",
+            "when2call:11241ed9-4b6e-4d4c-910a-cfb98280064c",
+            "when2call:1154584e-99ad-4a18-833a-24d2b00a191a",
+            "when2call:11d27568-7fd5-4de8-8bfa-e68e1dcd140f",
+            "when2call:1291014f-e28b-457c-aa0d-7e9dee58d7bb",
+            "when2call:15c7ee9d-7d3f-4f9d-800e-2ffd54facfba",
+            "when2call:18320cd4-2304-4c6e-933b-d8bf095eabbb",
+            "when2call:1ca93e17-35dc-47b7-99a2-57478d3138f0",
+            "when2call:1cdc22cd-0714-4d9e-8fcf-1322f20b3d3d",
+            "when2call:1fc94786-713e-4947-b81a-9da586628c6a",
+            "when2call:215056fc-a06c-45dd-b0ff-7b3456a38267",
+            "when2call:272e8f7e-91f8-4d35-8e87-c2d7755a6378",
+            "when2call:2a0bda66-6118-4582-a5ef-d80b01d3da39",
+            "when2call:2c59689e-943f-4304-a69c-29e9ee19e946",
+            "when2call:2eb321d2-1578-45e2-be9c-da5615ea9e3e",
+            "when2call:338ff826-f73c-48a8-88e1-67339ddf9fff",
+            "when2call:348d8c4d-0b4e-4ed5-b823-dc5c05d8185e",
+            "when2call:3525749f-00b1-43b3-beec-509eabab4c60",
+            "when2call:36d2707b-ef39-45c7-ae8b-aa4234d3fbff",
+            "when2call:36e17947-4b05-4a6c-9f3d-91fee8e66d87",
+            "when2call:39610ecf-624a-4948-a42d-4ecb5b802cb2",
+            "when2call:407345b0-5b15-48b1-94b4-0e7c9128ca98",
+            "when2call:43e072db-d19d-45b9-80b0-7ae2cf292858",
+            "when2call:470e8369-3a16-4f1a-89bc-fc2cfd56dd33",
+            "when2call:47651460-d3a7-408c-865b-c6577a1421f2",
+            "when2call:4b0defa3-94fd-4243-9e75-eb57389ff526",
+            "when2call:4c113062-e393-4038-840a-54e772ba851d",
+            "when2call:4c5a1a73-345f-46c6-bdaa-49625c22b5ec",
+            "when2call:510c6c2d-3c07-4363-b19f-669a2f3af645",
+            "when2call:551547bb-b5fb-46ae-90d4-6aebb82ed64d",
+            "when2call:555e4d62-7d60-4ce4-b8db-9f0eeee671e8",
+            "when2call:55a1e76c-288d-456a-a9e2-5be7ce43034d",
+            "when2call:5bf2cadc-9baa-4a1a-aef5-2501264b18e5",
+            "when2call:61d2de1e-3344-40b4-b00a-8de347ef5757",
+            "when2call:6274257b-5450-4da7-85b8-f5263dddefc2",
+            "when2call:67523749-0a55-4037-98f1-363d2ad6d3eb",
+            "when2call:678b3e8a-22a3-4531-8c93-325add24caab",
+            "when2call:6a25fb65-2951-4291-9ead-0ade4b92b9f2",
+            "when2call:6d5f6273-dbd6-46ae-8ff1-66e787820876",
+            "when2call:6e38f2f6-41b0-4401-8d08-d1f3112ce8ca",
+            "when2call:71652127-3f76-4e80-bb0a-190d0820dcb5",
+            "when2call:71956353-18ed-4e0e-abf0-e904066f09cc",
+            "when2call:7a9a7fb6-7ef4-403d-adbf-ff491d156aca",
+            "when2call:7f3e5a2a-0d62-47a3-b040-07cd181ddebc",
+            "when2call:84f04ce6-d75a-4a06-b483-37b06ddb7062",
+            "when2call:87bbc40c-eaf7-4fe3-9f70-c8fd4e0d500b",
+            "when2call:8b2d09a5-3248-44d8-9424-a89c37e23a03",
+            "when2call:8bd5d5fb-7613-458c-89f8-a1f61270ba31",
+            "when2call:8db1d96e-51c0-487d-ad73-d34314f1575f",
+            "when2call:8e402e7d-8d12-4606-b187-706ee5ebc716",
+            "when2call:8e590f9e-ba4b-4643-b5e1-99654f08390a",
+            "when2call:8e5a4c6a-c691-440f-bb90-9b9bb16add04",
+            "when2call:93efedb7-dc4b-450d-9ee8-31465ba51f1e",
+            "when2call:9f65b9a1-d558-43ae-8dcd-30c5dd74b8f5",
+            "when2call:a23248cd-f166-4999-87fe-0cb801dd46a7",
+            "when2call:a3115e63-da53-491e-8114-6af6a4abb137",
+            "when2call:a484bcb0-038d-4560-939e-a1122574a983",
+            "when2call:a6996211-7bcf-4823-8eaa-50c539b6d662",
+            "when2call:aaaeb68a-8200-487d-877e-5ee87726a74c",
+            "when2call:ab5bbf43-5896-4c1a-b693-7a6e966b9531",
+            "when2call:ac080994-8c85-4d95-a02b-e242c78250e7",
+            "when2call:ad9c62b8-2279-43a7-bc60-8054a2a73b96",
+            "when2call:b0d41d0e-29d4-4127-87fd-615f8c765fba",
+            "when2call:b0f146fc-625a-424c-b62b-04d60600ed44",
+            "when2call:b6ae4174-75a4-422d-b079-9c7943189c4b",
+            "when2call:c8a530dc-6422-4396-b062-a4e130fbdd71",
+            "when2call:c8d83563-baab-442c-ab1c-c5c86b0bfe77",
+            "when2call:c9f47ea6-72ba-4304-8eb1-9092c58e8bf6",
+            "when2call:d3bd4449-306c-4f50-a69f-0d20c0a53ff2",
+            "when2call:d3caf047-8620-47e2-bd4a-4033e1c9baec",
+            "when2call:d72eb567-49d0-49bf-bf74-addd5b35354a",
+            "when2call:d7c53b96-2dd9-439d-9c23-cb42f0d5cd91",
+            "when2call:d8bbe264-1aba-42f1-a568-7000a902af06",
+            "when2call:db7b8828-5b37-40eb-9795-ce96bfd7ee51",
+            "when2call:dfbdec9f-968b-40a0-a56f-81900cbdd5f4",
+            "when2call:e02689f8-b9f0-4d0f-a865-a2e90d26ff81",
+            "when2call:e10ee13b-a2f8-4567-8cf0-2480844351be",
+            "when2call:e3ded7a2-ba4c-4c7e-970e-ae24e6eb1da9",
+            "when2call:e96e7007-7cfb-44b9-8d96-772bf187ac1f",
+            "when2call:e9cce3a4-f8c2-46d8-a38f-c2bfbc854246",
+            "when2call:ee85089b-124c-42dd-86e5-ff54dd8d1ec4",
+            "when2call:ee9247c1-fb1e-48eb-9086-6281307593e4",
+            "when2call:f53a493c-acf0-4b36-bb15-3cec60dfe378",
+            "when2call:f61d31e8-046f-4ca1-a58d-fcadfffcd5ca",
+            "when2call:fdd330c1-edf0-4739-af41-a500ed322f73",
+            "when2call:ff9a1b39-e23b-4074-b72e-2230c0f91766"
+          ],
+          "native_only": [
+            "when2call:030c988c-e196-4ed1-abfc-ea0d6b7120c1",
+            "when2call:29708c60-1240-4ba7-802a-dce8eff5b46e",
+            "when2call:388b9e56-0208-4d72-b342-93c7c41a8a65",
+            "when2call:3eeab7b3-866b-4d75-b618-e80dd1c2a58a",
+            "when2call:476efe7e-1ebb-4b04-a70e-75ad92a5ad26",
+            "when2call:4e644d8f-1c33-4e99-ad33-b6fac7e09a70",
+            "when2call:4f0437d6-8555-4800-a7e1-033a9706bc02",
+            "when2call:5703a9f7-af86-41af-a47f-7785e55bcffc",
+            "when2call:57ab013c-ffac-4971-acf8-cbab3c319349",
+            "when2call:618c94b4-5799-496e-a6b0-49abae5b546f",
+            "when2call:6cd1cd03-58c0-4ab9-8bbf-abfc22e27782",
+            "when2call:6d2b99c6-0877-48f0-8144-49966cac6251",
+            "when2call:8dc10c5b-3c97-42b5-97ae-79c05bfa347c",
+            "when2call:934503e8-a4b6-4116-a7c2-36d5c634f604",
+            "when2call:9ee94ab9-21e8-4862-b70e-a41ff7212946",
+            "when2call:a1b0372b-554d-49d5-8569-df71934327b4",
+            "when2call:d26a06ec-00f9-4ca5-9900-ebc91aab3754",
+            "when2call:df5c92c9-0f51-4f55-9db7-63e5098a77d6",
+            "when2call:dfc9a0d3-2c45-43fe-991a-a216bcaed71b",
+            "when2call:e0244216-9230-4b6a-bdf5-5b5e864de53e",
+            "when2call:e07603b5-82b7-4005-8618-d202478ad769",
+            "when2call:efc6b5f3-cc29-4ece-8919-2641df2d217c",
+            "when2call:f1fffeed-6347-458e-9e1a-781addd58969",
+            "when2call:f692a549-d7f0-4255-a998-c80e772db19a",
+            "when2call:fc544089-f1d9-4b84-b027-4ad287501cb8",
+            "when2call:fe413ba7-6c48-4209-bf9e-87e15441f174"
+          ],
+          "matched_only": [
+            "when2call:22cae9c3-d727-41e4-8ec9-0fe4beafa45a",
+            "when2call:47451af7-c1f3-4832-beb2-fbb5cb329743",
+            "when2call:483e9a31-fb37-4d98-84f1-ce1d57597134",
+            "when2call:8055062b-9cfd-4528-9e29-0b55cad50a71",
+            "when2call:b85f4eb6-7eb4-4d37-a0c3-f0460dd66cbc",
+            "when2call:c16d7914-f0be-4afe-ae71-b9926380ea47",
+            "when2call:eaf6f6c7-3e59-4de3-9bcf-094cba2bc64f",
+            "when2call:f3b6e0a8-1563-4556-a608-24ad528c6416"
+          ],
+          "both_wrong": [
+            "when2call:01bf2c33-07d8-4402-ad55-4a412f98163a",
+            "when2call:07f58f7c-73ad-4be5-956e-cbf334cfe2fd",
+            "when2call:0923dff5-71d7-410f-97c9-e29bd74189c1",
+            "when2call:114068ef-a5de-4486-8ba5-0b10d5d0f567",
+            "when2call:129bbe7b-dbe1-450f-94f8-ff6b00442ce1",
+            "when2call:19de9137-bf87-4695-bcb2-be8c022e115a",
+            "when2call:233a2d44-119b-470e-afba-4430973d219f",
+            "when2call:2c432a41-038c-4531-bf04-1a861bfffac2",
+            "when2call:4ae55d9e-315d-4588-a9a5-6bde7c13f585",
+            "when2call:673bda24-096e-4849-9d93-0d1576c18d56",
+            "when2call:7183a2b2-95e1-4082-aa9e-38757db4c505",
+            "when2call:8cb53184-a0f0-4bea-8d95-3cde47412006",
+            "when2call:95cb1fe0-c59c-4500-a74f-659027a86d2a",
+            "when2call:a058cadd-2bf1-4fc4-86d9-541525854c9a",
+            "when2call:bcfc3fa1-43aa-4408-b79d-63129a50a2cd",
+            "when2call:c26333db-6884-4bb6-9be3-106e297ec4fd",
+            "when2call:d3ae548e-95cd-4365-8e0f-1b6b6419b4bd",
+            "when2call:ec6acb88-93bd-46b1-bbcb-5c683cae19f2",
+            "when2call:f09266b1-2113-4ad4-8803-c07acc37db4a",
+            "when2call:f0ec7bf8-2938-43c4-a76c-dd7be7c1cd3e"
+          ]
+        },
+        "selection_disagreement": {
+          "k": 37,
+          "n": 150,
+          "rate": 0.24666666666666667,
+          "ci95": [
+            0.1845816291195474,
+            0.3214032948882159
+          ]
+        },
+        "disagreements": [
+          {
+            "task_id": "when2call:030c988c-e196-4ed1-abfc-ea0d6b7120c1",
+            "native": "__abstain__",
+            "matched": "when2call/api_token_api_APITokenApi_get_api_tokens"
+          },
+          {
+            "task_id": "when2call:129bbe7b-dbe1-450f-94f8-ff6b00442ce1",
+            "native": "when2call/product_search",
+            "matched": "when2call/get_product_details"
+          },
+          {
+            "task_id": "when2call:22cae9c3-d727-41e4-8ec9-0fe4beafa45a",
+            "native": null,
+            "matched": "when2call/Movies_1_FindMovies"
+          },
+          {
+            "task_id": "when2call:233a2d44-119b-470e-afba-4430973d219f",
+            "native": null,
+            "matched": "when2call/search_engine_query"
+          },
+          {
+            "task_id": "when2call:29708c60-1240-4ba7-802a-dce8eff5b46e",
+            "native": "__abstain__",
+            "matched": "when2call/get_time_to_collision"
+          },
+          {
+            "task_id": "when2call:388b9e56-0208-4d72-b342-93c7c41a8a65",
+            "native": "__abstain__",
+            "matched": "when2call/Events_3_FindEvents"
+          },
+          {
+            "task_id": "when2call:3eeab7b3-866b-4d75-b618-e80dd1c2a58a",
+            "native": "__abstain__",
+            "matched": "when2call/Media_3_FindMovies"
+          },
+          {
+            "task_id": "when2call:47451af7-c1f3-4832-beb2-fbb5cb329743",
+            "native": null,
+            "matched": "when2call/Movies_1_FindMovies"
+          },
+          {
+            "task_id": "when2call:476efe7e-1ebb-4b04-a70e-75ad92a5ad26",
+            "native": "__abstain__",
+            "matched": "when2call/Movies_1_GetTimesForMovie"
+          },
+          {
+            "task_id": "when2call:483e9a31-fb37-4d98-84f1-ce1d57597134",
+            "native": "__abstain__",
+            "matched": "when2call/inventory_management"
+          },
+          {
+            "task_id": "when2call:4e644d8f-1c33-4e99-ad33-b6fac7e09a70",
+            "native": "__abstain__",
+            "matched": "when2call/get_current_weather"
+          },
+          {
+            "task_id": "when2call:4f0437d6-8555-4800-a7e1-033a9706bc02",
+            "native": "__abstain__",
+            "matched": "when2call/get_adriel_experiences_and_education"
+          },
+          {
+            "task_id": "when2call:5703a9f7-af86-41af-a47f-7785e55bcffc",
+            "native": "__abstain__",
+            "matched": "when2call/get_adriel_list_projects"
+          },
+          {
+            "task_id": "when2call:57ab013c-ffac-4971-acf8-cbab3c319349",
+            "native": "__abstain__",
+            "matched": "when2call/Events_3_BuyEventTickets"
+          },
+          {
+            "task_id": "when2call:618c94b4-5799-496e-a6b0-49abae5b546f",
+            "native": "__abstain__",
+            "matched": "when2call/Music_3_PlayMedia"
+          },
+          {
+            "task_id": "when2call:6cd1cd03-58c0-4ab9-8bbf-abfc22e27782",
+            "native": "__abstain__",
+            "matched": "when2call/initialize_question_answering_pipeline"
+          },
+          {
+            "task_id": "when2call:6d2b99c6-0877-48f0-8144-49966cac6251",
+            "native": "__abstain__",
+            "matched": "when2call/Events_3_FindEvents"
+          },
+          {
+            "task_id": "when2call:7183a2b2-95e1-4082-aa9e-38757db4c505",
+            "native": "when2call/Alltransactions",
+            "matched": "when2call/transaction_summary_generate"
+          },
+          {
+            "task_id": "when2call:8055062b-9cfd-4528-9e29-0b55cad50a71",
+            "native": null,
+            "matched": "when2call/Events_3_FindEvents"
+          },
+          {
+            "task_id": "when2call:8dc10c5b-3c97-42b5-97ae-79c05bfa347c",
+            "native": "__abstain__",
+            "matched": "when2call/get_adriel_experiences_and_education"
+          },
+          {
+            "task_id": "when2call:934503e8-a4b6-4116-a7c2-36d5c634f604",
+            "native": "__abstain__",
+            "matched": "when2call/Movies_1_GetTimesForMovie"
+          },
+          {
+            "task_id": "when2call:9ee94ab9-21e8-4862-b70e-a41ff7212946",
+            "native": "__abstain__",
+            "matched": "when2call/rotateImageAction"
+          },
+          {
+            "task_id": "when2call:a1b0372b-554d-49d5-8569-df71934327b4",
+            "native": "__abstain__",
+            "matched": "when2call/order_status_check"
+          },
+          {
+            "task_id": "when2call:b85f4eb6-7eb4-4d37-a0c3-f0460dd66cbc",
+            "native": "__abstain__",
+            "matched": "when2call/book_flight"
+          },
+          {
+            "task_id": "when2call:c16d7914-f0be-4afe-ae71-b9926380ea47",
+            "native": null,
+            "matched": "when2call/Events_3_FindEvents"
+          },
+          {
+            "task_id": "when2call:d26a06ec-00f9-4ca5-9900-ebc91aab3754",
+            "native": "__abstain__",
+            "matched": "when2call/Services_4_FindProvider"
+          },
+          {
+            "task_id": "when2call:df5c92c9-0f51-4f55-9db7-63e5098a77d6",
+            "native": "__abstain__",
+            "matched": "when2call/Hotels_2_SearchHouse"
+          },
+          {
+            "task_id": "when2call:dfc9a0d3-2c45-43fe-991a-a216bcaed71b",
+            "native": "__abstain__",
+            "matched": "when2call/Hotels_4_SearchHotel"
+          },
+          {
+            "task_id": "when2call:e0244216-9230-4b6a-bdf5-5b5e864de53e",
+            "native": "__abstain__",
+            "matched": "when2call/Homes_2_FindHomeByArea"
+          },
+          {
+            "task_id": "when2call:e07603b5-82b7-4005-8618-d202478ad769",
+            "native": "__abstain__",
+            "matched": "when2call/get_service_providers"
+          },
+          {
+            "task_id": "when2call:eaf6f6c7-3e59-4de3-9bcf-094cba2bc64f",
+            "native": "__abstain__",
+            "matched": "when2call/Buses_3_FindBus"
+          },
+          {
+            "task_id": "when2call:efc6b5f3-cc29-4ece-8919-2641df2d217c",
+            "native": "__abstain__",
+            "matched": "when2call/RideSharing_2_GetRide"
+          },
+          {
+            "task_id": "when2call:f1fffeed-6347-458e-9e1a-781addd58969",
+            "native": "__abstain__",
+            "matched": "when2call/get_adriel_projects"
+          },
+          {
+            "task_id": "when2call:f3b6e0a8-1563-4556-a608-24ad528c6416",
+            "native": "__abstain__",
+            "matched": "when2call/Movies_3_FindMovies"
+          },
+          {
+            "task_id": "when2call:f692a549-d7f0-4255-a998-c80e772db19a",
+            "native": "__abstain__",
+            "matched": "when2call/get_service_providers"
+          },
+          {
+            "task_id": "when2call:fc544089-f1d9-4b84-b027-4ad287501cb8",
+            "native": "__abstain__",
+            "matched": "when2call/get_headway"
+          },
+          {
+            "task_id": "when2call:fe413ba7-6c48-4209-bf9e-87e15441f174",
+            "native": "when2call/uber_eat_order",
+            "matched": "__abstain__"
+          }
+        ],
+        "mcnemar_exact_p": 0.0029350556433200836
+      },
+      "jev_stability": {
+        "n_tasks": 150,
+        "draws_per_task": [
+          10
+        ],
+        "tasks_with_any_flip": {
+          "k": 6,
+          "n": 150,
+          "rate": 0.04,
+          "ci95": [
+            0.01845916049402265,
+            0.08451346467796861
+          ]
+        },
+        "mean_flip_rate": 0.013629629629629629,
+        "mean_entropy_bits": 0.027332436467399166,
+        "max_entropy_bits": 1.0,
+        "mean_max_probability_range": 0.034933333333333344,
+        "max_probability_range": 0.13,
+        "mean_max_probability_std": 0.010679761765902313,
+        "executed_choice_equals_majority": {
+          "k": 148,
+          "n": 150,
+          "rate": 0.9866666666666667,
+          "ci95": [
+            0.9526930908928354,
+            0.9963358708817246
+          ]
+        },
+        "unstable_tasks": [
+          {
+            "task_id": "when2call:129bbe7b-dbe1-450f-94f8-ff6b00442ce1",
+            "frequencies": {
+              "when2call/get_product_details": 0.9,
+              "when2call/product_search": 0.1
+            },
+            "executed": "when2call/get_product_details",
+            "majority": "when2call/get_product_details"
+          },
+          {
+            "task_id": "when2call:673bda24-096e-4849-9d93-0d1576c18d56",
+            "frequencies": {
+              "__abstain__": 0.1,
+              "when2call/Music_3_LookupMusic": 0.9
+            },
+            "executed": "when2call/Music_3_LookupMusic",
+            "majority": "when2call/Music_3_LookupMusic"
+          },
+          {
+            "task_id": "when2call:7183a2b2-95e1-4082-aa9e-38757db4c505",
+            "frequencies": {
+              "when2call/TotalTransactions_calculate": 0.1,
+              "when2call/transaction_summary_generate": 0.9
+            },
+            "executed": "when2call/transaction_summary_generate",
+            "majority": "when2call/transaction_summary_generate"
+          },
+          {
+            "task_id": "when2call:a1b0372b-554d-49d5-8569-df71934327b4",
+            "frequencies": {
+              "__abstain__": 0.8,
+              "when2call/order_status_check": 0.2
+            },
+            "executed": "when2call/order_status_check",
+            "majority": "__abstain__"
+          },
+          {
+            "task_id": "when2call:df5c92c9-0f51-4f55-9db7-63e5098a77d6",
+            "frequencies": {
+              "__abstain__": 0.5,
+              "when2call/Hotels_2_SearchHouse": 0.5
+            },
+            "executed": "__abstain__",
+            "majority": null
+          },
+          {
+            "task_id": "when2call:fc544089-f1d9-4b84-b027-4ad287501cb8",
+            "frequencies": {
+              "__abstain__": 0.6,
+              "when2call/get_headway": 0.4
+            },
+            "executed": "__abstain__",
+            "majority": "__abstain__"
+          }
+        ],
+        "note": "Jev native probabilities and empirical choice frequencies are different quantities; neither is compared numerically with Claude outputs."
+      }
+    }
+  },
+  "cost": {
+    "table": [
+      {
+        "dataset": "bfcl_irrelevance",
+        "arm": "jev",
+        "selection": 0.02203571999999994,
+        "arguments": 0.008459,
+        "total": 0.03049471999999994
+      },
+      {
+        "dataset": "bfcl_irrelevance",
+        "arm": "matched_llm",
+        "selection": 0.06565700000000001,
+        "arguments": 0.014277000000000001,
+        "total": 0.079934
+      },
+      {
+        "dataset": "bfcl_irrelevance",
+        "arm": "native_llm",
+        "selection": 0.166345,
+        "arguments": 0.0,
+        "total": 0.166345
+      },
+      {
+        "dataset": "bfcl_live_irrelevance",
+        "arm": "jev",
+        "selection": 0.042848819999999996,
+        "arguments": 0.031935,
+        "total": 0.07478382
+      },
+      {
+        "dataset": "bfcl_live_irrelevance",
+        "arm": "matched_llm",
+        "selection": 0.113319,
+        "arguments": 0.026539,
+        "total": 0.139858
+      },
+      {
+        "dataset": "bfcl_live_irrelevance",
+        "arm": "native_llm",
+        "selection": 0.19887500000000005,
+        "arguments": 0.0,
+        "total": 0.19887500000000005
+      },
+      {
+        "dataset": "bfcl_live_simple",
+        "arm": "jev",
+        "selection": 0.02540369999999998,
+        "arguments": 0.11646500000000001,
+        "total": 0.1418687
+      },
+      {
+        "dataset": "bfcl_live_simple",
+        "arm": "matched_llm",
+        "selection": 0.07423100000000002,
+        "arguments": 0.11775600000000003,
+        "total": 0.19198700000000005
+      },
+      {
+        "dataset": "bfcl_live_simple",
+        "arm": "native_llm",
+        "selection": 0.128542,
+        "arguments": 0.0,
+        "total": 0.128542
+      },
+      {
+        "dataset": "bfcl_simple_python",
+        "arm": "jev",
+        "selection": 0.022521240000000036,
+        "arguments": 0.114626,
+        "total": 0.13714724000000003
+      },
+      {
+        "dataset": "bfcl_simple_python",
+        "arm": "matched_llm",
+        "selection": 0.06716300000000001,
+        "arguments": 0.11575600000000003,
+        "total": 0.18291900000000005
+      },
+      {
+        "dataset": "bfcl_simple_python",
+        "arm": "native_llm",
+        "selection": 0.12031299999999995,
+        "arguments": 0.0,
+        "total": 0.12031299999999995
+      },
+      {
+        "dataset": "metatool_s1",
+        "arm": "jev",
+        "selection": 0.03000899999999995,
+        "arguments": 0.072128,
+        "total": 0.10213699999999995
+      },
+      {
+        "dataset": "metatool_s1",
+        "arm": "matched_llm",
+        "selection": 0.08781200000000003,
+        "arguments": 0.073672,
+        "total": 0.16148400000000002
+      },
+      {
+        "dataset": "metatool_s1",
+        "arm": "native_llm",
+        "selection": 0.170142,
+        "arguments": 0.0,
+        "total": 0.170142
+      },
+      {
+        "dataset": "metatool_s3",
+        "arm": "jev",
+        "selection": 0.030028320000000098,
+        "arguments": 0.0065190000000000005,
+        "total": 0.0365473200000001
+      },
+      {
+        "dataset": "metatool_s3",
+        "arm": "matched_llm",
+        "selection": 0.08766100000000003,
+        "arguments": 0.014498999999999998,
+        "total": 0.10216000000000003
+      },
+      {
+        "dataset": "metatool_s3",
+        "arm": "native_llm",
+        "selection": 0.234406,
+        "arguments": 0.0,
+        "total": 0.234406
+      },
+      {
+        "dataset": "when2call",
+        "arm": "jev",
+        "selection": 0.0803888399999999,
+        "arguments": 0.12066800000000004,
+        "total": 0.20105683999999996
+      },
+      {
+        "dataset": "when2call",
+        "arm": "matched_llm",
+        "selection": 0.20553299999999983,
+        "arguments": 0.11949200000000004,
+        "total": 0.3250249999999999
+      },
+      {
+        "dataset": "when2call",
+        "arm": "native_llm",
+        "selection": 0.297179,
+        "arguments": 0.0,
+        "total": 0.297179
+      }
+    ],
+    "by_dataset": {
+      "bfcl_irrelevance": 0.27677371999999995,
+      "bfcl_live_irrelevance": 0.41351682000000006,
+      "bfcl_live_simple": 0.4623977,
+      "bfcl_simple_python": 0.44037924,
+      "metatool_s1": 0.433763,
+      "metatool_s3": 0.37311332000000014,
+      "when2call": 0.8232608399999999
+    },
+    "by_arm": {
+      "jev": 0.7240356399999999,
+      "matched_llm": 1.183367,
+      "native_llm": 1.315802
+    },
+    "by_stage": {
+      "selection": 2.2704136399999997,
+      "arguments": 0.9527910000000002
+    },
+    "total_usd": 3.22320464,
+    "provider_calls": {
+      "anthropic/claude-haiku-4.5": 2329,
+      "typesafe/jev-1.13-20260917": 7500
+    }
+  },
+  "estimate_usd": 5.561820425
+}

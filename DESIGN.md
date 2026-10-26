@@ -453,6 +453,65 @@ Every skipped row is an `Exclusion` with a reason.
 
 Grounding rules come only from the ground truth: an accepted value the checker would otherwise call unsupported becomes a `fixture_default` for that path. Examples are 40% → 0.4, "112.07 W" → −112.07, ordinals, and documented defaults. A test asserts that no rule value is absent from the source.
 
+### External benchmark pilot path (Phase 4 runner)
+
+**Datasets** (`datasets/external/registry.py`). Each name fixes the adapter source, the eligible items, the serialization condition and the sampling:
+
+| name | role | condition | eligible / source rows | default sample |
+|---|---|---|---|---|
+| `when2call` | primary | `architecture_matched_v1` | 3,394 / 3,652 | 150, stratified 50 `tool_call` / 50 `request_for_info` / 50 `cannot_answer` |
+| `metatool_s1` | primary | `ecological_name_description_v1` | 995 / 995 | 100 |
+| `metatool_s3` | primary | `ecological_name_description_v1` | 995 / 995 | 100 |
+| `bfcl_simple_python` | primary | `architecture_matched_v1` | 399 / 400 | 100 |
+| `bfcl_irrelevance` | primary | `architecture_matched_v1` | 240 / 240 | 100 |
+| `bfcl_live_simple` | primary | `architecture_matched_v1` | 217 / 258 | 100 |
+| `bfcl_live_irrelevance` | primary | `architecture_matched_v1` | 871 / 884 | 100 |
+| `bfcl_multiple`, `bfcl_live_multiple` | primary (not in the first pilot) | `architecture_matched_v1` | 200 / 200, 922 / 1,053 | 100 |
+| `bfcl_live_relevance` | **sanity_only** | `architecture_matched_v1` | 5 / 16 | 5; never in a headline aggregate |
+| `bfcl_schema_inconsistent`, `bfcl_na_gold`, `bfcl_ambiguous_empty_alternative` | **diagnostic** | `architecture_matched_v1` | 173 / 20 / 2 items | all |
+
+- **Primary BFCL filters.** Items flagged `gold_schema_inconsistent`, `gold_contains_placeholder` (literal "N/A" gold) or `gold_empty_alternative` (undocumented `[]`) are excluded from primary subsets.
+  - They are kept as the diagnostic subsets above. An item with several flags is in each matching subset, with every reason recorded.
+  - `scripts/plan_external_pilot.py` writes their full source id, split, original gold, original schema and reasons to a local `diagnostics_bfcl.jsonl`. The committed `diagnostics_summary.json` holds ids and reasons only.
+- **Conditions.** MetaTool has no source schemas, so it runs under the name + description condition. No schema is invented to fit the main condition. Records carry `condition` and `dataset`, so MetaTool is never pooled with schema-bearing datasets as if equivalent.
+- **Sampling.** Deterministic:
+  - Eligible items are sorted by task id, and each stratum is drawn with `random.Random(f"{seed}:{dataset}:{stratum}")`.
+  - A short stratum is an error, never a smaller sample.
+  - When2Call keeps the original label (`source_label`, distinct `abstain_reason`) and the upstream cluster id (`source_group_id`, also listed in the manifest).
+- **Ordering.** One presentation ordering per task in the first pilot. Each task gets its own seed, `task_order_seed(seed, task_id)`.
+  - A single shared seed would apply the same permutation to every 10-candidate MetaTool task and move the gold-first bias rather than remove it.
+  - Records log `order_seed`, `source_tool_order`, `tool_order`, `expected_source_positions` and `expected_presented_positions`. The runner refuses MetaTool tasks without a non-canonical seed.
+
+**Plan → freeze → verify → execute** (`eval/pilot.py`):
+1. **Plan.** `plan_group` samples, builds the exact requests and estimates cost per dataset, arm and stage (selection vs argument generation). No model is called.
+2. **Approve.** `allocate_caps` applies the approval rule across all groups. The total estimate must be ≤ the approved limit ($10). Each cap is the estimate × 1.5, scaled down so the caps never sum past the limit. Over the limit, nothing is frozen and the breakdown is printed.
+3. **Freeze.** `freeze` writes `manifest.json`, refusing a dirty tree; outputs under `results/` don't count as dirty. The manifest holds:
+   - the git commit, dataset sources and SHA-256s, and adapter versions;
+   - the sampled task ids, per-task order seeds and cluster ids;
+   - the profile, LLM config, routing and prices;
+   - the Jev model, repetitions (10) and execution sample index (0);
+   - the estimate, cap and timestamp;
+   - its own SHA-256, which every record carries as `manifest_hash`.
+4. **Verify.** `verify_manifest` re-derives everything before a provider call: the hash; HEAD equal to the manifest commit with a clean tree; the samples and order seeds; the estimate; and estimate ≤ cap ≤ limit.
+5. **Execute.** `execute_group` runs each dataset under its own condition with one budget guard, into a `records.jsonl` that must not exist yet. A bug fix therefore means a new commit, a new manifest and a new run set, never a mixed one.
+
+CLI:
+- `run_experiment.py --dataset NAME[:N] --sample-size --seed --stratify --group-name --plan-dir` plans one group;
+- `--manifest PATH` executes one;
+- `plan_external_pilot.py` plans the approved pilot (groups A, B, C);
+- `analyze_external_pilot.py DIR` writes `summary.json` and `SUMMARY.md`.
+
+**Jev in the pilot.** 10 back-to-back selector draws per task, with no temporal spacing. All 10 choices and probability vectors are kept. Only draw 0 continues to argument generation; no majority vote is used.
+
+**Analysis** (`eval/pilot_analysis.py`):
+- per dataset × arm: rates with Wilson 95% intervals, and abstention by original label;
+- the paired native-vs-matched table by task id, with exact McNemar and the task ids for every cell and disagreement;
+- Jev stability, grounding counts, and cost by dataset, arm and stage.
+
+When2Call intervals ignore within-cluster correlation, so they are optimistic. The cluster count is reported.
+
+**Repository policy.** Manifests, estimates, diagnostics summaries and pilot summaries under `results/external_pilot/` are committed. Raw `records.jsonl` and `diagnostics_bfcl.jsonl` contain benchmark content and stay local.
+
 ### Interface framing: preserved for later study
 
 The pilot's near-name result (same model, opposite decisions under native calling and Choice framing) is not a claim. The records already contain everything needed to study it later: identical candidate content (`tools_before`), candidate order (`tool_order`), opaque option ids (`candidate_ids`), the framing (`native_single_call`, `candidate_representation`), schema inclusion (`serialization`), the exact prompts and provider payloads (`model_inputs`), the returned selection, and the sampling configuration (`llm_config`, `selector_sampling`, profile). A project-owned Choice prompt (instead of the adapter's) remains a candidate ablation for separating framing from the adapter's system prompt.

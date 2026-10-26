@@ -1,5 +1,105 @@
 # Implementation Report
 
+## Controlled external benchmark pilot
+
+- Date: 2026-10-26. Harness commit `92824d3` (all three manifests were frozen and verified at it, with a clean tree). Docs and summaries are in the following commit.
+- Tests: **162 passed**. Each of 6 pilot mutations makes the tests fail.
+- Full tables: [`results/external_pilot/SUMMARY.md`](results/external_pilot/SUMMARY.md). Raw `records.jsonl` and `diagnostics_bfcl.jsonl` stay local.
+- Three core arms (native, matched, Jev). Shared LLM: `anthropic/claude-haiku-4.5`, profile `deterministic_v1`. Jev: `typesafe/jev-1.13`, 10 back-to-back selector draws, with draw 0 executed. One seeded presentation ordering per task (per-task seed). `MockExecutor`.
+
+| Group | Datasets | Manifest | Estimate | Cap | Actual |
+|---|---|---|---|---|---|
+| A | when2call 150, metatool_s1 100, metatool_s3 100 | `f300e18e9399` | $2.8021 | $4.2031 | $1.6301 |
+| B | bfcl_simple_python 100, bfcl_irrelevance 100 | `513e54111c7d` | $1.2415 | $1.8622 | $0.7172 |
+| C | bfcl_live_simple 100, bfcl_live_irrelevance 100 | `56c70adcd7f3` | $1.5182 | $2.2774 | $0.8759 |
+| **Total** | 750 tasks, 2,250 records | | **$5.5618** | | **$3.2232** (ratio 0.58) |
+
+- 0 aborts.
+- Provider calls: 2,329 to Claude, all served by Anthropic, and 7,500 to Jev, all served by TypeSafe.
+
+**Dataset counts**
+
+| Dataset | Source rows | Eligible | Sampled | Not eligible |
+|---|---|---|---|---|
+| when2call | 3,652 | 3,394 | 150 (50/50/50; 146 clusters) | 258 no candidate tools |
+| metatool_s1 | 995 | 995 | 100 | — |
+| metatool_s3 | 995 | 995 | 100 | — |
+| bfcl_simple_python | 400 | 399 | 100 | 1 schema-inconsistent |
+| bfcl_irrelevance | 240 | 240 | 100 | — |
+| bfcl_live_simple | 258 | 217 | 100 | 41 schema-inconsistent, 20 N/A gold, 2 empty-alternative (overlapping) |
+| bfcl_live_irrelevance | 884 | 871 | 100 | 8 conversation history, 4 no candidate tools, 1 multiple user messages |
+
+- Diagnostic subsets were not run: 173 schema-inconsistent, 20 N/A gold and 2 ambiguous empty-alternative items, across all four answered BFCL splits. They are listed in `diagnostics_summary.json`.
+- `bfcl_live_relevance` (sanity only) was not run.
+
+**Selection accuracy** (Wilson 95%)
+
+| Dataset | Native | Matched | Jev |
+|---|---|---|---|
+| when2call | 81% [74, 87] | 69% [62, 76] | 72% [64, 79] |
+| metatool_s1 (name + description) | 56% [46, 65] | 78% [69, 85] | 73% [64, 81] |
+| metatool_s3 (name + description) | 95% [89, 98] | 84% [76, 90] | 93% [86, 97] |
+| bfcl_simple_python | 99% [95, 100] | 100% [96, 100] | 99% [95, 100] |
+| bfcl_irrelevance | 88% [80, 93] | 88% [80, 93] | 93% [86, 97] |
+| bfcl_live_simple | 93% [86, 97] | 97% [92, 99] | 95% [89, 98] |
+| bfcl_live_irrelevance | 86% [78, 91] | 80% [71, 87] | 79% [70, 86] |
+
+- Task success and grounded task success equal selection accuracy except on the call datasets. There, grounded task success was:
+  - when2call: native 77%, matched 62%, Jev 64%;
+  - bfcl_live_simple: 86 / 89 / 87%;
+  - bfcl_simple_python: 97 / 98 / 97%.
+- **When2Call by original label** (correct out of 50; `request_for_info` and `cannot_answer` are kept distinct):
+
+  | Label | Native | Matched | Jev |
+  |---|---|---|---|
+  | `tool_call` | 40 | 47 | 49 |
+  | `request_for_info` | 40 | 22 | 20 |
+  | `cannot_answer` | 42 | 35 | 39 |
+
+- When2Call intervals ignore within-cluster correlation (146 clusters in 150 rows), so they are optimistic.
+
+**Native vs matched** (same Claude model; paired by task id)
+
+| Dataset | Both correct | Native only | Matched only | Both wrong | Choice disagreement | McNemar p |
+|---|---|---|---|---|---|---|
+| when2call | 96 | 26 | 8 | 20 | 25% | 0.0029 |
+| metatool_s1 | 56 | 0 | 22 | 22 | 27% | 4.8e-7 |
+| metatool_s3 | 84 | 11 | 0 | 5 | 11% | 0.00098 |
+| bfcl_simple_python | 99 | 0 | 1 | 0 | 1% | 1 |
+| bfcl_irrelevance | 85 | 3 | 3 | 9 | 7% | 1 |
+| bfcl_live_simple | 91 | 2 | 6 | 1 | 8% | 0.29 |
+| bfcl_live_irrelevance | 77 | 9 | 3 | 11 | 12% | 0.15 |
+
+Choice disagreement counts tasks where the two arms picked different options, including both-wrong pairs with different picks. Task ids for every cell are in `summary.json`. The p-values are descriptive: they are uncorrected across seven datasets, and When2Call rows are clustered.
+
+**Jev stability (10 back-to-back draws).**
+- Per dataset, 0–5% of tasks had any choice flip; the mean flip rate was ≤ 0.02.
+- The mean per-tool probability range was ≤ 0.035, and the largest range within a task was 0.18.
+- The executed draw 0 matched the 10-draw majority in 99–100% of tasks; no majority vote was used.
+- Jev probabilities are not compared numerically with Claude choice frequencies.
+
+**Grounding.**
+- Placeholders and unsupported required values cluster in the decomposed arms on When2Call. Placeholders: matched 14, Jev 19, native 0. Unsupported required: matched 21, Jev 19, native 7. They also appear on irrelevance items where a tool was wrongly selected.
+- BFCL call datasets give 22–29 `unknown` values per arm: values whose source has no rule. These are left unknown, not judged.
+
+**Cost by arm:** native $1.3158, matched $1.1834, Jev $0.7240.
+- By stage: selection $2.2704, argument generation $0.9528.
+- Jev's 7,500 draws cost $0.2531 in total. The rest of the Jev arm is Claude argument generation.
+
+**Unexpected findings (observations only)**
+- **MetaTool S1 under shuffled order:** native abstained on 33% of single-tool tasks, against 10–12% for the decomposed arms. All 22 discordant pairs favour matched.
+- **When2Call `request_for_info`:** the decomposed arms selected a tool and then filled placeholders or invented values where native asked for the missing information (40 vs 22 / 20 of 50). On `tool_call` the order reverses (40 vs 47 / 49). This is consistent with a selection-then-arguments split losing the "ask first" option at the argument stage. It is a hypothesis.
+- **MetaTool S3 ("none of these"):** matched over-selects (84%) compared with native (95%) and Jev (93%).
+- **An upstream schema defect:** 5 When2Call tasks have a parameter declared `type: integer` with a string `enum` (`province_id`, `num_passengers`), so no value can satisfy it. Every arm fails these identically. They are left in the sample, because they were not a pre-registered exclusion.
+- The actual cost was 0.58× the estimate, as in earlier runs: the chars/3 token estimate with a 1.25 margin is conservative.
+
+**Next recommendation (not started)**
+- **Multiple orderings:** 3 seeded orderings on MetaTool S1/S3 and When2Call, to separate ordering effects from architecture effects. This matters most for MetaTool S1's native abstention.
+- **Larger samples** on the datasets where the arms differ (When2Call, MetaTool S1/S3), with cluster-aware intervals for When2Call.
+- **A diagnostic-subset run,** to measure how much the BFCL quality flags would change the results.
+- **Perturbation studies** (description and name changes), using native probabilities only for within-selector shifts.
+- **A temporal-spacing study for Jev:** draws minutes or hours apart, since earlier fixture runs showed more drift between runs than within one.
+
 ## Refined grounding, Jev policy, Phase 4 adapters, MCP runner mode, live regression check
 
 - Date: 2026-10-26. Implementation commit `0200ece`; docs and results in the following commit.
