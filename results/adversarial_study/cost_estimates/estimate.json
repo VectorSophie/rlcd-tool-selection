@@ -1,0 +1,427 @@
+{
+  "status": "STOPPED: over the global cap",
+  "note": "The complete primary study is estimated above the cap, so nothing is frozen or run. Reduced designs (not adopted without approval): R1: clean ablation at 3 orderings, attack groups B and C at 2 orderings (orderings 0 and 1), no BFCL holdout: $39.15; R2: 2 orderings for A, B and C, no BFCL holdout: $35.34; with the holdout $42.34; R3: the full design under a raised cap of $53.01 (primary) or $60.01 (with holdout); expected actual spend about 0.58x the estimate if the pilot ratio holds.",
+  "global_cap_usd": 40.0,
+  "primary_estimate_usd": 53.01372339999999,
+  "total_estimate_usd": 60.014461899999986,
+  "reduced_designs": [
+    "R1: clean ablation at 3 orderings, attack groups B and C at 2 orderings (orderings 0 and 1), no BFCL holdout: $39.15",
+    "R2: 2 orderings for A, B and C, no BFCL holdout: $35.34; with the holdout $42.34",
+    "R3: the full design under a raised cap of $53.01 (primary) or $60.01 (with holdout); expected actual spend about 0.58x the estimate if the pilot ratio holds"
+  ],
+  "groups": {
+    "A_clean": {
+      "estimate_usd": 11.4130170375,
+      "budget_cap_usd": null,
+      "datasets": {
+        "when2call": {
+          "total_usd": 5.5520373125,
+          "by_arm": {
+            "native_llm": {
+              "selection": 1.18513625,
+              "arguments": 0.0
+            },
+            "matched_systemone": {
+              "selection": 0.9622312499999993,
+              "arguments": 0.8341025000000003
+            },
+            "matched_neutral": {
+              "selection": 0.7829812500000001,
+              "arguments": 0.8341025000000003
+            },
+            "jev": {
+              "selection": 0.11938106249999995,
+              "arguments": 0.8341025000000003
+            }
+          },
+          "by_family": {
+            "clean": {
+              "selection": 3.0497298124999963,
+              "arguments": 2.5023074999999966
+            }
+          }
+        },
+        "metatool_s1": {
+          "total_usd": 2.9394594874999997,
+          "by_arm": {
+            "native_llm": {
+              "selection": 0.72322375,
+              "arguments": 0.0
+            },
+            "matched_systemone": {
+              "selection": 0.45397375000000006,
+              "arguments": 0.4625262499999999
+            },
+            "matched_neutral": {
+              "selection": 0.33447374999999996,
+              "arguments": 0.4625262499999999
+            },
+            "jev": {
+              "selection": 0.04020948750000002,
+              "arguments": 0.4625262499999999
+            }
+          },
+          "by_family": {
+            "clean": {
+              "selection": 1.551880737500001,
+              "arguments": 1.3875787499999992
+            }
+          }
+        },
+        "metatool_s3": {
+          "total_usd": 2.9215202375,
+          "by_arm": {
+            "native_llm": {
+              "selection": 0.71804875,
+              "arguments": 0.0
+            },
+            "matched_systemone": {
+              "selection": 0.44879874999999997,
+              "arguments": 0.46208375
+            },
+            "matched_neutral": {
+              "selection": 0.32929875,
+              "arguments": 0.46208375
+            },
+            "jev": {
+              "selection": 0.039122737499999984,
+              "arguments": 0.46208375
+            }
+          },
+          "by_family": {
+            "clean": {
+              "selection": 1.5352689874999992,
+              "arguments": 1.3862512499999993
+            }
+          }
+        }
+      }
+    },
+    "B_displacement": {
+      "estimate_usd": 22.189616262499992,
+      "budget_cap_usd": null,
+      "datasets": {
+        "metatool_s1": {
+          "total_usd": 11.901258299999997,
+          "by_arm": {
+            "native_llm": {
+              "selection": 2.9427300000000023,
+              "arguments": 0.0
+            },
+            "matched_systemone": {
+              "selection": 1.85273,
+              "arguments": 1.854164999999999
+            },
+            "matched_neutral": {
+              "selection": 1.3747299999999982,
+              "arguments": 1.854164999999999
+            },
+            "jev": {
+              "selection": 0.16857329999999981,
+              "arguments": 1.854164999999999
+            }
+          },
+          "by_family": {
+            "near_name": {
+              "selection": 1.5527554624999993,
+              "arguments": 1.3877062499999995
+            },
+            "description_mimicry": {
+              "selection": 1.5816454624999985,
+              "arguments": 1.3934924999999987
+            },
+            "preference_authority": {
+              "selection": 1.5702138499999998,
+              "arguments": 1.39099125
+            },
+            "decoy_insertion": {
+              "selection": 1.6341485250000003,
+              "arguments": 1.3903049999999983
+            }
+          }
+        },
+        "when2call": {
+          "total_usd": 10.288357962499996,
+          "by_arm": {
+            "native_llm": {
+              "selection": 2.2356899999999995,
+              "arguments": 0.0
+            },
+            "matched_systemone": {
+              "selection": 1.8447462499999996,
+              "arguments": 1.476601249999999
+            },
+            "matched_neutral": {
+              "selection": 1.53404625,
+              "arguments": 1.476601249999999
+            },
+            "jev": {
+              "selection": 0.24407171249999995,
+              "arguments": 1.476601249999999
+            }
+          },
+          "by_family": {
+            "near_name": {
+              "selection": 1.1008298,
+              "arguments": 0.8531137499999994
+            },
+            "description_mimicry": {
+              "selection": 1.1205753125000002,
+              "arguments": 0.8557574999999992
+            },
+            "preference_authority": {
+              "selection": 1.1096733500000002,
+              "arguments": 0.85471125
+            },
+            "schema_property": {
+              "selection": 1.1096733500000002,
+              "arguments": 0.85471125
+            },
+            "decoy_insertion": {
+              "selection": 1.2870042000000013,
+              "arguments": 0.8572499999999998
+            },
+            "control_synthetic": {
+              "selection": 0.13079819999999998,
+              "arguments": 0.15426
+            }
+          }
+        }
+      }
+    },
+    "C_abstention": {
+      "estimate_usd": 19.411090099999996,
+      "budget_cap_usd": null,
+      "datasets": {
+        "metatool_s3": {
+          "total_usd": 5.952177912500001,
+          "by_arm": {
+            "native_llm": {
+              "selection": 1.4769662500000005,
+              "arguments": 0.0
+            },
+            "matched_systemone": {
+              "selection": 0.9254662499999999,
+              "arguments": 0.9263937500000002
+            },
+            "matched_neutral": {
+              "selection": 0.6864662499999998,
+              "arguments": 0.9263937500000002
+            },
+            "jev": {
+              "selection": 0.08409791250000005,
+              "arguments": 0.9263937500000002
+            }
+          },
+          "by_family": {
+            "preference_authority": {
+              "selection": 1.5543925625000001,
+              "arguments": 1.389329999999999
+            },
+            "decoy_insertion": {
+              "selection": 1.6186041000000007,
+              "arguments": 1.3898512499999993
+            }
+          }
+        },
+        "when2call": {
+          "total_usd": 13.458912187499994,
+          "by_arm": {
+            "native_llm": {
+              "selection": 2.898351249999998,
+              "arguments": 0.0
+            },
+            "matched_systemone": {
+              "selection": 2.3613437499999983,
+              "arguments": 1.990213749999999
+            },
+            "matched_neutral": {
+              "selection": 1.9311437500000006,
+              "arguments": 1.990213749999999
+            },
+            "jev": {
+              "selection": 0.2974321875000002,
+              "arguments": 1.990213749999999
+            }
+          },
+          "by_family": {
+            "preference_authority": {
+              "selection": 1.9872774375000013,
+              "arguments": 1.6564462499999986
+            },
+            "schema_property": {
+              "selection": 1.9660727250000014,
+              "arguments": 1.6405312499999989
+            },
+            "description_mimicry": {
+              "selection": 1.0723805875,
+              "arguments": 0.8486550000000002
+            },
+            "decoy_insertion": {
+              "selection": 2.3216819750000024,
+              "arguments": 1.6581449999999986
+            },
+            "control_synthetic": {
+              "selection": 0.14085821250000002,
+              "arguments": 0.16686375000000003
+            }
+          }
+        }
+      }
+    },
+    "D_bfcl_holdout": {
+      "estimate_usd": 7.0007385,
+      "budget_cap_usd": null,
+      "datasets": {
+        "bfcl_simple_python": {
+          "total_usd": 1.8039634083333334,
+          "by_arm": {
+            "native_llm": {
+              "selection": 0.36004499999999984,
+              "arguments": 0.0
+            },
+            "matched_systemone": {
+              "selection": 0.26385750000000013,
+              "arguments": 0.3257366666666667
+            },
+            "matched_neutral": {
+              "selection": 0.1841908333333334,
+              "arguments": 0.3257366666666667
+            },
+            "jev": {
+              "selection": 0.018660074999999995,
+              "arguments": 0.3257366666666667
+            }
+          },
+          "by_family": {
+            "clean": {
+              "selection": 0.1878761583333333,
+              "arguments": 0.24352249999999986
+            },
+            "preference_authority": {
+              "selection": 0.20636877500000012,
+              "arguments": 0.24352249999999986
+            },
+            "decoy_insertion": {
+              "selection": 0.22903940000000006,
+              "arguments": 0.24664249999999996
+            },
+            "control_synthetic": {
+              "selection": 0.20346907500000008,
+              "arguments": 0.24352249999999986
+            }
+          }
+        },
+        "bfcl_live_simple": {
+          "total_usd": 1.9794367083333333,
+          "by_arm": {
+            "native_llm": {
+              "selection": 0.391025,
+              "arguments": 0.0
+            },
+            "matched_systemone": {
+              "selection": 0.2948375,
+              "arguments": 0.35107916666666666
+            },
+            "matched_neutral": {
+              "selection": 0.21517083333333334,
+              "arguments": 0.35107916666666666
+            },
+            "jev": {
+              "selection": 0.02516587499999999,
+              "arguments": 0.35107916666666666
+            }
+          },
+          "by_family": {
+            "clean": {
+              "selection": 0.2081794083333332,
+              "arguments": 0.26249749999999966
+            },
+            "preference_authority": {
+              "selection": 0.22667068749999997,
+              "arguments": 0.26253999999999966
+            },
+            "decoy_insertion": {
+              "selection": 0.26757678749999975,
+              "arguments": 0.26570249999999995
+            },
+            "control_synthetic": {
+              "selection": 0.223772325,
+              "arguments": 0.26249749999999966
+            }
+          }
+        },
+        "bfcl_irrelevance": {
+          "total_usd": 1.3311607666666667,
+          "by_arm": {
+            "native_llm": {
+              "selection": 0.26371,
+              "arguments": 0.0
+            },
+            "matched_systemone": {
+              "selection": 0.19216833333333333,
+              "arguments": 0.24335708333333336
+            },
+            "matched_neutral": {
+              "selection": 0.1324183333333333,
+              "arguments": 0.24335708333333336
+            },
+            "jev": {
+              "selection": 0.012792849999999993,
+              "arguments": 0.24335708333333336
+            }
+          },
+          "by_family": {
+            "clean": {
+              "selection": 0.1855943833333334,
+              "arguments": 0.24139
+            },
+            "preference_authority": {
+              "selection": 0.18853688333333338,
+              "arguments": 0.24414000000000002
+            },
+            "decoy_insertion": {
+              "selection": 0.2269582500000001,
+              "arguments": 0.2445412499999999
+            }
+          }
+        },
+        "bfcl_live_irrelevance": {
+          "total_usd": 1.8861776166666664,
+          "by_arm": {
+            "native_llm": {
+              "selection": 0.38573458333333344,
+              "arguments": 0.0
+            },
+            "matched_systemone": {
+              "selection": 0.31261166666666673,
+              "arguments": 0.29896124999999985
+            },
+            "matched_neutral": {
+              "selection": 0.25286166666666665,
+              "arguments": 0.29896124999999985
+            },
+            "jev": {
+              "selection": 0.03808594999999999,
+              "arguments": 0.29896124999999985
+            }
+          },
+          "by_family": {
+            "clean": {
+              "selection": 0.2989315666666666,
+              "arguments": 0.29748000000000013
+            },
+            "preference_authority": {
+              "selection": 0.3018887791666667,
+              "arguments": 0.2995475000000001
+            },
+            "decoy_insertion": {
+              "selection": 0.38847352083333353,
+              "arguments": 0.29985624999999994
+            }
+          }
+        }
+      }
+    }
+  }
+}

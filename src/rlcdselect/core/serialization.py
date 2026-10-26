@@ -137,22 +137,31 @@ def present_candidates(
     order_seed: int | None = None,
     id_seed: int | None = None,
     allow_duplicate_names: bool = False,
+    insert_last_at: int | None = None,
 ) -> CandidateSet:
     """Assign opaque ids and a presentation order.
 
     Ids are `t0..t{n-1}`. With `id_seed=None`, a tool's id is its index in the canonical tool
     tuple; otherwise ids are a seeded permutation. The presentation order is the canonical order
     when `order_seed` is None, otherwise a seeded shuffle. The two seeds are independent factors.
+
+    `insert_last_at` marks the last tool as an inserted candidate (an insertion attack, or a
+    synthetic attacker's control): the other tools get exactly the ids and relative order they
+    would have without it, and the inserted tool is placed at that presented position.
     """
     tools = tuple(tools)
     names = _display_names(tools, name_policy, allow_duplicates=allow_duplicate_names)
     n = len(tools)
-    id_index = list(range(n))
+    base = n - 1 if insert_last_at is not None else n
+    id_index = list(range(base))
     if id_seed is not None:
         random.Random(id_seed).shuffle(id_index)
-    order = list(range(n))
+    order = list(range(base))
     if order_seed is not None:
         random.Random(order_seed).shuffle(order)
+    if insert_last_at is not None:
+        id_index.append(base)
+        order.insert(min(max(insert_last_at, 0), base), base)
     candidates = tuple(
         Candidate(candidate_id=f"t{id_index[i]}", display_name=names[i], tool=tools[i]) for i in order
     )
@@ -160,8 +169,10 @@ def present_candidates(
 
 
 def present_task(task: Task, config: SerializationConfig, *, order_seed: int | None, id_seed: int | None) -> CandidateSet:
+    insertion = task.insertion
     return present_candidates(task.tools, name_policy=config.name_policy, order_seed=order_seed, id_seed=id_seed,
-                              allow_duplicate_names=config.allow_duplicate_names)
+                              allow_duplicate_names=config.allow_duplicate_names,
+                              insert_last_at=insertion["position"] if insertion else None)
 
 
 def criterion_for(candidate: Candidate, config: SerializationConfig) -> str | dict[str, Any]:
@@ -216,6 +227,18 @@ def build_selector_request(state: Mapping[str, Any], cset: CandidateSet, config:
         abstain_id=abstain_id,
         config=config,
     )
+
+
+def choice_lines(request: SelectorRequest) -> list[str]:
+    """One "<option id> = <criterion>" line per option, in presentation order then abstain.
+
+    Byte-identical to the option lines the System One adapter renders for a Choice (string criteria
+    verbatim, object criteria as compact JSON via `pydantic_core.to_json`), so the matched-neutral
+    and matched-System-One arms see the same candidate content.
+    """
+    from pydantic_core import to_json
+
+    return [f"{oid} = {c if isinstance(c, str) else to_json(thaw(c)).decode()}" for oid, c in request.criteria.items()]
 
 
 @dataclass(frozen=True)

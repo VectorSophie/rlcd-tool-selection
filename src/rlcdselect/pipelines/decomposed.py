@@ -71,6 +71,7 @@ class DecomposedPipeline:
             "llm_config": thaw(arg_cfg),
             "native_single_call": False,
             "prompt_version": PROMPT_VERSION,
+            "selector_prompt_version": getattr(self.selector, "prompt_version", None),
             "selector_sampling": thaw(self.sampling),
         }
 

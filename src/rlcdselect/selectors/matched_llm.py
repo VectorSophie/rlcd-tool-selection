@@ -113,9 +113,18 @@ def _combined_meta(metas: list[dict[str, Any]]) -> dict[str, Any]:
     return metas[0] if len(metas) == 1 else {"calls": metas}
 
 
+# Arm id of this selector in the adversarial study. Historical records (fixture pilot, external
+# pilot) call the same arm `matched_llm`; analyses map that id to this one (`ARM_ALIASES`).
+SYSTEMONE_ARM_ID = "matched_systemone"
+ARM_ALIASES = {"matched_llm": SYSTEMONE_ARM_ID}
+
+
 class MatchedLLMSelector:
     def __init__(self, config: LLMConfig, *, answer_mode: AnswerMode = "discrete",
-                 client: openai.AsyncOpenAI | None = None) -> None:
+                 client: openai.AsyncOpenAI | None = None, selector_id: str = "matched_llm") -> None:
+        if selector_id not in ("matched_llm", SYSTEMONE_ARM_ID):
+            raise ValueError(f"Unknown id {selector_id!r} for the System One matched selector")
+        self._selector_id = selector_id
         self._config = config
         self.answer_mode = answer_mode
         self._provider = ConfiguredChatProvider(config, client=client)
@@ -130,7 +139,7 @@ class MatchedLLMSelector:
 
     @property
     def selector_id(self) -> str:
-        return "matched_llm"
+        return self._selector_id
 
     @property
     def model(self) -> str:

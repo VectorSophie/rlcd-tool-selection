@@ -18,6 +18,10 @@ results/*
 !results/external_pilot/
 results/external_pilot/**/records.jsonl
 results/external_pilot/**/diagnostics*.jsonl
+# Adversarial study: manifests, cost reports, the attack audit and summaries are committed; raw
+# records stay local.
+!results/adversarial_study/
+results/adversarial_study/**/records.jsonl
 
 # External benchmark files fetched from their pinned upstream sources (never redistributed here).
 data/external/

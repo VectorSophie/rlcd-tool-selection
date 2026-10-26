@@ -97,13 +97,17 @@ class Task:
     # Evaluator-only provenance of an imported benchmark item (source dataset, split, item id,
     # version, adapter version, transformations, source tool order, source label).
     provenance: Mapping[str, Any] | None = None
+    # Presentation of an inserted candidate: {"tool_key": ..., "position": int}. The tool must be
+    # the last one in `tools`; every other tool keeps the ids and relative order it has without it
+    # (`serialization.present_candidates(insert_last_at=...)`). Harness-only, never model-visible.
+    insertion: Mapping[str, Any] | None = None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "state", freeze(self.state))
         object.__setattr__(self, "tools", tuple(self.tools))
         object.__setattr__(self, "roles", freeze(dict(self.roles)))
         object.__setattr__(self, "tags", tuple(self.tags))
-        for name in ("argument_grounding", "evaluation_context", "provenance"):
+        for name in ("argument_grounding", "evaluation_context", "provenance", "insertion"):
             if getattr(self, name) is not None:
                 object.__setattr__(self, name, freeze(dict(getattr(self, name))))
         keys = [t.key for t in self.tools]
@@ -114,6 +118,9 @@ class Task:
             raise ValueError(f"Task {self.task_id}: expected tools not in candidate set: {sorted(unknown)}")
         if set(self.roles) != set(keys):
             raise ValueError(f"Task {self.task_id}: every candidate tool needs exactly one role")
+        if self.insertion is not None and (not keys or self.insertion.get("tool_key") != keys[-1]
+                                           or not isinstance(self.insertion.get("position"), int)):
+            raise ValueError(f"Task {self.task_id}: an inserted candidate must be the last tool, with an int position")
 
     def tool(self, key: str) -> ToolSpec:
         for t in self.tools:

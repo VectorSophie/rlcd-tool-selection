@@ -14,7 +14,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
-from rlcdselect.core.prompts import ARGUMENT_SYSTEM_PROMPT, NATIVE_SYSTEM_PROMPT
+from rlcdselect.core.prompts import ARGUMENT_SYSTEM_PROMPT, NATIVE_SYSTEM_PROMPT, NEUTRAL_SELECTOR_PROMPT
 from rlcdselect.core.serialization import build_native_tools, build_selector_request, present_task, render_state
 from rlcdselect.core.types import FatalRunError, SelectorSamplingPolicy, Task
 from rlcdselect.core.jsonutil import thaw
@@ -24,7 +24,10 @@ SAFETY_MARGIN = 1.25
 # Fixed prompt and schema boilerplate the System One adapter adds to every matched-LLM request.
 ADAPTER_OVERHEAD_CHARS = 1500
 # Expected output tokens per call type (generous; Claude outputs here are short).
-PAID_SELECTORS = frozenset({"native_llm", "matched_llm", "jev"})
+# JSON-schema and option-label boilerplate of a matched-neutral request (the options themselves are
+# counted from the criteria).
+NEUTRAL_OVERHEAD_CHARS = 400
+PAID_SELECTORS = frozenset({"native_llm", "matched_llm", "matched_systemone", "matched_neutral", "jev"})
 OUTPUT_TOKENS = {"native": 200, "arguments": 200, "matched_discrete": 40, "matched_probabilities": 150}
 
 
@@ -88,7 +91,11 @@ def estimate_task_cost_stages(task: Task, pipeline_ids: Sequence[str], serializa
             tools = json.dumps([thaw(t) for t in build_native_tools(cset)])
             out[pid] = ((_tokens(len(NATIVE_SYSTEM_PROMPT) + len(state) + len(tools)) * prices.llm_input
                          + OUTPUT_TOKENS["native"] * prices.llm_output), 0.0)
-        elif pid == "matched_llm":
+        elif pid == "matched_neutral":
+            select = (_tokens(len(NEUTRAL_SELECTOR_PROMPT) + NEUTRAL_OVERHEAD_CHARS + len(state) + len(criteria))
+                      * prices.llm_input + OUTPUT_TOKENS["matched_discrete"] * prices.llm_output)
+            out[pid] = (select * reps, args_cost * arg_runs)
+        elif pid in ("matched_llm", "matched_systemone"):
             select = (_tokens(ADAPTER_OVERHEAD_CHARS + len(state) + len(criteria)) * prices.llm_input
                       + OUTPUT_TOKENS[f"matched_{matched_mode}"] * prices.llm_output)
             out[pid] = (select * reps, args_cost * arg_runs)

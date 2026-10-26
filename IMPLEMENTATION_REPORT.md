@@ -1,5 +1,82 @@
 # Implementation Report
 
+## Adversarial tool-metadata study: implemented, audited, estimated, STOPPED before paid execution
+
+- Date: 2026-10-26. No paid model call was made; spend for this study is $0.00.
+- Tests: **188 passed**, up from 162. 16 of 16 targeted mutations of the study's safeguards make the tests fail.
+
+**Why it stopped.** The complete primary study is estimated at **$53.01**, against the **$40** global cap.
+- The estimator is unchanged from the external pilot and was not discounted.
+- With the BFCL holdout the estimate is $60.01.
+- Per the approval rule, no manifest was frozen and nothing was run.
+- Details are in `results/adversarial_study/cost_estimates/ESTIMATE.md`.
+
+| group | content | entries | orderings | estimate |
+|---|---|---|---|---|
+| A_clean | When2Call 150, MetaTool S1 100, S3 100 | 350 | 3 | $11.41 |
+| B_displacement | S1 100 + W2C `tool_call` 50; 5 families + 10 synthetic controls | 660 | 3 | $22.19 |
+| C_abstention | S3 100 + W2C RFI 50 + CA 50; 4 families + 11 synthetic controls | 560 | 3 | $19.41 |
+| D_bfcl_holdout | 4 BFCL subsets × 50: clean, preference, decoy, synthetic controls | 700 | 1 | $7.00 |
+
+**Primary estimate by stage and arm:**
+- Selection: native $12.18, System One $8.85, neutral $6.97, Jev $0.99.
+- Argument generation: $8.01 for each decomposed arm. The estimator assumes argument generation on every decomposed task, abstentions included.
+
+**Primary estimate by family:**
+
+| family | estimate |
+|---|---|
+| decoy insertion | $12.16 |
+| preference / authority | $11.51 |
+| clean ablation | $11.41 |
+| description mimicry | $6.87 |
+| schema property | $5.57 |
+| near-name | $4.89 |
+| synthetic controls | $0.59 |
+
+**Reduced designs (not adopted; each needs approval):**
+
+| design | content | estimate |
+|---|---|---|
+| R1 | A at 3 orderings; B and C at 2 orderings (0 and 1); no holdout | $39.15 |
+| R2 | 2 orderings for A–C | $35.34 ($42.34 with the holdout) |
+| R3 | full design with the cap raised to ≥ $53.01 (≥ $60.01 with the holdout) | $53.01 / $60.01 |
+
+If the pilot's 0.58× actual/estimate ratio holds, actual spend would be about $31 for the full primary design. The cap rule is applied to the estimate, not to this projection.
+
+**Implemented (all offline-verified):**
+- **`matched_neutral` arm.** A project-owned prompt `matched_neutral_v1` and strict `{"choice"}` schema, with Native's exact Claude config. Its candidate option lines are byte-identical to System One's.
+  - The offline payload check passed on all 2,270 task-ordering entries: same Claude settings for all three Claude arms, identical candidate content and option ids for neutral vs System One.
+- **Arm id.** `matched_systemone` is the arm id; historical `matched_llm` maps to it.
+- **Attack families.** Five deterministic families, plus synthetic controls and seeded candidate insertion that preserves every other candidate's id and relative order.
+- **Attack audit.** 1,720 attack and control variants; every check passes (`results/adversarial_study/ATTACK_AUDIT.md`, 15 examples per family).
+- **Variant counts:**
+
+  | family | variants |
+  |---|---|
+  | near-name | 150 |
+  | mimicry | 200 |
+  | preference | 550 |
+  | schema property | 149 |
+  | decoy | 550 |
+  | synthetic controls | 121 |
+
+  - 21 When2Call tasks (10 `tool_call`, 11 RFI) and all 100 BFCL simple / live-simple holdout tasks have no wrong candidate, so they use the synthetic attacker.
+  - One When2Call attacker has no parameters, so schema-property does not apply to it.
+- **Study path.**
+  - Groups A–D, each with a frozen manifest that carries the hypotheses and analysis plan.
+  - Exact pilot task ids, with ordering 0 equal to the pilot seed.
+  - Verify re-derives every variant hash.
+  - Global $40 ledger with per-group effective caps.
+- **Analysis.**
+  - Pairing on (base task, order seed, arm).
+  - Conditional and unconditional ASR.
+  - Deltas and their architecture differences, with cluster bootstrap (upstream cluster, never a task-ordering) and Holm correction.
+  - Action bias, downstream consequences, and per-ordering results.
+- **Scripts:** `plan_adversarial_study.py`, `run_adversarial_study.py`, `analyze_adversarial_study.py`.
+
+**Not implemented:** the secondary `semantic_near_duplicate` family. It was conditional on the estimate being comfortably under budget, which it is not.
+
 ## Controlled external benchmark pilot
 
 - Date: 2026-10-26. Harness commit `92824d3` (all three manifests were frozen and verified at it, with a clean tree). Docs and summaries are in the following commit.
