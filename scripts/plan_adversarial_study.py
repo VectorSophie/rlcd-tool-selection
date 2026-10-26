@@ -9,7 +9,7 @@ manifest per group only if the whole planned study is within the global cap. No 
 Writes `results/adversarial_study/ATTACK_AUDIT.md`, `cost_estimates/ESTIMATE.md`,
 `cost_estimates/estimate.json` and, when approved, `<group>/manifest.json`.
 
-Approval rule: the primary groups (A, B, C) must be estimated at or under $40 together, or nothing
+Approval rule: the primary groups (A, B, C) must be estimated at or under the global cap ($55) together, or nothing
 is frozen and a reduced-design proposal is printed. The BFCL holdout (D) is added only if the
 total including it is still within the cap.
 """

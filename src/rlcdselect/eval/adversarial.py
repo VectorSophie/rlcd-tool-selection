@@ -62,7 +62,8 @@ from rlcdselect.profiles import CONDITIONS, JEV_EXPECTED_RETURNED_MODELS, JEV_MO
 STUDY = "adversarial_study_v1"
 MANIFEST_VERSION = "adversarial_study_manifest_v1"
 STUDY_ARMS = ("native_llm", "matched_systemone", "matched_neutral", "jev")
-GLOBAL_CAP_USD = 40.0
+# Raised from $40 to $55 by the user on 2026-10-26, for groups A-C only (the BFCL holdout is not run).
+GLOBAL_CAP_USD = 55.0
 CAP_FACTOR = 1.25
 SPEND_MARGIN_USD = 0.10  # headroom for the one run charged after the cap check
 JEV_REPETITIONS = 5

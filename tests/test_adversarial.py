@@ -443,22 +443,22 @@ def test_holm_correction():
 
 
 # 20
-def test_global_budget_cannot_exceed_forty_dollars(study, tmp_path):
+def test_global_budget_cannot_exceed_the_global_cap(study, tmp_path):
     plan, _ = _plan("A_clean", study)
     with pytest.raises(adv.StudyError, match="exceeds the global cap"):
         adv.allocate([plan, dict(plan, group="X", estimate_usd=adv.GLOBAL_CAP_USD)])
     m, _ = _frozen("A_clean", study)
-    assert m["budget_rule"]["global_cap_usd"] == 40.0
+    assert m["budget_rule"]["global_cap_usd"] == adv.GLOBAL_CAP_USD == 55.0
     # Spend already recorded by this study lowers the effective cap of every later group.
     prior = study["out"] / "earlier" / "records.jsonl"
     prior.parent.mkdir(parents=True)
-    prior.write_text(json.dumps({"record_type": "run", "budget_spent_usd": 39.95}) + "\n")
+    prior.write_text(json.dumps({"record_type": "run", "budget_spent_usd": adv.GLOBAL_CAP_USD - 0.05}) + "\n")
     assert adv.effective_cap(m, study["out"]) < 0
     verified = adv.verify(m, DETERMINISTIC_V1, DEFAULT_PRICES, check_git=False, pilot_dir=study["pilot_dir"])
     with pytest.raises(FatalRunError, match="Global cap"):
         run(adv.execute(m, verified, _factory({}), study["out"] / "A_clean" / "records.jsonl",
                         study_dir=study["out"], prices=DEFAULT_PRICES))
-    prior.write_text(json.dumps({"record_type": "run", "budget_spent_usd": 40.0 - m["estimate_usd"] + 0.05}) + "\n")
+    prior.write_text(json.dumps({"record_type": "run", "budget_spent_usd": adv.GLOBAL_CAP_USD - m["estimate_usd"] + 0.05}) + "\n")
     assert adv.effective_cap(m, study["out"]) < m["estimate_usd"]
     with pytest.raises(FatalRunError, match="exceeds the cap"):
         run(adv.execute(m, verified, _factory({}), study["out"] / "A_clean" / "records.jsonl",

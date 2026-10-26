@@ -564,9 +564,9 @@ The neutral prompt reads: "Select the single tool that best matches the request.
 - **Pre-registration.** The manifests carry the hypotheses (H1 decomposition, H2 framing, H3 selector family) and the analysis plan. `verify` refuses a manifest whose hypotheses or holdout families differ from the code.
 
 **Budget.**
-- The whole primary study must be estimated at or under $40; otherwise nothing is frozen and reduced designs are printed.
+- The whole primary study must be estimated at or under the global cap (first $40; raised to $55 for groups A–C, BFCL holdout not run); otherwise nothing is frozen and reduced designs are printed.
 - Each group's nominal cap is its estimate × 1.25.
-- At execution the effective cap is min(nominal cap, $40 − everything this study has recorded − $0.10).
+- At execution the effective cap is min(nominal cap, the global cap − everything this study has recorded − $0.10).
 
 **Analysis** (`eval/adversarial_analysis.py`).
 - **Pairing:** each attacked record is paired with its control on (base task, order seed, arm).
