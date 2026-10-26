@@ -1,5 +1,6 @@
 import json
 import math
+import os
 import re
 import subprocess
 from pathlib import Path
@@ -191,3 +192,18 @@ def test_duplicate_name_stress_is_decomposed_only(fixtures):
     records = run(run_experiment(stress, [decomposed], ExperimentConfig("stress", condition="duplicate_name_stress_v1")))
     assert records and all(r["selection_status"] != "error" for r in records)
     assert all(r["condition"] == "duplicate_name_stress_v1" for r in records)
+
+
+def test_load_dotenv_never_overrides_and_returns_names_only(tmp_path, monkeypatch):
+    from rlcdselect.startup import load_dotenv
+
+    env = tmp_path / ".env"
+    env.write_text('# comment\nRLCD_A="quoted-a"\nexport RLCD_B=b\nRLCD_C=\nRLCD_D=from-file\n', encoding="utf-8")
+    monkeypatch.delenv("RLCD_A", raising=False)
+    monkeypatch.delenv("RLCD_B", raising=False)
+    monkeypatch.delenv("RLCD_C", raising=False)
+    monkeypatch.setenv("RLCD_D", "from-shell")
+    assert load_dotenv(env) == ["RLCD_A", "RLCD_B"]
+    assert (os.environ["RLCD_A"], os.environ["RLCD_B"], os.environ["RLCD_D"]) == ("quoted-a", "b", "from-shell")
+    assert "RLCD_C" not in os.environ
+    assert load_dotenv(tmp_path / "missing.env") == []

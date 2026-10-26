@@ -1,3 +1,4 @@
+import pytest
 from conftest import run
 from helpers import call, response
 
@@ -233,3 +234,19 @@ def test_pipeline_runs_do_not_mutate_fixtures(core, serialization):  # required 
     for task in tasks:
         run(NativePipeline(llm, MockExecutor(), serialization).run(task, order_seed=1, id_seed=2))
     assert canonical_json([[t.tools, t.state, t.roles] for t in tasks]) == before
+
+
+@pytest.mark.parametrize("value", ["<UNKNOWN>", " <recipient email> ", "[RECIPIENT]", "{{subject}}", "unknown", "N/A", "TBD"])
+def test_mock_executor_refuses_placeholder_arguments(value):
+    """Seen live: for 'Send an email to my landlord.' the argument step filled every field with
+    '<UNKNOWN>'. That is schema-valid, but a real tool would act on it, so it is not a success."""
+    from rlcdselect.core.types import ToolSpec
+    from rlcdselect.execution.mock import MockExecutor
+
+    tool = ToolSpec(server_id="mail", name="send_email", description="Send an email.",
+                    input_schema={"type": "object", "properties": {"to": {"type": "array", "items": {"type": "string"}},
+                                                                   "body": {"type": "string"}}})
+    result = run(MockExecutor().call_tool(tool, {"to": [value], "body": "The report is ready."}))
+    assert not result.success and result.error.kind == "placeholder_arguments" and "to/0" in result.error.message
+    ok = run(MockExecutor().call_tool(tool, {"to": ["dave@example.com"], "body": "Use <b>bold</b> if unknown."}))
+    assert ok.success

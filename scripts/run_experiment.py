@@ -30,13 +30,15 @@ from rlcdselect.pipelines.native import NativePipeline
 from rlcdselect.profiles import CONDITIONS, PROFILES
 from rlcdselect.selectors.jev import JevSelector
 from rlcdselect.selectors.matched_llm import MatchedLLMSelector
-from rlcdselect.startup import require_env, verify_live_models
+from rlcdselect.startup import load_dotenv, require_env, verify_live_models
 
 
 async def main(args: argparse.Namespace) -> None:
     profile = PROFILES[args.profile]
     condition = CONDITIONS[args.condition]
     stress = condition.allow_duplicate_names
+    if loaded := load_dotenv(Path(__file__).resolve().parent.parent / ".env"):
+        print(f"Loaded from .env: {loaded}")
     require_env(["OPENROUTER_API_KEY"])
 
     jev = JevSelector()

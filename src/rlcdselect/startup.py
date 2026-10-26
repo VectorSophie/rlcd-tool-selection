@@ -2,6 +2,7 @@
 
 import os
 from collections.abc import Sequence
+from pathlib import Path
 from typing import Any
 
 from rlcdselect.core.types import LLMConfig
@@ -11,6 +12,27 @@ from rlcdselect.selectors.jev import JevSelector
 
 class StartupError(RuntimeError):
     pass
+
+
+def load_dotenv(path: str | Path = ".env") -> list[str]:
+    """Load KEY=VALUE lines from a git-ignored .env into the environment. Variables already set win.
+    Returns the names loaded (never the values)."""
+    path = Path(path)
+    if not path.is_file():
+        return []
+    loaded = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        name, value = line.removeprefix("export ").split("=", 1)
+        name, value = name.strip(), value.strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in "'\"":
+            value = value[1:-1]
+        if name and value and not os.environ.get(name, "").strip():
+            os.environ[name] = value
+            loaded.append(name)
+    return loaded
 
 
 def require_env(names: Sequence[str]) -> None:
