@@ -313,9 +313,17 @@ These are **pilot observations**: hypothesis-generating results on 14 hand-writt
 
 - Every draw keeps its raw output, choice, probabilities (unchanged, flagged if malformed), latency, usage and provider metadata.
 - Derived statistics (`eval/stability.py`): empirical choice frequency, abstention / trusted / attacker frequency, entropy, choice flip rate (pairwise disagreement), majority label (derived only; `None` on ties), and native-probability mean / std / range per tool over draws that passed validation.
-- **The record's selection is draw 0, never the majority vote.** Primary cross-arm metrics count each run once: `summarize()` ignores `selector_sample_run` records.
+- **The record's selection is the draw at `execution_sample_index` (default 0, the first call), never the majority vote.** The index is fixed by the policy before any draw is seen. Records log `execution_sample_index`, and every entry in `selector_samples` has `used_for_execution`. Child `selector_sample_run` records carry their own index. Primary cross-arm metrics count each run once: `summarize()` ignores `selector_sample_run` records.
 - Empirical choice frequencies and native probabilities are different quantities and are reported under different names. Native-probability statistics are only pooled within one `probability_kind`.
-- `profiles.py`: `deterministic_v1` keeps its name for compatibility with pilot records. "Deterministic" refers only to the shared LLM (temperature 0). It now takes `DEFAULT_JEV_SELECTOR_REPETITIONS = 5` selector-only Jev draws per run, a development default, not a paper sample size; that will be chosen after observing variance. `stochastic_v1` adds no extra draws because every arm is already repeated 10 times end to end.
+- `profiles.py`: `deterministic_v1` keeps its name for compatibility with pilot records. "Deterministic" refers only to the shared LLM (temperature 0). Jev repetitions:
+
+  | Setting | Value | Where |
+  |---|---|---|
+  | development default | 5 selector-only draws | `DEFAULT_JEV_SELECTOR_REPETITIONS`, used by `deterministic_v1` |
+  | pilot recommendation | 10 | `PILOT_RECOMMENDED_JEV_SELECTOR_REPETITIONS`; pass `--jev-selector-repetitions 10` |
+  | final N | not fixed | chosen from the variance observed on external datasets |
+
+  Experiments are not switched to 10 automatically. `stochastic_v1` adds no extra draws because every arm is already repeated 10 times end to end.
 - The budget guard charges every draw once (in the parent record) and charges child records only for their argument call. `estimate_run_cost` multiplies selection cost by the repetitions, and argument cost too when draws are executed.
 - Old records (no `selector_samples`) read as one draw each, so `selector_stability()` can pool repeated pilot runs of the same request.
 
@@ -329,26 +337,43 @@ A deterministic provenance checker; **no LLM judge**, which would add a second m
 | `fixture_default` | equals a default the task fixture permits for that path |
 | `schema_default` | equals the schema's own `default` / `const` |
 | `explicit` | appears in the task state, directly or as a normalized equivalent (case, whitespace, edge punctuation; date formats; number words up to twenty) |
-| `derived` | follows from explicit state by an implemented derivation: `relative_day`, `relative_weekday` (needs a `reference_date` in the state), `date_to_day_start` / `date_to_day_end` (offset must match the state's `timezone`), `token_subset` (a reordered query) |
+| `derived` | follows from explicit state by an implemented derivation: `relative_day` (today / tomorrow / yesterday), `relative_weekday` (both readings of "next Monday"), `anaphoric_day` ("that day", only with exactly one antecedent date in the state), `date_to_day_start` / `date_to_day_end` (the offset must match the timezone), `token_subset` (a reordered query) |
 | `unsupported` | a typed concrete value (email, date, date-time, number, URL) that nothing above explains |
 | `unknown` | the checker cannot decide: composed free text, booleans, nulls, an untraced time of day |
 
 - `unsupported` is used only where absence from the state is meaningful. Untraced free text is `unknown`, never "fabricated".
 - Evaluator rules live in `Task.argument_grounding` (fixture key `argument_grounding`): per-path `sources`, `allowed_derivations`, `fixture_default(s)`. Like roles and gold labels they are never serialized into any model input; tests and mutation checks cover this for the native arm, the selector and the argument generator.
-- Records add `argument_provenance` (per path: status, source, how, value type, required) and the counts below. Generated arguments are logged unchanged.
+- Records add `argument_provenance` (per path: status, source, how, value type, required, critical, severity, and `reference_source` for relative dates) and the counts below. Generated arguments are logged unchanged.
+
+**Severity, grounding policy `refined_v1`** (the default from 2026-10-26; recorded as `grounding_policy`):
+
+| Entry | Severity | Effect |
+|---|---|---|
+| explicit, derived, schema_default, fixture_default | `pass` | none |
+| placeholder | `hard_failure` | fails `argument_grounding_ok` |
+| unsupported, schema-required argument | `hard_failure` | fails `argument_grounding_ok` |
+| unsupported, optional argument the fixture marks `critical: true` | `hard_failure` | fails `argument_grounding_ok` |
+| unsupported, optional argument | `warning` | counted in `unsupported_optional_argument_count` and `grounding_warning_count`; does not fail |
+| unknown | `neutral` | counted in `unknown_argument_count`; does not fail |
+
+The earlier policy, under which any unsupported value fails, is still computed (`argument_grounding_ok_strict`, `grounded_task_success_strict`), so earlier analyses stay reproducible. "Required" means required by the schema at every level of the path.
+
+**Reference date and timezone.** Relative dates need a reference "now". The checker looks first in the model-visible state (`reference_date`, `current_date`, `today`, `timezone`), then in the task's evaluator-only `evaluation_context` (`reference_datetime`, `timezone`). The project fixtures declare a fixture-level context (`2026-10-26T12:00:00+09:00`, `Asia/Seoul`) that no model sees. Every derived relative date records `reference_source`: `state` means the model could read the reference; `evaluation_context` means the value is consistent with the task's "now" but the model could not have read it. Records log the context in `expected.evaluation_context`, and replay restores it. "That day" with no antecedent date (the pilot's `missing_info_calendar`) is not recoverable, so invented dates there stay `unsupported`.
 
 ### Outcome stages, kept separate
 
 | Field | Question |
 |---|---|
 | `selection_correct` | Did the arm choose the right tool, or abstain when it should? |
-| `arguments_schema_valid`, `arguments_match` | Are the arguments valid for the schema, and do they match the task's constrained values? |
-| `argument_grounding_ok` (+ `placeholder_argument_count`, `unsupported_argument_count`, `unsupported_required_argument_count`, `unknown_argument_count`) | Is every argument value traceable to the request or state? `False` on any placeholder or unsupported value; `unknown` values do not fail it. |
+| `arguments_schema_valid`, `arguments_match` (+ `argument_mismatches`) | Are the arguments valid for the schema, and do they match the task's constrained values (exact `argument_constraints`) or accepted alternatives (`argument_options`, BFCL style)? |
+| `argument_grounding_ok` (+ `placeholder_argument_count`, `unsupported_argument_count`, `unsupported_required_argument_count`, `unsupported_optional_argument_count`, `unknown_argument_count`, `grounding_warning_count`) | Is any argument value a placeholder, or an unsupported required or critical value (policy `refined_v1`)? |
+| `argument_grounding_ok_strict` | The earlier rule: `False` on any placeholder or unsupported value, optional ones included. |
 | `execution_success` | Did the executor run the call successfully? |
 | `task_success` | Original definition, unchanged. |
 | **`grounded_task_success`** | `task_success` and, for action tasks, `argument_grounding_ok is True`. **Intended primary end-to-end metric for future analysis.** Abstention tasks are unchanged. |
+| `grounded_task_success_strict` | The same, with `argument_grounding_ok_strict`. Kept for comparison with earlier analyses. |
 
-Policy question left open on purpose: an *optional* parameter the request never mentions (the pilot's `max_results: 5`) counts as `unsupported` and fails `grounded_task_success`. `unsupported_required_argument_count` lets an analysis separate that from invented required values; changing the rule is a decision for the analysis plan, not the checker.
+Decided 2026-10-26: an invented *optional* parameter the request never mentions (the pilot's `max_results: 5`) is a warning, not a failure, unless the fixture marks that path `critical`.
 
 ### MCP substrate (Phase 3)
 
@@ -371,6 +396,63 @@ MCP server  ◄──one tools/call, owning server only── MCPExecutor ◄─
 - **Fixture servers** (`datasets/mcp_fixture_server.py`): one in-process server per fixture `server_id`, deterministic handlers, call recording for routing tests, runnable over stdio (`python -m rlcdselect.datasets.mcp_fixture_server mail`).
 - `MockExecutor` remains for offline runs. It refuses placeholder arguments as a stand-in for real side effects; `MCPExecutor` executes faithfully, and grounding reports placeholders for every executor.
 
+### MCP runner mode
+
+`scripts/run_experiment.py` selects the tool source and executor independently of everything else:
+
+| Flags | Tools from | Execution |
+|---|---|---|
+| (default) `--registry static --executor mock` | static fixture registry | `MockExecutor` |
+| `--registry mcp --mcp-fixture` | in-process deterministic fixture MCP servers | `MockExecutor` |
+| `--registry mcp --executor mcp --mcp-fixture` | fixture MCP servers | `MCPExecutor` (`tools/call`) |
+| `--mcp-stdio ID=COMMAND` (repeatable, with `--registry mcp`) | local stdio MCP servers | either |
+
+- With MCP, tasks keep their ids, state and ground truth, but every tool definition is taken from the server that lists it (`registry/sources.py: rebind_tasks`). A task tool no server lists is an error. Definitions that differ from the static fixture are reported before any model call and logged in `tool_source.definition_differences_from_static`.
+- Server identity is the configured server id, and the existing `NamePolicy` handles presentation. Every record logs `tool_source` (registry, executor, servers).
+- Static mode stays the default and fully supported. No external MCP service is contacted in any mode.
+- Local MCP smoke mode: `scripts/smoke_offline.py --mcp`. It uses fake models and the fixture MCP servers, with no keys and no network. A test asserts that its selections, arguments and task outcomes are identical to the static path.
+
+### Phase 4: external dataset adapters (`datasets/external/`)
+
+Adapters convert benchmark rows into project `Task`s. Each one is pure (rows in, `AdapterResult` out) and deterministic. Source files come from each dataset's documented GitHub repository at a pinned commit, through `scripts/fetch_datasets.py`, into the git-ignored `data/external/`. Nothing is redistributed. `scripts/adapt_datasets.py` prints the inclusion/exclusion report.
+
+| Dataset (license, commit) | Used for | Included / source rows | Mapping |
+|---|---|---|---|
+| When2Call test MCQ (Apache-2.0, `ecc8d42`) | whether to call a tool | 3,394 / 3,652 | `tool_call` → target tool; `request_for_info` → abstain (`missing_information`); `cannot_answer` → abstain (`no_suitable_tool`). The two abstain labels stay distinct in `abstain_reason` and `provenance.source_label`. |
+| MetaTool Task2-Subtask1 (MIT, `35e81bb`) | similar-tool selection | 995 / 995 | gold tool among 10 candidates parsed from the prompt; selection-only (no schemas) |
+| MetaTool Task2-Subtask3 | abstention when the right tool is absent | 995 / 995 | abstain (`no_suitable_tool`); the absent gold tool is kept in provenance |
+| BFCL v4 `simple_python`, `multiple`, `live_simple`, `live_multiple` (Apache-2.0, `6ea5797`) | selection and arguments | 400 / 200 / 258 / 1,053 (all) | ground-truth function; accepted alternatives kept verbatim as `argument_options` |
+| BFCL v4 `irrelevance`, `live_irrelevance` | no-call | 240 / 240, 871 / 884 | abstain (`no_suitable_tool`) |
+| BFCL v4 `live_relevance` | "should call" | 5 / 16 | only items with exactly one function (BFCL gives no gold function) |
+
+Not adapted:
+- BFCL parallel, multi-turn, memory, web-search, Java/JavaScript and format-sensitivity subsets (`common.BFCL_EXCLUDED_SUBSETS`, with reasons);
+- MetaTool Task 1 and Task 2 Subtasks 2 and 4;
+- When2Call's train and LLM-judge files.
+
+**Provenance** (`Task.provenance`, evaluator-only, logged as `task_provenance`) records:
+- source dataset, repo, split, item id, commit, file and license;
+- the adapter version, every transformation applied, the source label and the source tool order;
+- the original→presented name map, plus dataset-specific fields: When2Call `source_group_id` (the three labels are variants of one upstream item, so analyses should cluster on it), `held_out_param` and `reference_arguments`; MetaTool `source_gold_position`; BFCL `gold_schema_errors` and `gold_placeholder_paths`.
+
+Every skipped row is an `Exclusion` with a reason.
+
+**Logged transformations:**
+- `tool_name_sanitized`: native function calling rejects names like `ChaDri.change_drink`, so `.` becomes `_`. The original name is kept, and collisions are an exclusion, never a merge.
+- BFCL pseudo-schema types to JSON Schema: `dict`→`object`, `float`→`number`, `tuple`→`array`, and `any` removed.
+- `description_list_unwrapped` and `empty_input_schema_added` (MetaTool).
+- `system_message_in_state` (BFCL).
+
+**Ordering.** Adapters keep source order as the task's tool order. Records log `source_tool_order`, `tool_order` (presented), `expected_source_positions` and `expected_presented_positions`. MetaTool tasks carry the `requires_order_shuffle` tag because the gold tool is first in all 995 source rows of Subtask 1, and the runner refuses to run them without at least one seeded permutation.
+
+**BFCL arguments** are scored by `eval/argmatch.py`, an approximation of BFCL's AST checker, not the official scorer:
+- strings are standardized;
+- an int equals an equal float;
+- `""` means the parameter may be omitted, and `[]` means it must be omitted or empty (an interpretation);
+- an unexpected parameter is a mismatch.
+
+Grounding rules come only from the ground truth: an accepted value the checker would otherwise call unsupported becomes a `fixture_default` for that path. Examples are 40% → 0.4, "112.07 W" → −112.07, ordinals, and documented defaults. A test asserts that no rule value is absent from the source.
+
 ### Interface framing: preserved for later study
 
 The pilot's near-name result (same model, opposite decisions under native calling and Choice framing) is not a claim. The records already contain everything needed to study it later: identical candidate content (`tools_before`), candidate order (`tool_order`), opaque option ids (`candidate_ids`), the framing (`native_single_call`, `candidate_representation`), schema inclusion (`serialization`), the exact prompts and provider payloads (`model_inputs`), the returned selection, and the sampling configuration (`llm_config`, `selector_sampling`, profile). A project-owned Choice prompt (instead of the adapter's) remains a candidate ablation for separating framing from the adapter's system prompt.
@@ -379,7 +461,11 @@ The pilot's near-name result (same model, opposite decisions under native callin
 
 - Grounding is conservative and surface-level. It does not resolve coreference ("my landlord" → an address in a contact list unless that list is in the state and found by value), arithmetic, units, or time-of-day expressions ("8pm" stays `unknown`). Paraphrased free text is `unknown`, so `argument_grounding_ok` can pass while a composed body misstates the request.
 - "Next Monday" is ambiguous; both readings are accepted.
-- The fixture tasks carry no `reference_date`, so relative dates in them can never be `derived`.
+- The fixture tasks' reference datetime is evaluator-only. A relative date derived from it shows consistency with the task's "now", not that the model could know the date (see `reference_source`).
+- Dataset ambiguities kept, not reconciled:
+  - Some BFCL ground truths violate their own schema: 1 `simple_python`, 41 `live_simple` and 131 `live_multiple` items are tagged `gold_schema_inconsistent`. Most of these are explicit `null` accepted on a string field, or a value outside an enum.
+  - 20 `live_simple` ground truths accept the literal `"N/A"` for `unit`, which this project's placeholder rule treats as a hard failure (`gold_contains_placeholder`).
+  - When2Call's `tool_call` reference arguments are single synthetic calls without alternatives, so they are kept as reference only and not scored.
 - Selector stability for Jev uses the same request; it does not capture variance from order or id seeds (those are separate factors).
 - The MCP layer is tested against local servers only; real third-party servers (auth, Streamable HTTP sessions, pagination quirks) are untested.
 - The fixture is still 14 core tasks.
