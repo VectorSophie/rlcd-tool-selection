@@ -16,7 +16,7 @@ Jev is not deterministic for identical requests, so decomposed arms can repeat t
 
 Tools can come from a static fixture registry or from MCP servers through the official MCP Python SDK (`--registry static|mcp`, `--executor mock|mcp`). Adapters for When2Call, MetaTool and BFCL (single-call subsets) convert benchmark rows into tasks with per-item provenance and exclusion reports. Their data is fetched from pinned upstream commits and never committed.
 
-Status: a 14-task fixture pilot (1,554 runs), one 126-run regression check and a controlled 750-task external pilot have been run. The external pilot used one ordering per task across When2Call, MetaTool S1/S3 and four BFCL single-call subsets ($3.22; see `results/external_pilot/SUMMARY.md`). All results are pilot observations and hypotheses, not general findings; see `IMPLEMENTATION_REPORT.md`. An adversarial tool-metadata study (four arms, including a minimal-prompt `matched_neutral` control) is implemented and audited but not run: its estimate ($53 primary) exceeded the first $40 cap; groups A–C were then approved under a $55 cap (`results/adversarial_study/`).
+Status: a 14-task fixture pilot (1,554 runs), one 126-run regression check and a controlled 750-task external pilot have been run. The external pilot used one ordering per task across When2Call, MetaTool S1/S3 and four BFCL single-call subsets ($3.22; see `results/external_pilot/SUMMARY.md`). All results are pilot observations and hypotheses, not general findings; see `IMPLEMENTATION_REPORT.md`. An adversarial tool-metadata study (four arms, including a minimal-prompt `matched_neutral` control) ran groups A–C (18,840 runs, $30.10) under a $55 cap. Only decoy insertion moved selections substantially: the neutral decomposed arm was most affected, System One less, Jev least, and native varied by dataset. These are attack-specific mixed effects, not a general decomposition vulnerability (`results/adversarial_study/SUMMARY.md`). The BFCL holdout has not been run.
 
 - Design: [`DESIGN.md`](DESIGN.md)
 - Status: [`IMPLEMENTATION_REPORT.md`](IMPLEMENTATION_REPORT.md)
@@ -34,7 +34,7 @@ uv run --extra laya python scripts/adapt_datasets.py                       # off
 uv run --extra laya python scripts/plan_external_pilot.py                   # sample, estimate, freeze manifests (no model calls)
 uv run --extra laya python scripts/run_experiment.py --manifest results/external_pilot/A/manifest.json   # paid; verifies the manifest first
 uv run --extra laya python scripts/analyze_external_pilot.py results/external_pilot                   # summary.json + SUMMARY.md
-uv run --extra laya python scripts/plan_adversarial_study.py               # attack audit + estimate; freezes only within the $40 cap
+uv run --extra laya python scripts/plan_adversarial_study.py               # attack audit + estimate; freezes only within the $55 cap
 uv run --extra laya python scripts/run_adversarial_study.py results/adversarial_study/A_clean/manifest.json   # paid
 uv run --extra laya python scripts/analyze_adversarial_study.py results/adversarial_study
 uv run --extra laya python scripts/run_experiment.py \

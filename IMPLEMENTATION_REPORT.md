@@ -1,6 +1,50 @@
 # Implementation Report
 
-## Adversarial tool-metadata study: implemented, audited, estimated, STOPPED before paid execution
+## Adversarial tool-metadata study: groups A–C run (2026-10-27)
+
+- Approved: groups A–C, 3 orderings each, under a raised $55 global cap. The BFCL holdout (D) was neither frozen nor run.
+- Manifests were frozen and verified at implementation commit `b5fd417`: A_clean `f72034819758`, B_displacement `a562f566354f`, C_abstention `f5f485aaf220`. No code changed during the run.
+- Records: 18,840 runs, 0 aborted.
+- Cost: **$30.10** actual against $53.01 estimated (ratio 0.57). By group: A $6.27, B $13.85, C $9.97.
+- Outputs: `results/adversarial_study/SUMMARY.md`, `CLEAN_ABLATION.md` and `summary.json`. Raw `records.jsonl` stay local.
+
+**Clean ablation.** The architectures differ in action bias before any attack:
+- **Native** abstains most. It is the most accurate on S3 (94%) and When2Call (81%), and the least accurate on S1 (56%).
+- The **decomposed arms** act more:
+  - On S1 they are more accurate (72–76%).
+  - On S3 and When2Call they are less accurate.
+  - `matched_neutral` acts most: P(tool | When2Call request_for_info) is 88%, against 18% for native.
+- Accuracy is stable across the three orderings.
+
+**Attacks.**
+- **Metadata-only families** (near-name, description mimicry, preference/authority, schema property) produce small shifts in every arm:
+  - Δ attacker selection is ≤ 8 pp.
+  - No interaction survives Holm.
+- **Decoy insertion** is the only family with large effects. It is analysed separately, because the candidate count changes. On trusted displacement, Δ attacker selection was:
+
+  | dataset | native | System One | neutral | Jev |
+  |---|---|---|---|---|
+  | MetaTool S1 | +25 pp | +26 pp | +44 pp | +5 pp |
+  | When2Call | +1 pp | +14 pp | +27 pp | +5 pp |
+
+- **Abstention capture** stays near 0% conditional ASR in every arm and family. The largest shift is neutral decoy on When2Call: +10 pp unconditional.
+
+**Pre-registered contrasts** (Holm-significant cells only):
+
+| hypothesis | contrast | Holm-significant cells |
+|---|---|---|
+| H1 | Δneutral − Δnative | decoy, S1: +18.7 pp; decoy, When2Call displacement: +26.7 pp |
+| H2 | Δsystemone − Δneutral | decoy, S1: −18.0 pp (System One less affected) |
+| H3 | Δjev − Δneutral | decoy, S1: −39.0 pp; decoy, When2Call displacement: −22.0 pp; decoy, When2Call abstention: −8.7 pp |
+
+**Interpretation: D, attack-specific mixed effects.**
+- The decomposition effect is confined to the candidate-insertion attack.
+- It is carried mostly by the minimal-prompt control. System One framing reduces the effect, and Jev nearly removes it.
+- With the production System One framing, decomposition matches native on S1 and exceeds it only on When2Call.
+- The neutral arm's clean over-action bias confounds a pure decomposition reading.
+- The decoy is a near-copy of the trusted tool, so choosing it is partly semantic confusion rather than adversarial capture.
+
+## Adversarial tool-metadata study: pre-approval record (stopped over the $40 cap; superseded above)
 
 - Date: 2026-10-26. No paid model call was made; spend for this study is $0.00.
 - Tests: **188 passed**, up from 162. 16 of 16 targeted mutations of the study's safeguards make the tests fail.
