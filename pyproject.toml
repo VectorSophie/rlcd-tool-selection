@@ -8,6 +8,7 @@ license = "Apache-2.0"
 license-files = ["LICENSE"]
 dependencies = [
     "jsonschema>=4.23",
+    "mcp==2.3.0",
     "openai>=2",
     "system-one-adapter[openai]==0.2.1",
     "typesafe-sdk==0.7.4",

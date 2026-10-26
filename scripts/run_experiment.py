@@ -18,6 +18,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from rlcdselect.datasets.fixtures import core_tasks, decomposed_only_tasks, load_fixtures
+from rlcdselect.core.types import SelectorSamplingPolicy
 from rlcdselect.eval.budget import BudgetGuard, estimate_run_cost, prices_from_catalog
 from rlcdselect.eval.logging import JsonlWriter
 from rlcdselect.eval.metrics import summarize
@@ -54,8 +55,16 @@ async def main(args: argparse.Namespace) -> None:
     seeds = tuple(None if s == "none" else int(s) for s in args.order_seeds.split(","))
     samples = args.samples or profile.samples_per_condition
     pipeline_ids = ([] if stress else ["native_llm"]) + ["matched_llm", "jev"] + (["laya"] if args.with_laya else [])
+    sampling = dict(profile.selector_sampling)
+    if args.jev_repetitions is not None or args.jev_execute_each_sample:
+        base = sampling.get("jev") or SelectorSamplingPolicy()
+        sampling["jev"] = SelectorSamplingPolicy(
+            repetitions=args.jev_repetitions if args.jev_repetitions is not None else base.repetitions,
+            execute_each_sample=args.jev_execute_each_sample)
+    print(f"Selector sampling: { {k: f'{v.repetitions}x' + (' end-to-end' if v.execute_each_sample else ' selector-only') for k, v in sampling.items()} }")
     prices = prices_from_catalog(verified["llm"], verified.get("jev"))
-    estimate = estimate_run_cost(tasks, pipeline_ids, condition, prices, len(seeds), samples, args.matched_mode)
+    estimate = estimate_run_cost(tasks, pipeline_ids, condition, prices, len(seeds), samples, args.matched_mode,
+                                 sampling)
     print(f"Estimated cost (conservative): {json.dumps(estimate, indent=2)}")
     if args.check_only:
         return
@@ -73,7 +82,7 @@ async def main(args: argparse.Namespace) -> None:
         # One OpenRouter SDK client serves native calling, argument generation and matched selection.
         DecomposedPipeline(MatchedLLMSelector(profile.llm, answer_mode=args.matched_mode, client=llm.sdk_client),
                            arguments, executor, condition),
-        DecomposedPipeline(jev, arguments, executor, condition),
+        DecomposedPipeline(jev, arguments, executor, condition, sampling=sampling.get("jev", SelectorSamplingPolicy())),
     ]
     if args.with_laya:
         from rlcdselect.selectors.laya import LayaSelector
@@ -101,6 +110,10 @@ if __name__ == "__main__":
     parser.add_argument("--matched-mode", choices=["discrete", "probabilities"], default="discrete")
     parser.add_argument("--order-seeds", default="none", help="comma-separated, 'none' = canonical order")
     parser.add_argument("--samples", type=int, default=None, help="override the profile's samples per condition")
+    parser.add_argument("--jev-repetitions", type=int, default=None,
+                        help="identical Jev selection calls per run (selector-only); overrides the profile")
+    parser.add_argument("--jev-execute-each-sample", action="store_true",
+                        help="also generate arguments and execute for every Jev draw (multiplies argument-LLM cost)")
     parser.add_argument("--with-laya", action="store_true")
     parser.add_argument("--laya-device", default="cuda:1")
     parser.add_argument("--check-only", action="store_true")

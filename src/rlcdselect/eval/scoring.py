@@ -1,9 +1,15 @@
-"""Per-run scoring. Selection, arguments, execution and task success are scored separately."""
+"""Per-run scoring. Selection, arguments, grounding, execution and task success are scored separately.
+
+`task_success` keeps its original definition. `grounded_task_success` is the stricter metric
+intended for future primary analysis: it also requires every generated argument value to be
+grounded (no placeholder and no unsupported value; see `eval/grounding.py`).
+"""
 
 from typing import Any
 
 from rlcdselect.core.jsonutil import thaw
 from rlcdselect.core.types import ABSTAIN, ArgumentStatus, SelectionStatus, Task
+from rlcdselect.eval.grounding import ground_arguments, grounded_task_success, grounding_summary
 from rlcdselect.pipelines.base import PipelineOutcome
 
 
@@ -37,6 +43,13 @@ def score(task: Task, outcome: PipelineOutcome) -> dict[str, Any]:
     else:
         task_success = selection_correct and execution_success is True and arguments_match is not False
 
+    provenance = None
+    if args.status is ArgumentStatus.OK and args.arguments is not None:
+        tool = next((t for t in task.tools if t.key == outcome.selection.selected_tool_key), None)
+        provenance = ground_arguments(args.arguments, tool.input_schema if tool else None, task.state,
+                                      task.argument_grounding)
+    grounding = grounding_summary(provenance)
+
     role = None
     if label == ABSTAIN:
         role = "abstain"
@@ -55,4 +68,9 @@ def score(task: Task, outcome: PipelineOutcome) -> dict[str, Any]:
         "arguments_match": arguments_match,
         "execution_success": execution_success,
         "task_success": task_success,
+        # Grounding-aware fields (record schema v3). The original arguments are left untouched.
+        "argument_provenance": provenance,
+        **grounding,
+        "grounded_task_success": grounded_task_success(task_success, expected.expects_abstention,
+                                                       grounding["argument_grounding_ok"]),
     }

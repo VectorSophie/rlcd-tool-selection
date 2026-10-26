@@ -82,12 +82,17 @@ class Task:
     expected: ExpectedOutcome
     roles: Mapping[str, ToolRole]
     tags: tuple[str, ...] = ()
+    # Evaluator-only provenance rules for argument grounding (see `eval/grounding.py`), keyed by
+    # argument path. Like `roles` and `expected`, it is never shown to a selector or LLM.
+    argument_grounding: Mapping[str, Any] | None = None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "state", freeze(self.state))
         object.__setattr__(self, "tools", tuple(self.tools))
         object.__setattr__(self, "roles", freeze(dict(self.roles)))
         object.__setattr__(self, "tags", tuple(self.tags))
+        if self.argument_grounding is not None:
+            object.__setattr__(self, "argument_grounding", freeze(dict(self.argument_grounding)))
         keys = [t.key for t in self.tools]
         if len(set(keys)) != len(keys):
             raise ValueError(f"Task {self.task_id}: duplicate tool keys {keys}")
@@ -199,6 +204,8 @@ class ToolExecutionResult:
     output: Any
     error: ErrorInfo | None
     latency_ms: float
+    attempts: tuple[AttemptLog, ...] = ()
+    meta: Mapping[str, Any] | None = None  # executor details, e.g. MCP server id, tool name, isError
 
 
 @dataclass(frozen=True)
@@ -213,6 +220,28 @@ class RetryPolicy:
     def __post_init__(self) -> None:
         if self.max_attempts < 1:
             raise ValueError("max_attempts must be >= 1")
+
+
+@dataclass(frozen=True)
+class SelectorSamplingPolicy:
+    """How many identical selection calls a decomposed arm makes per run.
+
+    `repetitions` > 1 measures selector stability: the same request is sent `repetitions` times
+    and every sample (choice, probabilities, raw output) is kept. The first sample is the run's
+    selection and drives the normal single argument-generation and execution path, so end-to-end
+    scoring is unchanged. With `execute_each_sample`, samples 1..N-1 also get their own argument
+    generation and execution, recorded as separate `selector_sample_run` records; that multiplies
+    argument-LLM cost and must be requested explicitly.
+    """
+
+    repetitions: int = 1
+    execute_each_sample: bool = False
+
+    def __post_init__(self) -> None:
+        if self.repetitions < 1:
+            raise ValueError("repetitions must be >= 1")
+        if self.execute_each_sample and self.repetitions == 1:
+            raise ValueError("execute_each_sample needs repetitions > 1")
 
 
 class TransientError(Exception):

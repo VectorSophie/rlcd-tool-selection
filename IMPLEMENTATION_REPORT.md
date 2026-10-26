@@ -1,5 +1,68 @@
 # Implementation Report
 
+## Measurement hardening + Phase 3 (MCP registry and executor)
+
+- Date: 2026-10-26
+- **No paid provider calls and no benchmark runs were made in this phase.** The pilot rescore below reads existing records offline.
+- Tests: **129 passed** (`uv run --extra laya pytest`), up from 94. Mutation checks: each of 8 deliberate breakages (selector-only draws triggering argument generation, majority vote replacing the selection, child records re-charging selection, free text marked unsupported, grounding rules leaking into the selector or argument LLM, the executor skipping validation, MCP exceptions left wrapped) makes the new tests fail.
+
+| Item | Status |
+|---|---|
+| A. `SelectorSamplingPolicy`; repeated identical Jev draws, all kept; selector-only by default, end-to-end only on request | ✔ |
+| A. Stability metrics: empirical frequencies, abstain/trusted/attacker frequency, entropy, flip rate, derived majority, native-probability mean/std/range | ✔ `eval/stability.py` |
+| A. `deterministic_v1` semantics documented; 5 selector-only Jev draws per run (development default) | ✔ |
+| A. Budget guard and estimate account for repeated draws | ✔ |
+| B. Deterministic provenance checker (7 statuses, per path, no LLM judge) | ✔ `eval/grounding.py` |
+| B. Evaluator-only grounding rules on tasks; never reach a model | ✔ tested + mutation-checked |
+| B. `grounded_task_success` added; `task_success` unchanged | ✔ |
+| B. Pilot rescored offline without modifying records | ✔ `scripts/rescore_pilot.py` |
+| C. `MCPToolRegistry`, `MCPExecutor` on the official SDK (`mcp==2.3.0`) | ✔ |
+| C. Local deterministic MCP fixture servers (in-process and stdio) | ✔ |
+| C. Static vs MCP `ToolSpec` equivalence (required test 7, MCP side) | ✔ all 11 fixture tools, in-process and over stdio |
+
+### Pilot rescore (grounding-aware; records unchanged)
+
+| File | Arm | `task_success` | `grounded_task_success` |
+|---|---|---|---|
+| first run (1 ordering) | native / matched / Jev | 11 / 10 / 10 of 14 | unchanged |
+| deterministic, main condition, 3 orderings | native / matched / Jev | 35 / 30 / 27 of 42 | unchanged |
+| deterministic, name + description, 3 orderings | native / matched / Jev | 35 / 30 / 30 of 42 | unchanged |
+| stochastic, 3 orderings × 10 | native / matched / Jev | 349 / 300 / 279 of 420 | **348 / 296 / 278** |
+
+- **Only 6 of 1,554 runs change**, all `obvious_search_web`: Claude added an optional `max_results` (5 or 10) the request never mentioned, which is `unsupported` (optional, not required). Native 1, matched 4, Jev 1.
+- Every placeholder (`<UNKNOWN>`) and every invented date (`2024-01-01` … `2024-12-31`) occurred on missing-information tasks, which already counted as failures because abstention was expected. The grounding fields now show *why* those actions were harmful: 100 placeholder and 27 unsupported values on the Jev arm in the stochastic run alone.
+- In the name + description condition, the matched LLM also acted on missing-information tasks and produced placeholders and unsupported dates (9 placeholder, 4 unsupported values).
+- Reworded queries (`"today euro to US dollar exchange rate"`, `"TODO.*payment"`) are `derived` (`token_subset`); composed email bodies are `unknown`, not `unsupported`.
+- Pooled Jev stability from pilot records (`selector_stability`): act/abstain flips on `missing_info_calendar` (flip rate 0.36–0.47 per ordering at n=10), a 0.13 native-probability range on the near-name task, and a canonical-order deterministic pair that disagreed (abstain in the first run, act in the second).
+
+### Compatibility changes
+
+- Record `schema_version` 2 → **3**. New fields: `selector_samples`, `selector_sample_summary`, `selector_sampling`, `parent_run_id`, `selector_sample_index`, `argument_provenance`, `argument_grounding_ok`, the four grounding counts, `grounded_task_success`, `execution_meta`, `execution_attempts`, and `expected.argument_grounding`. A new record type `selector_sample_run` appears only with `execute_each_sample`. Old records stay readable: metrics, replay and `selector_stability` treat a missing field as absent / one draw (tested on a committed schema-1 file).
+- `deterministic_v1` now makes 5 selector-only Jev calls per run. Same name, so compare runs by their logged `selector_sampling`.
+- `Task` has an optional `argument_grounding`; `ToolExecutionResult` has optional `attempts` and `meta`; `ProviderError` subclasses are unchanged.
+- The default placeholder set dropped `TODO` (a legitimate code-search query) and added `TBA`, `???`, `none provided`, `not provided`, `unspecified`.
+- New dependency `mcp==2.3.0` (MIT; latest release, 2026-10-02).
+
+### MCP SDK behavior that forced design changes
+
+1. `Client.call_tool` silently resends after `HEADER_MISMATCH` and auto-answers input requests. → The executor uses `client.session.call_tool(..., allow_input_required=True)`; both cases become typed execution errors.
+2. `tools/list` responses are cached client-side by default. → Caching off, explicit refresh, paginated walk with a page cap.
+3. `FastMCP` was removed in 2.x; `MCPServer` generates schemas from Python signatures. → Fixture servers use the low-level `Server` with the fixture's exact JSON schemas.
+4. Low-level servers do not validate tool arguments. → The executor validates before calling.
+5. Exceptions raised inside an open client context come back as nested `ExceptionGroup`s, which would have hidden `FatalRunError`. → `MCPToolRegistry.connect` re-raises a single underlying exception unchanged.
+6. The negotiated protocol is `2026-07-28`; `MCPError(REQUEST_TIMEOUT)` signals timeouts. → Only timeouts are `TransientError` and retried, under the explicit policy.
+
+### Remaining before external benchmark integration (Phase 4)
+
+1. Decide the grounding policy for invented *optional* parameters (currently `unsupported`; see `DESIGN.md`).
+2. Add `reference_date` / `timezone` to fixture states where relative dates are intended, so `derived` dates can be scored.
+3. Dataset adapters (When2Call, BFCL live_multiple / irrelevance, MetaTool with shuffling) that map each dataset's gold arguments and missing-information cases onto `ExpectedOutcome` and `argument_grounding` rules; serve their tools through the MCP fixture servers or the static registry.
+4. Choose Jev's repetition count for real runs from the observed variance (5 is a development default).
+5. Point `run_experiment.py` at MCP-backed tool sources (it still builds tasks from the static registry and uses `MockExecutor`).
+6. A paid run of the current fixture with the new profile, to validate selector sampling and grounding live. Estimated cost for 3 orderings in the main condition: $0.28, of which the extra Jev draws add $0.004. This needs your approval.
+
+---
+
 ## Phase 2 revision: OpenRouter pilot setup (Claude Haiku 4.5 + Jev 1.13)
 
 - Date: 2026-10-14

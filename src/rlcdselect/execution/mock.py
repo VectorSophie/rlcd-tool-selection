@@ -1,4 +1,3 @@
-import re
 import time
 from collections.abc import Callable, Mapping
 from typing import Any
@@ -6,6 +5,7 @@ from typing import Any
 from jsonschema import Draft202012Validator
 
 from rlcdselect.core.jsonutil import thaw
+from rlcdselect.core.placeholders import DEFAULT_DETECTOR
 from rlcdselect.core.types import ErrorInfo, ToolExecutionResult, ToolSpec
 
 Handler = Callable[[Mapping[str, Any]], Any]
@@ -16,28 +16,18 @@ def schema_errors(schema: Mapping[str, Any], arguments: Mapping[str, Any]) -> tu
     return tuple(sorted(f"{'/'.join(map(str, e.path)) or '<root>'}: {e.message}" for e in validator.iter_errors(thaw(arguments))))
 
 
-# Values a model writes when the request lacks the information, e.g. "<UNKNOWN>" or "[RECIPIENT]".
-# A real tool would act on them (an email to "<UNKNOWN>"), so the mock refuses them as an outcome.
-_PLACEHOLDER = re.compile(
-    r"<[^<>]{1,40}>|\[[A-Z0-9 _-]{1,40}\]|\{\{[^{}]{1,40}\}\}|(?i:unknown|tbd|todo|placeholder|n/a)")
-
-
 def placeholder_values(value: Any, path: str = "") -> tuple[str, ...]:
-    """Paths of string values that are entirely a placeholder."""
-    if isinstance(value, str):
-        return (path or "<root>",) if _PLACEHOLDER.fullmatch(value.strip()) else ()
-    if isinstance(value, Mapping):
-        return tuple(p for k, v in value.items() for p in placeholder_values(v, f"{path}/{k}" if path else str(k)))
-    if isinstance(value, (list, tuple)):
-        return tuple(p for i, v in enumerate(value) for p in placeholder_values(v, f"{path}/{i}" if path else str(i)))
-    return ()
+    """Paths of string values that are entirely a placeholder (see `core.placeholders`)."""
+    return DEFAULT_DETECTOR.paths(value, path)
 
 
 class MockExecutor:
     """Validates arguments against the tool's schema, then returns a canned or handler-computed result.
 
     Calls are recorded in `calls`. Handlers raising exceptions become execution errors, not crashes.
-    Schema-valid arguments that are placeholders fail as `placeholder_arguments`.
+    Schema-valid arguments that are placeholders fail as `placeholder_arguments`: a real tool would
+    act on them (an email to "<UNKNOWN>"). Argument grounding (`eval/grounding.py`) reports the same
+    values per path, for every executor.
     """
 
     def __init__(self, handlers: Mapping[str, Handler] | None = None) -> None:

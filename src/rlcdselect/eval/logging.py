@@ -15,9 +15,11 @@ from rlcdselect.core.jsonutil import sha256_hex, thaw
 from rlcdselect.core.serialization import ABSTAIN_ID
 from rlcdselect.core.types import ABSTAIN, Task, Usage
 from rlcdselect.eval.scoring import score
+from rlcdselect.eval.stability import probabilities_by_tool as _probabilities_by_tool
+from rlcdselect.eval.stability import sample_json, summarize_samples
 from rlcdselect.pipelines.base import Pipeline, PipelineOutcome
 
-RECORD_SCHEMA_VERSION = 2
+RECORD_SCHEMA_VERSION = 3  # v3: selector samples, argument provenance, execution meta
 
 SECRET_KEYS = frozenset(
     {"api_key", "apikey", "x-api-key", "api-key", "authorization", "proxy-authorization",
@@ -64,33 +66,29 @@ def _tool_json(tool) -> dict[str, Any]:
 def build_record(*, experiment_id: str, task: Task, pipeline: Pipeline, outcome: PipelineOutcome,
                  order_seed: int | None, id_seed: int | None, sample_index: int,
                  timestamp: datetime | None = None, profile: str | None = None,
-                 condition: str | None = None) -> dict[str, Any]:
+                 condition: str | None = None, selector_sample_index: int | None = None) -> dict[str, Any]:
+    """One run record. With `selector_sample_index`, the record is the end-to-end continuation of
+    that selector draw (`record_type: selector_sample_run`), not a primary run."""
     desc = pipeline.describe()
     sel, args, exe, cset = outcome.selection, outcome.arguments, outcome.execution, outcome.candidate_set
     scored = score(task, outcome)
 
-    probabilities_by_tool = None
-    if sel.probabilities is not None and cset is not None:
-        # Keyed by stable tool key so clean and perturbed runs can be aligned even if ids differ.
-        id_map = cset.id_map
-        probabilities_by_tool = {}
-        for cid, p in sel.probabilities.items():
-            if cid in id_map:
-                probabilities_by_tool[id_map[cid]] = p
-            elif cid == ABSTAIN_ID:
-                probabilities_by_tool[ABSTAIN] = p
-            else:
-                probabilities_by_tool[f"unknown:{cid}"] = p
+    # Keyed by stable tool key so clean and perturbed runs can be aligned even if ids differ.
+    probabilities_by_tool = _probabilities_by_tool(sel.probabilities, cset)
+    samples = [sample_json(i, s, cset, task) for i, s in enumerate(outcome.selector_samples)]
 
     errors = [e for e in (sel.error, args.error, exe.error if exe else None) if e is not None]
     exec_latency = exe.latency_ms if exe else None
     parts = [sel.latency_ms, args.latency_ms, exec_latency]
     tools = [_tool_json(t) for t in task.tools]
 
+    rid = run_id(experiment_id, task.task_id, outcome.pipeline_id, order_seed, id_seed, sample_index)
     return {
-        "record_type": "run",
+        "record_type": "run" if selector_sample_index is None else "selector_sample_run",
         "schema_version": RECORD_SCHEMA_VERSION,
-        "run_id": run_id(experiment_id, task.task_id, outcome.pipeline_id, order_seed, id_seed, sample_index),
+        "run_id": rid if selector_sample_index is None else f"{rid}:s{selector_sample_index}",
+        "parent_run_id": None if selector_sample_index is None else rid,
+        "selector_sample_index": selector_sample_index,
         "experiment_id": experiment_id,
         "profile": profile,
         "condition": condition,
@@ -117,6 +115,7 @@ def build_record(*, experiment_id: str, task: Task, pipeline: Pipeline, outcome:
             "tool_keys": sorted(task.expected.tool_keys),
             "abstain_reason": task.expected.abstain_reason,
             "argument_constraints": thaw(task.expected.argument_constraints),
+            "argument_grounding": thaw(task.argument_grounding),  # evaluator-only provenance rules
         },
         "expected_tool": sorted(task.expected.tool_keys) or ABSTAIN,
         "roles": {k: v.value for k, v in task.roles.items()},
@@ -130,10 +129,16 @@ def build_record(*, experiment_id: str, task: Task, pipeline: Pipeline, outcome:
         "probability_issues": list(sel.probability_issues),
         "selection_confidence": sel.confidence,
         "selector_model_reported": sel.model_reported,
+        # Every identical selector draw (sample 0 is the selection above), and derived statistics.
+        # None when the arm made a single selection call.
+        "selector_samples": samples or None,
+        "selector_sample_summary": summarize_samples(samples) if samples else None,
         "argument_status": args.status.value,
         "arguments": thaw(args.arguments),
         "argument_schema_errors": list(args.schema_errors),
         "execution_output": thaw(exe.output) if exe else None,
+        "execution_meta": thaw(exe.meta) if exe else None,
+        "execution_attempts": thaw(exe.attempts) if exe else None,
         **scored,
         "selection_latency_ms": sel.latency_ms,
         "argument_latency_ms": args.latency_ms,

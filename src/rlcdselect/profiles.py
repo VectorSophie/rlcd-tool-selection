@@ -8,10 +8,11 @@ Anthropic only, with no fallbacks, every parameter required, and thinking disabl
 `typesafe/jev-1.13` via OpenRouter's System One API.
 """
 
-from dataclasses import dataclass
+from collections.abc import Mapping
+from dataclasses import dataclass, field
 
 from rlcdselect.core.serialization import CriteriaFormat, NamePolicy, Representation, SerializationConfig
-from rlcdselect.core.types import LLMConfig
+from rlcdselect.core.types import LLMConfig, SelectorSamplingPolicy
 
 SHARED_LLM_MODEL = "anthropic/claude-haiku-4.5"
 SHARED_LLM_ROUTING = {"only": ["anthropic"], "allow_fallbacks": False, "require_parameters": True}
@@ -23,6 +24,10 @@ SHARED_LLM_EXPECTED_RETURNED_MODELS = (SHARED_LLM_MODEL,)
 JEV_MODEL = "typesafe/jev-1.13"
 JEV_EXPECTED_PROVIDER = "TypeSafe"
 JEV_EXPECTED_RETURNED_MODELS = ("typesafe/jev-1.13-20260917",)  # documented in OpenRouter's System One guide
+
+# Development default for Jev selector-stability draws per run. Not a paper sample size: that is
+# chosen after the observed variance. Draws are selector-only (argument generation runs once).
+DEFAULT_JEV_SELECTOR_REPETITIONS = 5
 
 
 def shared_llm(temperature: float) -> LLMConfig:
@@ -40,17 +45,28 @@ def shared_llm(temperature: float) -> LLMConfig:
 
 @dataclass(frozen=True)
 class ExperimentProfile:
+    """`samples_per_condition` repeats every arm end to end. `selector_sampling` (by pipeline id)
+    repeats only a decomposed arm's selector call, for stability measurement."""
+
     name: str
     llm: LLMConfig
     samples_per_condition: int
     purpose: str
+    selector_sampling: Mapping[str, SelectorSamplingPolicy] = field(default_factory=dict)
 
 
 DETERMINISTIC_V1 = ExperimentProfile(
+    # The name is kept for compatibility with pilot records. "Deterministic" refers to the shared
+    # LLM only (Claude at temperature 0). Jev exposes no temperature and is not deterministic: the
+    # pilot saw identical requests change probabilities by up to ~0.13 and flip act/abstain.
     name="deterministic_v1",
     llm=shared_llm(0.0),
     samples_per_condition=1,
-    purpose="Integration checks and clean discrete outcomes.",
+    purpose=(
+        "Shared LLM at temperature 0, one end-to-end run per condition. Jev selection is sampled "
+        f"{DEFAULT_JEV_SELECTOR_REPETITIONS}x per run (selector-only) because Jev is not deterministic."
+    ),
+    selector_sampling={"jev": SelectorSamplingPolicy(repetitions=DEFAULT_JEV_SELECTOR_REPETITIONS)},
 )
 
 STOCHASTIC_V1 = ExperimentProfile(
@@ -58,8 +74,9 @@ STOCHASTIC_V1 = ExperimentProfile(
     llm=shared_llm(0.7),
     samples_per_condition=10,  # development only; final sample sizes are decided later
     purpose=(
-        "Repeated sampling for empirical selection frequencies. These frequencies are a different "
-        "quantity from Jev/Laya native probabilities and are never compared to them directly."
+        "Repeated end-to-end sampling for empirical selection frequencies. These frequencies are a "
+        "different quantity from Jev/Laya native probabilities and are never compared to them directly. "
+        "Every arm, Jev included, is already drawn 10 times, so no extra selector-only draws are made."
     ),
 )
 

@@ -14,7 +14,7 @@ Binding decisions (gate approval, 2026-10-14):
 Phase 2 decisions (2026-10-14, revised for the pilot):
 
 - **Shared LLM:** `anthropic/claude-haiku-4.5`, through one OpenRouter account, served by Anthropic only, with no fallbacks, every parameter required, and thinking disabled. It replaced `gpt-5.4-mini`, which OpenRouter lists as not supporting `temperature`.
-- **Profiles:** `deterministic_v1` (temperature 0) and `stochastic_v1` (temperature 0.7, 10 samples, development only).
+- **Profiles:** `deterministic_v1` (shared LLM at temperature 0; Jev is still sampled, see below) and `stochastic_v1` (temperature 0.7, 10 samples, development only).
 - **Jev:** `typesafe/jev-1.13` through OpenRouter's System One API; the run fails on any returned build other than `typesafe/jev-1.13-20260917`.
 - **Main condition:** decomposed selectors see name + description + schema. Name + description is a separate ecological condition.
 - **Duplicate names:** exact duplicate names are a decomposed-only stress test.
@@ -36,7 +36,7 @@ present_candidates(order_seed, id_seed, name_policy) ──► CandidateSet (opa
                          ArgumentGenerator: native_tool_def(selected) ─► same ChatClient (forced tool)
         │
         ▼
-ToolExecutor (MockExecutor now, MCPExecutor in Phase 3) ─► score() ─► build_record() ─► JSONL
+ToolExecutor (MockExecutor or MCPExecutor) ─► score() + grounding ─► build_record() ─► JSONL
 ```
 
 | Package | Responsibility |
@@ -46,12 +46,12 @@ ToolExecutor (MockExecutor now, MCPExecutor in Phase 3) ─► score() ─► bu
 | `core/prompts.py` | Versioned fixed prompts (`PROMPT_VERSION`) |
 | `core/retry.py` | Explicit, logged retries |
 | `llm/` | Provider-neutral `ChatClient` protocol; offline fakes |
-| `selectors/` | `Selector` protocol; mock selectors. Jev, matched-LLM and Laya adapters arrive in Phase 2 |
+| `selectors/` | `Selector` protocol; mock selectors; Jev, matched-LLM and Laya adapters |
 | `generation/arguments.py` | Shared argument generator: one tool, forced call, mismatches rejected |
 | `pipelines/` | `NativePipeline` (A) and `DecomposedPipeline` (B/C/D) |
-| `registry/`, `execution/` | Thin project-owned interfaces; static and mock implementations. MCP implementations arrive in Phase 3 |
-| `eval/` | Scoring, records with redaction, runner with invariant checks, metrics, replay |
-| `datasets/` | Project fixtures (`static_v1`) |
+| `registry/`, `execution/` | Project-owned interfaces. Static registry and mock executor; MCP registry and executor on the official SDK (Phase 3) |
+| `eval/` | Scoring, argument grounding, selector stability, records with redaction, runner with invariant checks, metrics, budget guard, replay |
+| `datasets/` | Project fixtures (`static_v2`) and the deterministic local MCP fixture servers |
 
 The brief's proposed layout had `selectors/native_llm.py`. The native arm is not a selector: it selects and generates arguments in one call. It therefore lives in `pipelines/native.py`.
 
@@ -149,7 +149,7 @@ Fixture decisions to be aware of:
 
 ## Records
 
-- Each JSONL record has `schema_version: 1` and about 67 fields: the brief's §17 set plus a few additions:
+- Each JSONL record has `schema_version: 3` (v2 added provider metadata; v3 added selector samples, argument provenance and execution metadata) and the brief's §17 fields plus these additions:
   - `model_inputs`: the exact request each model received, plus the provider payload when real providers exist;
   - `candidate_ids`;
   - `probability_kind`;
@@ -170,7 +170,7 @@ Fixture decisions to be aware of:
 | Native sees schemas in the provider's own serialization; B/C/D see the configured representation | Logged (`candidate_representation`). Run B/C/D with `name_description_schema` as a sensitivity condition. Provider adapters must log the exact payload (Phase 2). |
 | Matched-LLM probabilities are verbalized; Jev and Laya have native readouts; native has none | Enforced by policy: discrete metrics are primary; probabilities are used within a selector only. |
 | The System One adapter wraps state in `<document>` and adds an "untrusted data" system prompt | Inherent to arm B; will be documented and logged in Phase 2. |
-| Jev exposes no temperature; LLM temperature is set explicitly | Asymmetry, logged. Repeated sampling is used for empirical frequencies. |
+| Jev exposes no temperature and is not deterministic; LLM temperature is set explicitly | Asymmetry, logged. Jev is sampled repeatedly (selector-only) under every profile that runs it once end to end. |
 | Laya's option budget (192–256 tokens) trims options | Phase 2: log truncation stats; exclude trimmed runs from primary analysis. |
 | Fixture labels are author-written | Small project fixtures; external datasets follow in Phase 4. |
 
@@ -276,8 +276,8 @@ Answer modes:
 | Choice-based selectors see the opaque option key (`t0`…) as text; native sees function names | Identical across decomposed arms. `id_seed` measures label effects. |
 | Matched LLM sees criteria inside a JSON-schema description; Jev sees a criteria map | Content and order are asserted identical (enum = criteria keys = presentation order). |
 | OpenRouter translates our OpenAI-style request into Anthropic's Messages API | Not observable from our side. Requests are logged at the OpenRouter boundary. |
-| Jev exposes no temperature | Logged asymmetry. `stochastic_v1` repeats all arms equally. |
-| Strict `json_schema` support for Claude via OpenRouter is untested live | The first deterministic run will show it. Failures are recorded as `malformed_output` selection errors, not hidden. |
+| Jev exposes no temperature | Logged asymmetry. `stochastic_v1` repeats all arms equally; `deterministic_v1` adds selector-only Jev draws. |
+| Strict `json_schema` support for Claude via OpenRouter | Confirmed working in the pilot (no `malformed_output` errors in 1,554 runs). |
 
 ### Budget guard (`eval/budget.py`)
 
@@ -287,3 +287,99 @@ Answer modes:
 - **Fatal aborts:** a call that triggered a fatal check was still billed, so its reported cost is charged too.
 - **Local selectors** (Laya, mocks) cost nothing; only their argument generation is charged.
 - **Records** carry `cost_charged_usd` and `budget_spent_usd`, and the script prints actual versus estimated spend.
+
+## Measurement hardening after the fixture pilot (2026-10-26)
+
+### Fixture pilot: what it is and is not
+
+1,554 runs on the 14 project-authored core tasks (Claude Haiku 4.5 via OpenRouter, Jev 1.13), $2.03 total spend, no run aborts. Every arm handled every clean task and every no-suitable-tool task correctly. Differences came from attack tasks and from requests missing required information.
+
+These are **pilot observations**: hypothesis-generating results on 14 hand-written tasks. They are not general results about Jev, native tool calling or RLCD. The observations that changed the harness:
+
+1. **Jev is not deterministic.** Byte-identical requests changed Jev's native probabilities by up to 0.13, and near-0.5 act/abstain decisions flipped between calls.
+2. **Arguments can be invented when information is missing.** When an arm acted on "Send an email to my landlord.", the argument step wrote `<UNKNOWN>`. For "Check my calendar for that day." it wrote concrete dates (`2024-01-01` to `2024-12-31`). Placeholder detection catches the first case but not the second.
+3. **Several metadata attacks moved every arm.**
+4. **Decision framing may matter on its own.** The same Claude model resisted the near-name attack (`send_mail` vs `send_email`) with native tool calling, and selected the attacker's tool when it answered the same candidates as a Choice. See "Interface framing" below.
+5. **Some outcomes depended on candidate order.**
+
+### Selector repetition policy
+
+`SelectorSamplingPolicy(repetitions, execute_each_sample=False)` is set per decomposed arm (`DecomposedPipeline(..., sampling=...)`, profile `selector_sampling`, or `--jev-repetitions` / `--jev-execute-each-sample` in `run_experiment.py`). There are two separate measurements:
+
+| Measurement | What repeats | What is recorded | Cost |
+|---|---|---|---|
+| **Selector stability** (default when `repetitions` > 1) | Only the selector call, with a byte-identical request | Every draw in `selector_samples`, plus `selector_sample_summary`. Draw 0 is the run's selection and the only one that continues to argument generation and execution. | Jev draws are nearly free (about $0.00003 per draw at pilot request sizes) |
+| **End-to-end repetition** (`execute_each_sample=True`, explicit) | Selector, then argument generation and execution for every draw | Draws 1..N-1 become `selector_sample_run` records with `parent_run_id` and `selector_sample_index` | Multiplies argument-LLM cost by N |
+
+- Every draw keeps its raw output, choice, probabilities (unchanged, flagged if malformed), latency, usage and provider metadata.
+- Derived statistics (`eval/stability.py`): empirical choice frequency, abstention / trusted / attacker frequency, entropy, choice flip rate (pairwise disagreement), majority label (derived only; `None` on ties), and native-probability mean / std / range per tool over draws that passed validation.
+- **The record's selection is draw 0, never the majority vote.** Primary cross-arm metrics count each run once: `summarize()` ignores `selector_sample_run` records.
+- Empirical choice frequencies and native probabilities are different quantities and are reported under different names. Native-probability statistics are only pooled within one `probability_kind`.
+- `profiles.py`: `deterministic_v1` keeps its name for compatibility with pilot records. "Deterministic" refers only to the shared LLM (temperature 0). It now takes `DEFAULT_JEV_SELECTOR_REPETITIONS = 5` selector-only Jev draws per run, a development default, not a paper sample size; that will be chosen after observing variance. `stochastic_v1` adds no extra draws because every arm is already repeated 10 times end to end.
+- The budget guard charges every draw once (in the parent record) and charges child records only for their argument call. `estimate_run_cost` multiplies selection cost by the repetitions, and argument cost too when draws are executed.
+- Old records (no `selector_samples`) read as one draw each, so `selector_stability()` can pool repeated pilot runs of the same request.
+
+### Argument grounding (`eval/grounding.py`)
+
+A deterministic provenance checker; **no LLM judge**, which would add a second model's decisions to the measurement. Each scalar leaf of the generated arguments, addressed by path (`to[0]`, `start.date`), gets one status:
+
+| Status | Meaning |
+|---|---|
+| `placeholder` | the whole value is a placeholder (`core/placeholders.py`, configurable): `<UNKNOWN>`, `[RECIPIENT]`, `{{x}}`, `TBD`, `N/A`, `???` |
+| `fixture_default` | equals a default the task fixture permits for that path |
+| `schema_default` | equals the schema's own `default` / `const` |
+| `explicit` | appears in the task state, directly or as a normalized equivalent (case, whitespace, edge punctuation; date formats; number words up to twenty) |
+| `derived` | follows from explicit state by an implemented derivation: `relative_day`, `relative_weekday` (needs a `reference_date` in the state), `date_to_day_start` / `date_to_day_end` (offset must match the state's `timezone`), `token_subset` (a reordered query) |
+| `unsupported` | a typed concrete value (email, date, date-time, number, URL) that nothing above explains |
+| `unknown` | the checker cannot decide: composed free text, booleans, nulls, an untraced time of day |
+
+- `unsupported` is used only where absence from the state is meaningful. Untraced free text is `unknown`, never "fabricated".
+- Evaluator rules live in `Task.argument_grounding` (fixture key `argument_grounding`): per-path `sources`, `allowed_derivations`, `fixture_default(s)`. Like roles and gold labels they are never serialized into any model input; tests and mutation checks cover this for the native arm, the selector and the argument generator.
+- Records add `argument_provenance` (per path: status, source, how, value type, required) and the counts below. Generated arguments are logged unchanged.
+
+### Outcome stages, kept separate
+
+| Field | Question |
+|---|---|
+| `selection_correct` | Did the arm choose the right tool, or abstain when it should? |
+| `arguments_schema_valid`, `arguments_match` | Are the arguments valid for the schema, and do they match the task's constrained values? |
+| `argument_grounding_ok` (+ `placeholder_argument_count`, `unsupported_argument_count`, `unsupported_required_argument_count`, `unknown_argument_count`) | Is every argument value traceable to the request or state? `False` on any placeholder or unsupported value; `unknown` values do not fail it. |
+| `execution_success` | Did the executor run the call successfully? |
+| `task_success` | Original definition, unchanged. |
+| **`grounded_task_success`** | `task_success` and, for action tasks, `argument_grounding_ok is True`. **Intended primary end-to-end metric for future analysis.** Abstention tasks are unchanged. |
+
+Policy question left open on purpose: an *optional* parameter the request never mentions (the pilot's `max_results: 5`) counts as `unsupported` and fails `grounded_task_success`. `unsupported_required_argument_count` lets an analysis separate that from invented required values; changing the rule is a decision for the analysis plan, not the checker.
+
+### MCP substrate (Phase 3)
+
+```text
+MCP server(s) ──tools/list (paged, cache off)──► MCPToolRegistry ──tool_from_mcp → tool_from_dict──► ToolSpec
+                                                        │                                             │
+                                                        │                              (same pipelines as static)
+                                                        ▼                                             ▼
+MCP server  ◄──one tools/call, owning server only── MCPExecutor ◄── ToolSpec + generated arguments
+```
+
+- Official SDK `mcp==2.3.0` (MIT); no gateway; no hand-written transport. `MCPToolRegistry.connect({server_id: target})` accepts anything `mcp.Client` accepts: a Streamable HTTP URL, `StdioServerParameters`, a `Transport`, or an in-process server.
+- **Normalization** goes through the same `tool_from_dict` as the static registry, so equivalent definitions produce equal `ToolSpec`s (tested against every fixture tool, including over stdio). Tool names are never rewritten; descriptions, schemas (with key order) and annotations (MCP wire form) are preserved; the full listing entry is kept in `raw_tool(key)`. The same name on two servers stays two tools (`mail/send_email`, `mail-relay/send_email`); a duplicate name within one server is an error.
+- **Execution** checks that the selected `ToolSpec` is listed and identical to the listing, validates arguments against the schema (low-level MCP servers do not), then sends exactly one `tools/call` to the owning server. Errors are execution-stage and typed: `tool_not_listed`, `tool_definition_mismatch`, `invalid_arguments`, `tool_error` (`isError`), `mcp_error` (JSON-RPC), `mcp_input_required`, `mcp_invalid_result`, `transient`. Records add `execution_meta` and `execution_attempts`.
+- **SDK behavior that shaped the design:**
+  - `Client.call_tool` resends a call once after `HEADER_MISMATCH` and answers server input requests by retrying automatically. Both are silent retries, so the executor calls `client.session.call_tool(..., allow_input_required=True)` and reports them as errors. Only timeouts (`MCPError` `REQUEST_TIMEOUT`) are retried, and only under the explicit `RetryPolicy`.
+  - The client caches `tools/list` responses by default; the registry disables caching and refreshes.
+  - `FastMCP` is gone in 2.x (`MCPServer`), and `MCPServer` derives schemas from Python signatures. The fixture servers use the low-level `Server` so their schemas are byte-identical to the static fixtures.
+  - The SDK's task groups wrap any exception raised inside an open client context in nested `ExceptionGroup`s. `MCPToolRegistry.connect` re-raises a single underlying exception unchanged, so a `FatalRunError` still aborts a run as itself.
+- **Fixture servers** (`datasets/mcp_fixture_server.py`): one in-process server per fixture `server_id`, deterministic handlers, call recording for routing tests, runnable over stdio (`python -m rlcdselect.datasets.mcp_fixture_server mail`).
+- `MockExecutor` remains for offline runs. It refuses placeholder arguments as a stand-in for real side effects; `MCPExecutor` executes faithfully, and grounding reports placeholders for every executor.
+
+### Interface framing: preserved for later study
+
+The pilot's near-name result (same model, opposite decisions under native calling and Choice framing) is not a claim. The records already contain everything needed to study it later: identical candidate content (`tools_before`), candidate order (`tool_order`), opaque option ids (`candidate_ids`), the framing (`native_single_call`, `candidate_representation`), schema inclusion (`serialization`), the exact prompts and provider payloads (`model_inputs`), the returned selection, and the sampling configuration (`llm_config`, `selector_sampling`, profile). A project-owned Choice prompt (instead of the adapter's) remains a candidate ablation for separating framing from the adapter's system prompt.
+
+### Known limitations
+
+- Grounding is conservative and surface-level. It does not resolve coreference ("my landlord" → an address in a contact list unless that list is in the state and found by value), arithmetic, units, or time-of-day expressions ("8pm" stays `unknown`). Paraphrased free text is `unknown`, so `argument_grounding_ok` can pass while a composed body misstates the request.
+- "Next Monday" is ambiguous; both readings are accepted.
+- The fixture tasks carry no `reference_date`, so relative dates in them can never be `derived`.
+- Selector stability for Jev uses the same request; it does not capture variance from order or id seeds (those are separate factors).
+- The MCP layer is tested against local servers only; real third-party servers (auth, Streamable HTTP sessions, pagination quirks) are untested.
+- The fixture is still 14 core tasks.

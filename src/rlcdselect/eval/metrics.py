@@ -12,6 +12,7 @@ from collections.abc import Callable, Iterable, Mapping, Sequence
 from typing import Any
 
 from rlcdselect.core.types import ABSTAIN
+from rlcdselect.eval.stability import samples_of, selector_stability, summarize_samples  # noqa: F401 (re-export)
 
 FAILED = "__failed__"  # discrete label for selector errors / multiple calls in frequency tables
 

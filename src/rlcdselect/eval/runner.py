@@ -72,12 +72,22 @@ async def run_experiment(
                         timestamp=clock() if clock else None,
                         profile=config.profile, condition=config.condition,
                     )
-                    if budget is not None:
-                        record["cost_charged_usd"] = budget.charge(record)
-                        record["budget_spent_usd"] = budget.spent_usd
-                    if writer is not None:
-                        writer.write(record)
-                    records.append(record)
+                    children = [
+                        build_record(
+                            experiment_id=config.experiment_id, task=task, pipeline=pipeline, outcome=child,
+                            order_seed=order_seed, id_seed=config.id_seed, sample_index=sample_index,
+                            timestamp=clock() if clock else None, profile=config.profile,
+                            condition=config.condition, selector_sample_index=i,
+                        )
+                        for i, child in enumerate(outcome.sample_outcomes, start=1)
+                    ]
+                    for rec in (record, *children):
+                        if budget is not None:
+                            rec["cost_charged_usd"] = budget.charge(rec)
+                            rec["budget_spent_usd"] = budget.spent_usd
+                        if writer is not None:
+                            writer.write(rec)
+                        records.append(rec)
                     if budget is not None:
                         try:
                             budget.check()

@@ -16,7 +16,7 @@ from typing import Any
 
 from rlcdselect.core.prompts import ARGUMENT_SYSTEM_PROMPT, NATIVE_SYSTEM_PROMPT
 from rlcdselect.core.serialization import build_native_tools, build_selector_request, present_task, render_state
-from rlcdselect.core.types import FatalRunError, Task
+from rlcdselect.core.types import FatalRunError, SelectorSamplingPolicy, Task
 from rlcdselect.core.jsonutil import thaw
 
 CHARS_PER_TOKEN = 3.0  # conservative for English/JSON (real ratios are usually higher)
@@ -57,8 +57,12 @@ def _tokens(chars: int) -> float:
 
 
 def estimate_task_cost(task: Task, pipeline_ids: Sequence[str], serialization, prices: Prices,
-                       matched_mode: str = "discrete") -> dict[str, float]:
-    """Estimated USD for one task × one sample, per pipeline id."""
+                       matched_mode: str = "discrete",
+                       sampling: Mapping[str, SelectorSamplingPolicy] | None = None) -> dict[str, float]:
+    """Estimated USD for one task × one sample, per pipeline id. `sampling` (per pipeline id)
+    multiplies the selection cost by its repetitions, and the argument cost too when every draw is
+    executed end to end."""
+    sampling = sampling or {}
     cset = present_task(task, serialization, order_seed=None, id_seed=None)
     state = render_state(task.state)
     criteria = json.dumps(thaw(build_selector_request(task.state, cset, serialization).criteria))
@@ -67,28 +71,34 @@ def estimate_task_cost(task: Task, pipeline_ids: Sequence[str], serialization, p
                  + OUTPUT_TOKENS["arguments"] * prices.llm_output)
     out = {}
     for pid in pipeline_ids:
+        policy = sampling.get(pid) or SelectorSamplingPolicy()
+        reps = policy.repetitions
+        arg_runs = reps if policy.execute_each_sample else 1
         if pid == "native_llm":
             tools = json.dumps([thaw(t) for t in build_native_tools(cset)])
             out[pid] = (_tokens(len(NATIVE_SYSTEM_PROMPT) + len(state) + len(tools)) * prices.llm_input
                         + OUTPUT_TOKENS["native"] * prices.llm_output)
         elif pid == "matched_llm":
-            out[pid] = (_tokens(ADAPTER_OVERHEAD_CHARS + len(state) + len(criteria)) * prices.llm_input
-                        + OUTPUT_TOKENS[f"matched_{matched_mode}"] * prices.llm_output + args_cost)
+            select = (_tokens(ADAPTER_OVERHEAD_CHARS + len(state) + len(criteria)) * prices.llm_input
+                      + OUTPUT_TOKENS[f"matched_{matched_mode}"] * prices.llm_output)
+            out[pid] = select * reps + args_cost * arg_runs
         elif pid == "jev":
-            out[pid] = _tokens(len(state) + len(criteria)) * prices.jev_input + args_cost
+            out[pid] = _tokens(len(state) + len(criteria)) * prices.jev_input * reps + args_cost * arg_runs
         else:  # local selectors (Laya, mocks): only argument generation is paid
-            out[pid] = args_cost
+            out[pid] = args_cost * arg_runs
     return {k: v * SAFETY_MARGIN for k, v in out.items()}
 
 
 def estimate_run_cost(tasks: Sequence[Task], pipeline_ids: Sequence[str], serialization, prices: Prices,
-                      n_order_seeds: int, samples: int, matched_mode: str = "discrete") -> dict[str, Any]:
+                      n_order_seeds: int, samples: int, matched_mode: str = "discrete",
+                      sampling: Mapping[str, SelectorSamplingPolicy] | None = None) -> dict[str, Any]:
     per_pipeline: dict[str, float] = {pid: 0.0 for pid in pipeline_ids}
     for task in tasks:
-        for pid, cost in estimate_task_cost(task, pipeline_ids, serialization, prices, matched_mode).items():
+        for pid, cost in estimate_task_cost(task, pipeline_ids, serialization, prices, matched_mode, sampling).items():
             per_pipeline[pid] += cost * n_order_seeds * samples
     return {"total_usd": sum(per_pipeline.values()), "per_pipeline_usd": per_pipeline,
             "runs": len(tasks) * n_order_seeds * samples * len(pipeline_ids), "prices": thaw(prices),
+            "selector_sampling": {k: thaw(v) for k, v in (sampling or {}).items()},
             "method": f"chars/{CHARS_PER_TOKEN} tokens, fixed output allowances, x{SAFETY_MARGIN} margin"}
 
 
@@ -121,13 +131,26 @@ class BudgetGuard:
                                 "nothing was run", raw=dict(estimate))
 
     def charge(self, record: Mapping[str, Any]) -> float:
-        """Add one run record's cost. Returns the amount charged."""
+        """Add one run record's cost. Returns the amount charged.
+
+        A primary record pays for its selection call, every extra selector draw in
+        `selector_samples`, and its argument call. A `selector_sample_run` record pays only for its
+        own argument call: its selection draw is already charged in the parent record.
+        """
         cost = 0.0
         seen: list[Any] = []  # native records repeat the selection call's metadata on the arguments
-        stages = (("selection_provider_meta", "selector_usage"), ("argument_provider_meta", "argument_usage"))
-        for meta_key, usage_key in stages:
-            metas = [m for m in _metas(record.get(meta_key)) if _call_key(m) not in seen]
-            if not metas and record.get(meta_key):
+        child = record.get("record_type") == "selector_sample_run"
+        stages = [("argument_provider_meta", "argument_usage", record.get("argument_provider_meta"),
+                   record.get("argument_usage"))]
+        if not child:
+            stages.insert(0, ("selection_provider_meta", "selector_usage", record.get("selection_provider_meta"),
+                              record.get("selector_usage")))
+            for sample in (record.get("selector_samples") or [])[1:]:  # sample 0 is the selection above
+                stages.insert(1, ("selection_provider_meta", "selector_usage", sample.get("provider_meta"),
+                                  sample.get("usage")))
+        for meta_key, usage_key, meta, usage in stages:
+            metas = [m for m in _metas(meta) if _call_key(m) not in seen]
+            if not metas and meta:
                 continue  # every call in this stage was already charged
             seen += [_call_key(m) for m in metas]
             reported = [m.get("cost") for m in metas if m.get("cost") is not None]
@@ -137,7 +160,7 @@ class BudgetGuard:
             elif meta_key == "selection_provider_meta" and record.get("selector_id") not in PAID_SELECTORS:
                 amount = 0.0  # local selectors (Laya, mocks) cost nothing
             else:
-                usage = record.get(usage_key) or {}
+                usage = usage or {}
                 is_jev = record.get("selector_id") == "jev" and meta_key == "selection_provider_meta"
                 if is_jev:
                     amount = (usage.get("input_tokens") or 0) * self.prices.jev_input
@@ -146,7 +169,7 @@ class BudgetGuard:
                               + (usage.get("output_tokens") or 0) * self.prices.llm_output)
                 self.estimated_usd += amount
             cost += amount
-            self.calls += len(metas) if metas else (1 if record.get(usage_key) else 0)
+            self.calls += len(metas) if metas else (1 if usage else 0)
         self.spent_usd += cost
         pid = record.get("pipeline", "?")
         self.by_pipeline[pid] = self.by_pipeline.get(pid, 0.0) + cost

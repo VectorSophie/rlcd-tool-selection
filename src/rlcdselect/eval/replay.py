@@ -31,6 +31,7 @@ def task_from_record(record: dict[str, Any]) -> Task:
         expected=ExpectedOutcome(frozenset(exp["tool_keys"]), exp["abstain_reason"], exp["argument_constraints"]),
         roles={k: ToolRole(v) for k, v in record["roles"].items()},
         tags=tuple(record["task_tags"]),
+        argument_grounding=exp.get("argument_grounding"),  # absent before record schema v3
     )
 
 

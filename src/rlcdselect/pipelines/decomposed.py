@@ -1,13 +1,29 @@
 """Pipelines B and C: a dedicated selector picks one tool; the shared argument generator fills it."""
 
+import dataclasses
 from collections.abc import Sequence
 from typing import Any
 
 from rlcdselect.core.jsonutil import thaw
 from rlcdselect.core.prompts import PROMPT_VERSION
 from rlcdselect.core.retry import call_with_retry, error_kind, total_latency
-from rlcdselect.core.serialization import SerializationConfig, SerializationError, build_selector_request, present_task
-from rlcdselect.core.types import ErrorInfo, LLMConfig, RetryPolicy, SelectionResult, SelectionStatus, Task
+from rlcdselect.core.serialization import (
+    CandidateSet,
+    SelectorRequest,
+    SerializationConfig,
+    SerializationError,
+    build_selector_request,
+    present_task,
+)
+from rlcdselect.core.types import (
+    ErrorInfo,
+    LLMConfig,
+    RetryPolicy,
+    SelectionResult,
+    SelectionStatus,
+    SelectorSamplingPolicy,
+    Task,
+)
 from rlcdselect.execution.base import ToolExecutor
 from rlcdselect.generation.arguments import ArgumentGenerator
 from rlcdselect.pipelines.base import (
@@ -22,13 +38,22 @@ from rlcdselect.selectors.base import Selector
 
 
 class DecomposedPipeline:
+    """Selection by `selector`, then the shared argument generator, then execution.
+
+    With `sampling.repetitions` > 1 the identical selector request is sent N times and every
+    sample is kept (`PipelineOutcome.selector_samples`). Only the first sample continues to
+    argument generation and execution, unless `sampling.execute_each_sample` is set.
+    """
+
     def __init__(self, selector: Selector, arguments: ArgumentGenerator, executor: ToolExecutor,
-                 serialization: SerializationConfig, retry: RetryPolicy = RetryPolicy()) -> None:
+                 serialization: SerializationConfig, retry: RetryPolicy = RetryPolicy(),
+                 sampling: SelectorSamplingPolicy = SelectorSamplingPolicy()) -> None:
         self.selector = selector
         self.argument_generator = arguments
         self.executor = executor
         self.serialization = serialization
         self.retry = retry
+        self.sampling = sampling
 
     @property
     def pipeline_id(self) -> str:
@@ -45,6 +70,7 @@ class DecomposedPipeline:
             "llm_config": thaw(arg_cfg),
             "native_single_call": False,
             "prompt_version": PROMPT_VERSION,
+            "selector_sampling": thaw(self.sampling),
         }
 
     def llm_configs(self) -> Sequence[LLMConfig]:
@@ -60,18 +86,33 @@ class DecomposedPipeline:
         except SerializationError as exc:
             return presentation_failure(self.pipeline_id, exc)
 
+        samples: list[SelectionResult] = []
+        payloads: list[Any] = []
+        for _ in range(self.sampling.repetitions):  # identical request every time
+            selection, payload = await self._select_once(request, cset)
+            samples.append(selection)
+            payloads.append(payload)
+
+        outcome = await self._continue(task, cset, request, samples[0], payloads[0])
+        if self.sampling.repetitions == 1:
+            return outcome
+        children: tuple[PipelineOutcome, ...] = ()
+        if self.sampling.execute_each_sample:
+            children = tuple([await self._continue(task, cset, request, sel, payload)
+                              for sel, payload in zip(samples[1:], payloads[1:])])
+        return dataclasses.replace(outcome, selector_samples=tuple(samples), sample_outcomes=children)
+
+    async def _select_once(self, request: SelectorRequest, cset: CandidateSet) -> tuple[SelectionResult, Any]:
+        """One selection call, validated. Returns the result and the provider payload sent."""
         kind = self.selector.probability_kind
         output, exc, attempts = await call_with_retry(lambda: self.selector.select(request), self.retry)
         latency = total_latency(attempts)
-        inputs: dict[str, Any] = {
-            "selection": {"request": thaw(request), "provider_payload": output.request_payload if output else None}
-        }
         if output is None:
             selection = error_selection(ErrorInfo("selection", error_kind(exc), str(exc)),
                                         latency_ms=latency, attempts=attempts, kind=kind,
                                         raw=getattr(exc, "raw", None),
                                         provider_meta=getattr(exc, "provider_meta", None))
-            return PipelineOutcome(self.pipeline_id, cset, selection, SKIPPED_ARGUMENTS, None, inputs)
+            return selection, None
 
         if output.choice not in request.criteria:
             status, cid, error = SelectionStatus.ERROR, None, ErrorInfo(
@@ -97,9 +138,15 @@ class DecomposedPipeline:
             attempts=attempts,
             provider_meta=output.provider_meta,
         )
-        if status is not SelectionStatus.SELECTED:
-            return PipelineOutcome(self.pipeline_id, cset, selection, SKIPPED_ARGUMENTS, None, inputs)
+        return selection, output.request_payload
 
+    async def _continue(self, task: Task, cset: CandidateSet, request: SelectorRequest,
+                        selection: SelectionResult, payload: Any) -> PipelineOutcome:
+        """Argument generation and execution for one selection (skipped unless a tool was selected)."""
+        inputs: dict[str, Any] = {"selection": {"request": thaw(request), "provider_payload": payload}}
+        if selection.status is not SelectionStatus.SELECTED:
+            return PipelineOutcome(self.pipeline_id, cset, selection, SKIPPED_ARGUMENTS, None, inputs)
+        cid = selection.selected_candidate_id
         arguments, arg_request, arg_payload = await self.argument_generator.generate(task.state, cset.by_id(cid))
         inputs["arguments"] = {"request": thaw(arg_request), "provider_payload": arg_payload}
         execution = await execute_if_ready(self.executor, task, selection, arguments)

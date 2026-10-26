@@ -28,6 +28,11 @@ class PipelineOutcome:
     arguments: ArgumentResult
     execution: ToolExecutionResult | None
     model_inputs: Mapping[str, Any]  # exactly what each model call received, keyed by stage
+    # Selector-stability samples: every identical selection call when the arm's sampling policy
+    # has repetitions > 1, in call order. `selector_samples[0]` is `selection`. Empty otherwise.
+    selector_samples: tuple[SelectionResult, ...] = ()
+    # End-to-end outcomes for samples 1..N-1, only when the policy sets `execute_each_sample`.
+    sample_outcomes: tuple["PipelineOutcome", ...] = ()
 
 
 class Pipeline(Protocol):
