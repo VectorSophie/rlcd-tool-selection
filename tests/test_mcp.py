@@ -273,3 +273,81 @@ def test_stdio_subprocess_server_matches_static_definitions():
     assert [t.key for t in tools] == [f"mail/{t['name']}" for t in expected]
     assert all(t == static.get(t.key) for t in tools)
     assert result.success and result.output["structured_content"]["recipients"] == SEND["to"]
+
+
+# --- runner wiring --------------------------------------------------------------------------
+
+def _script(name):
+    import importlib.util
+    from pathlib import Path
+
+    path = Path(__file__).resolve().parent.parent / "scripts" / f"{name}.py"
+    spec = importlib.util.spec_from_file_location(f"script_{name}", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_rebind_tasks_takes_definitions_from_mcp_and_reports_drift(fixtures):
+    from rlcdselect.registry.sources import ToolSourceError, rebind_tasks
+
+    _, tasks = fixtures
+
+    async def body(reg):
+        return rebind_tasks(tasks, reg)
+
+    rebound, diffs = with_registry(body)
+    assert diffs == [] and [t.task_id for t in rebound] == [t.task_id for t in tasks]
+    assert all(a.tools == b.tools for a, b in zip(rebound, tasks))
+
+    drifted = load_fixture_data()["tools"]
+    drifted = [dict(t, description="Changed.") if t["name"] == "search_web" and t["server_id"] == "web" else t
+               for t in drifted]
+    servers = {sid: build_server(sid, [t for t in drifted if t["server_id"] == sid])
+               for sid in dict.fromkeys(t["server_id"] for t in drifted)}
+    _, diffs = with_registry(body, servers)
+    assert {d["tool"] for d in diffs} == {"web/search_web"} and diffs[0]["fields"] == ["description"]
+
+    with pytest.raises(ToolSourceError, match="not listed"):
+        with_registry(body, {"mail": fixture_servers()["mail"]})
+
+
+def test_stdio_server_spec_parsing():
+    from rlcdselect.registry.sources import ToolSourceError, parse_stdio_server
+
+    sid, params = parse_stdio_server("mail=python -m rlcdselect.datasets.mcp_fixture_server mail")
+    assert sid == "mail" and params.command == "python" and params.args[-1] == "mail"
+    with pytest.raises(ToolSourceError):
+        parse_stdio_server("no-equals-sign")
+
+
+def test_runner_mcp_options_are_validated():
+    import argparse
+
+    script = _script("run_experiment")
+
+    def ns(**kw):
+        return argparse.Namespace(**{"registry": "static", "executor": "mock", "mcp_fixture": False,
+                                     "mcp_stdio": [], **kw})
+
+    assert script.mcp_servers(ns()) == {}
+    with pytest.raises(SystemExit, match="need --registry mcp"):
+        script.mcp_servers(ns(executor="mcp"))
+    with pytest.raises(SystemExit, match="needs --mcp-fixture"):
+        script.mcp_servers(ns(registry="mcp"))
+    servers = script.mcp_servers(ns(registry="mcp", mcp_fixture=True, mcp_stdio=["extra=python -V"]))
+    assert {"mail", "web", "extra"} <= set(servers)
+    with pytest.raises(SystemExit, match="Duplicate"):
+        script.mcp_servers(ns(registry="mcp", mcp_fixture=True, mcp_stdio=["mail=python -V"]))
+
+
+def test_local_mcp_smoke_mode_matches_the_static_path(tmp_path):
+    smoke = _script("smoke_offline")
+    static = run(smoke.main(tmp_path / "s"))
+    via_mcp = run(smoke.main(tmp_path / "m", mcp=True))
+    key = lambda r: (r["pipeline"], r["task_id"], r["order_seed"])  # noqa: E731
+    pick = lambda rs: {key(r): (r["selection_label"], r["arguments"], r["task_success"]) for r in rs}  # noqa: E731
+    assert pick(static) == pick(via_mcp)
+    assert {r["tool_source"]["executor"] for r in via_mcp} == {"mcp"}
+    executed = [r for r in via_mcp if r["execution_meta"]]
+    assert executed and all(r["execution_meta"]["executor"] == "mcp" for r in executed)

@@ -41,8 +41,9 @@ class DecomposedPipeline:
     """Selection by `selector`, then the shared argument generator, then execution.
 
     With `sampling.repetitions` > 1 the identical selector request is sent N times and every
-    sample is kept (`PipelineOutcome.selector_samples`). Only the first sample continues to
-    argument generation and execution, unless `sampling.execute_each_sample` is set.
+    sample is kept (`PipelineOutcome.selector_samples`). Only sample
+    `sampling.execution_sample_index` (default 0) continues to argument generation and execution,
+    unless `sampling.execute_each_sample` is set. It is never chosen by majority vote.
     """
 
     def __init__(self, selector: Selector, arguments: ArgumentGenerator, executor: ToolExecutor,
@@ -93,14 +94,17 @@ class DecomposedPipeline:
             samples.append(selection)
             payloads.append(payload)
 
-        outcome = await self._continue(task, cset, request, samples[0], payloads[0])
+        k = self.sampling.execution_sample_index
+        outcome = await self._continue(task, cset, request, samples[k], payloads[k])
         if self.sampling.repetitions == 1:
             return outcome
-        children: tuple[PipelineOutcome, ...] = ()
+        children: list[tuple[int, PipelineOutcome]] = []
         if self.sampling.execute_each_sample:
-            children = tuple([await self._continue(task, cset, request, sel, payload)
-                              for sel, payload in zip(samples[1:], payloads[1:])])
-        return dataclasses.replace(outcome, selector_samples=tuple(samples), sample_outcomes=children)
+            for i, (sel, payload) in enumerate(zip(samples, payloads)):
+                if i != k:
+                    children.append((i, await self._continue(task, cset, request, sel, payload)))
+        return dataclasses.replace(outcome, selector_samples=tuple(samples), sample_outcomes=tuple(children),
+                                   execution_sample_index=k)
 
     async def _select_once(self, request: SelectorRequest, cset: CandidateSet) -> tuple[SelectionResult, Any]:
         """One selection call, validated. Returns the result and the provider payload sent."""

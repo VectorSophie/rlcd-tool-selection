@@ -28,10 +28,13 @@ def task_from_record(record: dict[str, Any]) -> Task:
         task_id=record["task_id"],
         state=record["state"],
         tools=tools,
-        expected=ExpectedOutcome(frozenset(exp["tool_keys"]), exp["abstain_reason"], exp["argument_constraints"]),
+        expected=ExpectedOutcome(frozenset(exp["tool_keys"]), exp["abstain_reason"], exp["argument_constraints"],
+                                 exp.get("argument_options")),
         roles={k: ToolRole(v) for k, v in record["roles"].items()},
         tags=tuple(record["task_tags"]),
         argument_grounding=exp.get("argument_grounding"),  # absent before record schema v3
+        evaluation_context=exp.get("evaluation_context"),
+        provenance=record.get("task_provenance"),
     )
 
 

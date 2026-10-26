@@ -13,3 +13,6 @@ build/
 # Run outputs; commit curated examples explicitly.
 results/*
 !results/examples/
+
+# External benchmark files fetched from their pinned upstream sources (never redistributed here).
+data/external/

@@ -133,7 +133,10 @@ def test_selector_only_repetition_runs_arguments_and_execution_once(tasks, seria
     assert len(selector.requests) == 10
     assert len(llm.requests) == 1 and len(executor.calls) == 1
     assert [line["record_type"] for line in lines] == ["run"]
-    assert lines[0]["selector_sampling"] == {"repetitions": 10, "execute_each_sample": False}
+    assert lines[0]["selector_sampling"] == {"repetitions": 10, "execute_each_sample": False,
+                                             "execution_sample_index": 0}
+    assert lines[0]["execution_sample_index"] == 0
+    assert [smp["used_for_execution"] for smp in lines[0]["selector_samples"]] == [True] + [False] * 9
 
 
 def test_end_to_end_repetition_only_when_requested(tasks, serialization, tmp_path):  # 6
@@ -211,3 +214,36 @@ def test_estimate_scales_with_selector_repetitions(core, serialization):
                             sampling={"jev": SelectorSamplingPolicy(repetitions=5, execute_each_sample=True)})
     assert one["total_usd"] < five["total_usd"] < 1.2 * one["total_usd"]  # Jev draws are nearly free
     assert e2e["total_usd"] > 4 * one["total_usd"]  # end-to-end repeats the paid argument calls
+
+
+def test_execution_sample_is_explicit_and_configurable(tasks, serialization, tmp_path):
+    task = tasks[TASK]
+    i = ids(task, serialization)
+    steps = list(reversed(draws_send_abstain(i)))  # draws 0-3 abstain, 4-9 select send_email
+    records, _, llm, _, lines = experiment(task, serialization, steps,
+                                           SelectorSamplingPolicy(repetitions=10, execution_sample_index=4),
+                                           [arg_reply(task, serialization)], tmp_path)
+    (rec,) = lines
+    assert rec["execution_sample_index"] == 4 and rec["selection_label"] == "mail/send_email"
+    assert [smp["used_for_execution"] for smp in rec["selector_samples"]] == [i == 4 for i in range(10)]
+    assert len(llm.requests) == 1
+    with pytest.raises(ValueError):
+        SelectorSamplingPolicy(repetitions=3, execution_sample_index=3)
+
+
+def test_children_carry_their_own_execution_sample_index(tasks, serialization, tmp_path):
+    task = tasks[TASK]
+    i = ids(task, serialization)
+    replies = [arg_reply(task, serialization) for _ in range(6)]
+    _, _, _, _, lines = experiment(task, serialization, draws_send_abstain(i),
+                                   SelectorSamplingPolicy(repetitions=10, execute_each_sample=True), replies, tmp_path)
+    assert [line["execution_sample_index"] for line in lines] == list(range(10))
+    assert all(line["selector_samples"] is None for line in lines[1:])  # draws live in the parent only
+
+
+def test_profile_jev_policy_is_the_documented_development_default():
+    from rlcdselect.profiles import (DEFAULT_JEV_SELECTOR_REPETITIONS, DETERMINISTIC_V1,
+                                     PILOT_RECOMMENDED_JEV_SELECTOR_REPETITIONS, STOCHASTIC_V1)
+    assert (DEFAULT_JEV_SELECTOR_REPETITIONS, PILOT_RECOMMENDED_JEV_SELECTOR_REPETITIONS) == (5, 10)
+    assert DETERMINISTIC_V1.jev_selector_repetitions == 5 and STOCHASTIC_V1.jev_selector_repetitions == 1
+    assert DETERMINISTIC_V1.selector_sampling["jev"].execution_sample_index == 0

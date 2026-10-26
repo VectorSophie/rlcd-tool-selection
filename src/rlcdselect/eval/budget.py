@@ -133,7 +133,7 @@ class BudgetGuard:
     def charge(self, record: Mapping[str, Any]) -> float:
         """Add one run record's cost. Returns the amount charged.
 
-        A primary record pays for its selection call, every extra selector draw in
+        A primary record pays for its selection call, every other selector draw in
         `selector_samples`, and its argument call. A `selector_sample_run` record pays only for its
         own argument call: its selection draw is already charged in the parent record.
         """
@@ -145,7 +145,7 @@ class BudgetGuard:
         if not child:
             stages.insert(0, ("selection_provider_meta", "selector_usage", record.get("selection_provider_meta"),
                               record.get("selector_usage")))
-            for sample in (record.get("selector_samples") or [])[1:]:  # sample 0 is the selection above
+            for sample in record.get("selector_samples") or []:  # the executed draw dedupes with the selection
                 stages.insert(1, ("selection_provider_meta", "selector_usage", sample.get("provider_meta"),
                                   sample.get("usage")))
         for meta_key, usage_key, meta, usage in stages:

@@ -34,6 +34,7 @@ def load_fixtures(name: str = DEFAULT_FIXTURE) -> tuple[StaticToolRegistry, tupl
                 roles={c["key"]: ToolRole(c["role"]) for c in t["tools"]},
                 tags=tuple(t.get("tags", ())),
                 argument_grounding=t.get("argument_grounding"),  # evaluator-only
+                evaluation_context=t.get("evaluation_context", data.get("evaluation_context")),  # evaluator-only
             )
         )
     return registry, tuple(tasks)

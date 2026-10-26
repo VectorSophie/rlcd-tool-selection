@@ -25,9 +25,13 @@ JEV_MODEL = "typesafe/jev-1.13"
 JEV_EXPECTED_PROVIDER = "TypeSafe"
 JEV_EXPECTED_RETURNED_MODELS = ("typesafe/jev-1.13-20260917",)  # documented in OpenRouter's System One guide
 
-# Development default for Jev selector-stability draws per run. Not a paper sample size: that is
-# chosen after the observed variance. Draws are selector-only (argument generation runs once).
+# Jev selector-stability draws per run (selector-only: argument generation runs once, on draw 0).
+#   development default = 5   (this profile set; cheap smoke and regression runs)
+#   pilot recommendation = 10 (external-dataset pilot; pass --jev-selector-repetitions 10)
+#   final N              = chosen from the variance observed on external datasets, not fixed here
 DEFAULT_JEV_SELECTOR_REPETITIONS = 5
+PILOT_RECOMMENDED_JEV_SELECTOR_REPETITIONS = 10
+JEV_EXECUTION_SAMPLE_INDEX = 0  # the first draw drives arguments and execution; never majority vote
 
 
 def shared_llm(temperature: float) -> LLMConfig:
@@ -54,6 +58,11 @@ class ExperimentProfile:
     purpose: str
     selector_sampling: Mapping[str, SelectorSamplingPolicy] = field(default_factory=dict)
 
+    @property
+    def jev_selector_repetitions(self) -> int:
+        policy = self.selector_sampling.get("jev")
+        return policy.repetitions if policy else 1
+
 
 DETERMINISTIC_V1 = ExperimentProfile(
     # The name is kept for compatibility with pilot records. "Deterministic" refers to the shared
@@ -66,7 +75,8 @@ DETERMINISTIC_V1 = ExperimentProfile(
         "Shared LLM at temperature 0, one end-to-end run per condition. Jev selection is sampled "
         f"{DEFAULT_JEV_SELECTOR_REPETITIONS}x per run (selector-only) because Jev is not deterministic."
     ),
-    selector_sampling={"jev": SelectorSamplingPolicy(repetitions=DEFAULT_JEV_SELECTOR_REPETITIONS)},
+    selector_sampling={"jev": SelectorSamplingPolicy(repetitions=DEFAULT_JEV_SELECTOR_REPETITIONS,
+                                                     execution_sample_index=JEV_EXECUTION_SAMPLE_INDEX)},
 )
 
 STOCHASTIC_V1 = ExperimentProfile(

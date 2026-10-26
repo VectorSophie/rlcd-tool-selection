@@ -26,6 +26,9 @@ class ExperimentConfig:
     samples_per_condition: int = 1  # repeated sampling for empirical selection frequencies
     profile: str | None = None  # e.g. "deterministic_v1"; recorded on every run
     condition: str | None = None  # e.g. "architecture_matched_v1"; recorded on every run
+    # Where tools came from and how they were executed, e.g. {"registry": "mcp", "executor": "mcp",
+    # "servers": [...]}; recorded on every run.
+    tool_source: dict[str, Any] | None = None
 
 
 def check_invariants(pipelines: Sequence[Pipeline]) -> None:
@@ -56,6 +59,11 @@ async def run_experiment(
     """Run every task × order seed × sample × pipeline. With a `budget`, actual spend is charged after
     each run and the experiment aborts (with a `run_aborted` record) once the cap is reached."""
     check_invariants(pipelines)
+    shuffle_needed = [t.task_id for t in tasks if "requires_order_shuffle" in t.tags]
+    if shuffle_needed and all(seed is None for seed in config.order_seeds):
+        raise InvariantError(
+            f"{len(shuffle_needed)} task(s) have a known source-order bias (e.g. MetaTool: gold always first) "
+            "and need at least one seeded order permutation; source order cannot be the only condition")
     records = []
     for task in tasks:
         for order_seed in config.order_seeds:
@@ -79,9 +87,10 @@ async def run_experiment(
                             timestamp=clock() if clock else None, profile=config.profile,
                             condition=config.condition, selector_sample_index=i,
                         )
-                        for i, child in enumerate(outcome.sample_outcomes, start=1)
+                        for i, child in outcome.sample_outcomes
                     ]
                     for rec in (record, *children):
+                        rec["tool_source"] = thaw(config.tool_source)
                         if budget is not None:
                             rec["cost_charged_usd"] = budget.charge(rec)
                             rec["budget_spent_usd"] = budget.spent_usd

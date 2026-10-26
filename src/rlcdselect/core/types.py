@@ -59,11 +59,16 @@ class ExpectedOutcome:
     tool_keys: frozenset[str]
     abstain_reason: str | None = None
     argument_constraints: Mapping[str, Any] | None = None
+    # Per-parameter accepted alternatives (BFCL `possible_answer` style; "" = may be omitted).
+    # Scored by `eval/argmatch.py`, in addition to the exact `argument_constraints`.
+    argument_options: Mapping[str, Any] | None = None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "tool_keys", frozenset(self.tool_keys))
         if self.argument_constraints is not None:
             object.__setattr__(self, "argument_constraints", freeze(self.argument_constraints))
+        if self.argument_options is not None:
+            object.__setattr__(self, "argument_options", freeze(self.argument_options))
         if not self.tool_keys and self.abstain_reason is None:
             raise ValueError("An abstention outcome needs an abstain_reason.")
 
@@ -85,14 +90,22 @@ class Task:
     # Evaluator-only provenance rules for argument grounding (see `eval/grounding.py`), keyed by
     # argument path. Like `roles` and `expected`, it is never shown to a selector or LLM.
     argument_grounding: Mapping[str, Any] | None = None
+    # Evaluator-only context for deterministic grounding, e.g. {"reference_datetime":
+    # "2026-10-26T12:00:00+09:00", "timezone": "Asia/Seoul"}. Not model-visible unless the same
+    # information is also part of `state`.
+    evaluation_context: Mapping[str, Any] | None = None
+    # Evaluator-only provenance of an imported benchmark item (source dataset, split, item id,
+    # version, adapter version, transformations, source tool order, source label).
+    provenance: Mapping[str, Any] | None = None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "state", freeze(self.state))
         object.__setattr__(self, "tools", tuple(self.tools))
         object.__setattr__(self, "roles", freeze(dict(self.roles)))
         object.__setattr__(self, "tags", tuple(self.tags))
-        if self.argument_grounding is not None:
-            object.__setattr__(self, "argument_grounding", freeze(dict(self.argument_grounding)))
+        for name in ("argument_grounding", "evaluation_context", "provenance"):
+            if getattr(self, name) is not None:
+                object.__setattr__(self, name, freeze(dict(getattr(self, name))))
         keys = [t.key for t in self.tools]
         if len(set(keys)) != len(keys):
             raise ValueError(f"Task {self.task_id}: duplicate tool keys {keys}")
@@ -227,21 +240,26 @@ class SelectorSamplingPolicy:
     """How many identical selection calls a decomposed arm makes per run.
 
     `repetitions` > 1 measures selector stability: the same request is sent `repetitions` times
-    and every sample (choice, probabilities, raw output) is kept. The first sample is the run's
-    selection and drives the normal single argument-generation and execution path, so end-to-end
-    scoring is unchanged. With `execute_each_sample`, samples 1..N-1 also get their own argument
-    generation and execution, recorded as separate `selector_sample_run` records; that multiplies
-    argument-LLM cost and must be requested explicitly.
+    and every sample (choice, probabilities, raw output) is kept. Sample `execution_sample_index`
+    (default 0, the first call) is the run's selection and drives the normal single
+    argument-generation and execution path, so end-to-end scoring is unchanged. It is a fixed
+    position chosen before any draw is seen, never a majority vote. With `execute_each_sample`,
+    every other sample also gets its own argument generation and execution, recorded as separate
+    `selector_sample_run` records; that multiplies argument-LLM cost and must be requested
+    explicitly.
     """
 
     repetitions: int = 1
     execute_each_sample: bool = False
+    execution_sample_index: int = 0
 
     def __post_init__(self) -> None:
         if self.repetitions < 1:
             raise ValueError("repetitions must be >= 1")
         if self.execute_each_sample and self.repetitions == 1:
             raise ValueError("execute_each_sample needs repetitions > 1")
+        if not 0 <= self.execution_sample_index < self.repetitions:
+            raise ValueError("execution_sample_index must be in [0, repetitions)")
 
 
 class TransientError(Exception):

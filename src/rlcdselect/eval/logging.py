@@ -76,6 +76,9 @@ def build_record(*, experiment_id: str, task: Task, pipeline: Pipeline, outcome:
     # Keyed by stable tool key so clean and perturbed runs can be aligned even if ids differ.
     probabilities_by_tool = _probabilities_by_tool(sel.probabilities, cset)
     samples = [sample_json(i, s, cset, task) for i, s in enumerate(outcome.selector_samples)]
+    exec_index = selector_sample_index if selector_sample_index is not None else outcome.execution_sample_index
+    for s in samples:
+        s["used_for_execution"] = s["sample_index"] == exec_index
 
     errors = [e for e in (sel.error, args.error, exe.error if exe else None) if e is not None]
     exec_latency = exe.latency_ms if exe else None
@@ -89,6 +92,9 @@ def build_record(*, experiment_id: str, task: Task, pipeline: Pipeline, outcome:
         "run_id": rid if selector_sample_index is None else f"{rid}:s{selector_sample_index}",
         "parent_run_id": None if selector_sample_index is None else rid,
         "selector_sample_index": selector_sample_index,
+        # The selector draw whose choice drove argument generation and execution in this record
+        # (0 for a single-call arm; a fixed policy position, never a majority vote).
+        "execution_sample_index": exec_index if exec_index is not None else 0,
         "experiment_id": experiment_id,
         "profile": profile,
         "condition": condition,
@@ -109,14 +115,24 @@ def build_record(*, experiment_id: str, task: Task, pipeline: Pipeline, outcome:
         "tools_before": tools,
         "tools_after": tools,  # identical until perturbations exist (Phase 5)
         "perturbation": None,
+        # Source order is the task's own tool order (adapters keep the dataset's order); presented
+        # order is what this run showed. Both are logged so positional effects can be separated.
+        "source_tool_order": [t.key for t in task.tools],
         "tool_order": list(cset.tool_order) if cset else None,
+        "expected_source_positions": [i for i, t in enumerate(task.tools) if t.key in task.expected.tool_keys],
+        "expected_presented_positions": ([i for i, k in enumerate(cset.tool_order) if k in task.expected.tool_keys]
+                                         if cset else None),
         "candidate_ids": cset.id_map if cset else None,
         "expected": {
             "tool_keys": sorted(task.expected.tool_keys),
             "abstain_reason": task.expected.abstain_reason,
             "argument_constraints": thaw(task.expected.argument_constraints),
+            "argument_options": thaw(task.expected.argument_options),
             "argument_grounding": thaw(task.argument_grounding),  # evaluator-only provenance rules
+            "evaluation_context": thaw(task.evaluation_context),  # evaluator-only reference time/zone
         },
+        # Evaluator-only provenance of an imported benchmark item (None for project fixtures).
+        "task_provenance": thaw(task.provenance),
         "expected_tool": sorted(task.expected.tool_keys) or ABSTAIN,
         "roles": {k: v.value for k, v in task.roles.items()},
         "model_inputs": thaw(outcome.model_inputs),

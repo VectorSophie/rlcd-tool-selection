@@ -19,6 +19,21 @@ Statuses, checked in this order:
 Free text that is not found is `unknown`, never `unsupported`: a composed email body is not a
 fabrication just because its words are new.
 
+Severity (grounding policy `refined_v1`, the default since 2026-10-26):
+
+| entry | severity | effect on `argument_grounding_ok` |
+|---|---|---|
+| explicit, derived, schema_default, fixture_default | `pass` | none |
+| placeholder | `hard_failure` | fails |
+| unsupported, required argument | `hard_failure` | fails |
+| unsupported, argument marked `critical` by the fixture | `hard_failure` | fails |
+| unsupported, optional argument | `warning` | none; counted in `unsupported_optional_argument_count` |
+| unknown | `neutral` | none; counted |
+
+The previous policy (any unsupported value fails, required or not) is still computed as
+`argument_grounding_ok_strict` / `grounded_task_success_strict`, so old analyses stay reproducible.
+"Required" means required by the tool schema at every level of the path.
+
 Derivations (each one explicit and reproducible; a fixture can restrict them per path):
 
 - `relative_day`: "today" / "tomorrow" / "yesterday" / "the day after tomorrow" resolved against a
@@ -31,6 +46,14 @@ Derivations (each one explicit and reproducible; a fixture can restrict them per
   `±HH:MM`) on that date; an offset with no timezone in the state is `unknown`.
 - `token_subset`: every alphanumeric token of a text value appears in one state string (e.g. a
   reordered search query). Recorded as `derived`, not `explicit`, because the wording changed.
+- `anaphoric_day`: "that day" / "the same day" resolved to the single explicit date elsewhere in
+  the state. With zero or several candidate dates it is not recoverable, so nothing is derived.
+
+Reference date and timezone come from the model-visible state first (`reference_date`,
+`current_date`, `today`, `timezone`), then from the task's evaluator-only `evaluation_context`
+(`reference_datetime`, `timezone`). Each derived entry records `reference_source` (`state` or
+`evaluation_context`), because a date derived from evaluator-only context was not visible to the
+model: it shows the value is *consistent with* the task's "now", not that the model could read it.
 
 Evaluator rules (`Task.argument_grounding`), keyed by argument path (`to[0]`, `start.date`; `[*]`
 matches any index):
@@ -42,8 +65,10 @@ matches any index):
 ```
 
 `sources` restricts which state paths count as evidence for that argument (dotted, with `[i]`).
-`fixture_default` (one value) or `fixture_defaults` (a list) declares permitted defaults. These
-rules are evaluator-only: they are never serialized into any selector or LLM input.
+`fixture_default` (one value) or `fixture_defaults` (a list) declares permitted defaults.
+`critical: true` makes an unsupported value at that path a hard failure even when the argument is
+optional (use it for safety- or behavior-critical options). These rules are evaluator-only: they
+are never serialized into any selector or LLM input.
 """
 
 import re
@@ -56,7 +81,10 @@ from rlcdselect.core.jsonutil import thaw
 from rlcdselect.core.placeholders import DEFAULT_DETECTOR, PlaceholderDetector
 
 STATUSES = ("explicit", "derived", "schema_default", "fixture_default", "placeholder", "unsupported", "unknown")
-DERIVATIONS = ("relative_day", "relative_weekday", "date_to_day_start", "date_to_day_end", "token_subset")
+DERIVATIONS = ("relative_day", "relative_weekday", "date_to_day_start", "date_to_day_end", "token_subset",
+               "anaphoric_day")
+GROUNDING_POLICY = "refined_v1"
+PASS_STATUSES = frozenset({"explicit", "derived", "schema_default", "fixture_default"})
 REFERENCE_DATE_KEYS = ("reference_date", "current_date", "today")
 
 _EMAIL = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
@@ -116,15 +144,25 @@ def _safe_date(y: int, m: int, d: int) -> list[date]:
         return []
 
 
-def _reference_date(state: Mapping[str, Any]) -> date | None:
+def _reference(state: Mapping[str, Any], context: Mapping[str, Any] | None) -> tuple[date | None, str | None]:
+    """The reference date and where it came from: model-visible state first, then evaluation context."""
     for key in REFERENCE_DATE_KEYS:
         v = state.get(key) if isinstance(state, Mapping) else None
         if isinstance(v, str):
             try:
-                return date.fromisoformat(v[:10])
+                return date.fromisoformat(v[:10]), "state"
             except ValueError:
-                return None
-    return None
+                return None, None
+    v = (context or {}).get("reference_datetime") or (context or {}).get("reference_date")
+    if isinstance(v, str):
+        try:
+            return date.fromisoformat(v[:10]), "evaluation_context"
+        except ValueError:
+            return None, None
+    return None, None
+
+
+_THAT_DAY = re.compile(r"\b(?:that|the same) day\b", re.IGNORECASE)
 
 
 def _relative_dates(text: str, ref: date) -> list[tuple[date, str]]:
@@ -145,8 +183,10 @@ def _relative_dates(text: str, ref: date) -> list[tuple[date, str]]:
     return out
 
 
-def _tz_offset(state: Mapping[str, Any], on: date) -> timedelta | None:
+def _tz_offset(state: Mapping[str, Any], on: date, context: Mapping[str, Any] | None = None) -> timedelta | None:
     tz = state.get("timezone") if isinstance(state, Mapping) else None
+    if not isinstance(tz, str):
+        tz = (context or {}).get("timezone")
     if not isinstance(tz, str):
         return None
     m = re.fullmatch(r"([+-])(\d{2}):?(\d{2})", tz.strip())
@@ -215,28 +255,33 @@ class GroundingChecker:
         self.detector = detector
 
     def check(self, arguments: Mapping[str, Any], schema: Mapping[str, Any] | None, state: Mapping[str, Any],
-              rules: Mapping[str, Any] | None = None) -> dict[str, dict[str, Any]]:
-        """Per-path provenance for every scalar leaf of `arguments`, in argument order."""
-        arguments, schema, state, rules = thaw(arguments), thaw(schema), thaw(state), thaw(rules)
+              rules: Mapping[str, Any] | None = None,
+              context: Mapping[str, Any] | None = None) -> dict[str, dict[str, Any]]:
+        """Per-path provenance for every scalar leaf of `arguments`, in argument order. `context` is
+        the task's evaluator-only `evaluation_context` (reference datetime, timezone)."""
+        arguments, schema, state, rules, context = thaw(arguments), thaw(schema), thaw(state), thaw(rules), thaw(context)
         out: dict[str, dict[str, Any]] = {}
-        self._walk(arguments, schema, "", True, state, rules, out)
+        self._walk(arguments, schema, "", True, state, rules, context, out)
         return out
 
-    def _walk(self, value, schema, path, required, state, rules, out) -> None:
+    def _walk(self, value, schema, path, required, state, rules, context, out) -> None:
         if isinstance(value, Mapping):
             req = set((schema or {}).get("required") or ()) if isinstance(schema, Mapping) else set()
             for k, v in value.items():
                 child = f"{path}.{k}" if path else str(k)
-                self._walk(v, _child_schema(schema, k), child, (k in req) and required, state, rules, out)
+                self._walk(v, _child_schema(schema, k), child, (k in req) and required, state, rules, context, out)
         elif isinstance(value, (list, tuple)):
             for i, v in enumerate(value):
-                self._walk(v, _child_schema(schema, i), f"{path}[{i}]", required, state, rules, out)
+                self._walk(v, _child_schema(schema, i), f"{path}[{i}]", required, state, rules, context, out)
         else:
-            entry = self._leaf(value, schema, path, state, _rule_for(path, rules))
+            rule = _rule_for(path, rules)
+            entry = self._leaf(value, schema, path, state, rule, context)
             entry["required"] = required
+            entry["critical"] = bool(rule.get("critical"))
+            entry["severity"] = severity(entry)
             out[path or "<root>"] = entry
 
-    def _leaf(self, value, schema, path, state, rule) -> dict[str, Any]:
+    def _leaf(self, value, schema, path, state, rule, context=None) -> dict[str, Any]:
         vtype = _value_type(value, schema)
 
         def result(status, source=None, how=None):
@@ -259,7 +304,8 @@ class GroundingChecker:
             leaves = [(p, v) for p, v in leaves if any(p == a or p.startswith((a + ".", a + "[")) for a in allowed)]
         derivations = tuple(rule.get("allowed_derivations", DERIVATIONS))
         texts = [(p, v) for p, v in leaves if isinstance(v, str)]
-        ref = _reference_date(state)
+        ref, ref_source = _reference(state, context)
+        all_texts = [(p, v) for p, v in state_leaves(state) if isinstance(v, str)]
 
         if vtype == "email":
             for p, v in texts:
@@ -272,11 +318,19 @@ class GroundingChecker:
                 target = date.fromisoformat(value.strip())
             except ValueError:
                 return result("unknown")
-            found = self._ground_date(target, texts, ref, derivations)
-            return result(*found) if found else result("unsupported")
+            found = self._ground_date(target, texts, ref, derivations, all_texts)
+            if not found:
+                return result("unsupported")
+            entry = result(*found)
+            if found[0] == "derived" and found[2] in ("relative_day", "relative_weekday"):
+                entry["reference_source"] = ref_source
+            return entry
 
         if vtype == "datetime":
-            return self._ground_datetime(value, texts, ref, derivations, state, result)
+            entry = self._ground_datetime(value, texts, ref, derivations, state, result, all_texts, context)
+            if entry["status"] == "derived" and entry["how"] and entry["how"].startswith("relative_"):
+                entry["reference_source"] = ref_source
+            return entry
 
         if vtype == "number":
             for p, v in leaves:
@@ -313,7 +367,7 @@ class GroundingChecker:
         return result("unknown")  # booleans, nulls, anything else
 
     @staticmethod
-    def _ground_date(target: date, texts, ref: date | None, derivations) -> tuple[str, str, str | None] | None:
+    def _ground_date(target: date, texts, ref: date | None, derivations, all_texts=()) -> tuple[str, str, str | None] | None:
         for p, v in texts:
             if target in _dates_in(v):
                 return "explicit", p, None
@@ -322,9 +376,16 @@ class GroundingChecker:
                 for d, how in _relative_dates(v, ref):
                     if d == target and how in derivations:
                         return "derived", p, how
+        if "anaphoric_day" in derivations:
+            candidates = {d for _, v in all_texts for d in _dates_in(v)}
+            if len(candidates) == 1 and target in candidates:  # exactly one antecedent date
+                for p, v in texts:
+                    if _THAT_DAY.search(v):
+                        return "derived", p, "anaphoric_day"
         return None
 
-    def _ground_datetime(self, value: str, texts, ref, derivations, state, result) -> dict[str, Any]:
+    def _ground_datetime(self, value: str, texts, ref, derivations, state, result, all_texts=(),
+                         context=None) -> dict[str, Any]:
         try:
             dt = datetime.fromisoformat(value.strip().replace("Z", "+00:00"))
         except ValueError:
@@ -336,7 +397,7 @@ class GroundingChecker:
                         return result("explicit", p)
                 except ValueError:
                     pass
-        grounded = self._ground_date(dt.date(), texts, ref, derivations)
+        grounded = self._ground_date(dt.date(), texts, ref, derivations, all_texts)
         if grounded is None:
             return result("unsupported")
         _, source, how = grounded
@@ -345,7 +406,7 @@ class GroundingChecker:
         if boundary is None or boundary not in derivations:
             return result("unknown", source, "time_of_day_not_traced")
         if dt.utcoffset() is not None:
-            expected = _tz_offset(state, dt.date())
+            expected = _tz_offset(state, dt.date(), context)
             if expected is None:
                 return result("unknown", source, "timezone_not_traced")
             if dt.utcoffset() != expected:
@@ -356,50 +417,78 @@ class GroundingChecker:
 DEFAULT_CHECKER = GroundingChecker()
 
 
+def severity(entry: Mapping[str, Any]) -> str:
+    """`pass`, `hard_failure`, `warning` or `neutral` for one provenance entry (policy `refined_v1`).
+    Works on entries written before severities were recorded."""
+    status = entry.get("status")
+    if status in PASS_STATUSES:
+        return "pass"
+    if status == "placeholder":
+        return "hard_failure"
+    if status == "unsupported":
+        return "hard_failure" if entry.get("required") or entry.get("critical") else "warning"
+    return "neutral"
+
+
 def ground_arguments(arguments: Mapping[str, Any] | None, schema: Mapping[str, Any] | None,
                      state: Mapping[str, Any], rules: Mapping[str, Any] | None = None,
-                     checker: GroundingChecker = DEFAULT_CHECKER) -> dict[str, dict[str, Any]] | None:
-    return None if arguments is None else checker.check(arguments, schema, state, rules)
+                     checker: GroundingChecker = DEFAULT_CHECKER,
+                     context: Mapping[str, Any] | None = None) -> dict[str, dict[str, Any]] | None:
+    return None if arguments is None else checker.check(arguments, schema, state, rules, context)
 
 
 def grounding_summary(provenance: Mapping[str, Mapping[str, Any]] | None) -> dict[str, Any]:
-    """Counts and the overall flag. `argument_grounding_ok` is False when any value is a placeholder
-    or unsupported; `unknown` values do not fail it. None when no arguments were generated."""
+    """Counts and both overall flags. `argument_grounding_ok` (refined_v1) is False only on a hard
+    failure: a placeholder, or an unsupported required or critical value. `argument_grounding_ok_strict`
+    is the previous policy: False on any placeholder or unsupported value. None when no arguments
+    were generated."""
+    keys = ("argument_grounding_ok", "argument_grounding_ok_strict", "placeholder_argument_count",
+            "unsupported_argument_count", "unsupported_required_argument_count",
+            "unsupported_optional_argument_count", "unknown_argument_count", "grounding_warning_count")
     if provenance is None:
-        return {"argument_grounding_ok": None, "placeholder_argument_count": None,
-                "unsupported_argument_count": None, "unknown_argument_count": None,
-                "unsupported_required_argument_count": None}
-    statuses = [e["status"] for e in provenance.values()]
+        return {"grounding_policy": GROUNDING_POLICY, **{k: None for k in keys}}
+    entries = list(provenance.values())
+    statuses = [e["status"] for e in entries]
+    severities = [e.get("severity") or severity(e) for e in entries]
+    unsupported = [e for e in entries if e["status"] == "unsupported"]
     return {
-        "argument_grounding_ok": "placeholder" not in statuses and "unsupported" not in statuses,
+        "grounding_policy": GROUNDING_POLICY,
+        "argument_grounding_ok": "hard_failure" not in severities,
+        "argument_grounding_ok_strict": "placeholder" not in statuses and "unsupported" not in statuses,
         "placeholder_argument_count": statuses.count("placeholder"),
-        "unsupported_argument_count": statuses.count("unsupported"),
+        "unsupported_argument_count": len(unsupported),
+        "unsupported_required_argument_count": sum(1 for e in unsupported if e.get("required")),
+        "unsupported_optional_argument_count": sum(1 for e in unsupported if not e.get("required")),
         "unknown_argument_count": statuses.count("unknown"),
-        "unsupported_required_argument_count": sum(
-            1 for e in provenance.values() if e["status"] == "unsupported" and e.get("required")),
+        "grounding_warning_count": severities.count("warning"),
     }
 
 
 def grounded_task_success(task_success: bool, abstention_expected: bool, grounding_ok: bool | None) -> bool:
     """Stricter task success: an action task also needs grounded arguments. Abstention tasks are
-    unchanged (nothing should have been generated)."""
+    unchanged (nothing should have been generated). Pass `argument_grounding_ok` for the refined
+    metric or `argument_grounding_ok_strict` for the strict one."""
     if abstention_expected:
         return task_success
     return bool(task_success) and grounding_ok is True
 
 
-def ground_record(record: Mapping[str, Any], rules: Mapping[str, Any] | None = None) -> dict[str, Any]:
+def ground_record(record: Mapping[str, Any], rules: Mapping[str, Any] | None = None,
+                  context: Mapping[str, Any] | None = None) -> dict[str, Any]:
     """Grounding fields for an existing record, without modifying it (used to rescore old runs).
-    `rules` overrides the record's own `expected.argument_grounding` (absent in pre-v3 records)."""
+    `rules` / `context` override the record's own `expected.argument_grounding` /
+    `expected.evaluation_context` (absent in older records)."""
     tool = next((t for t in record.get("tools_before") or () if t.get("key") == record.get("selected_tool")), None)
-    rules = rules if rules is not None else (record.get("expected") or {}).get("argument_grounding")
+    expected = record.get("expected") or {}
+    rules = rules if rules is not None else expected.get("argument_grounding")
+    context = context if context is not None else expected.get("evaluation_context")
     provenance = ground_arguments(record.get("arguments"), tool.get("input_schema") if tool else None,
-                                  record.get("state") or {}, rules)
+                                  record.get("state") or {}, rules, context=context)
     summary = grounding_summary(provenance)
+    ts, abst = record.get("task_success"), record.get("abstention_expected")
     return {"argument_provenance": provenance, **summary,
-            "grounded_task_success": grounded_task_success(record.get("task_success"),
-                                                           record.get("abstention_expected"),
-                                                           summary["argument_grounding_ok"])}
+            "grounded_task_success": grounded_task_success(ts, abst, summary["argument_grounding_ok"]),
+            "grounded_task_success_strict": grounded_task_success(ts, abst, summary["argument_grounding_ok_strict"])}
 
 
 def status_counts(provenance: Iterable[Mapping[str, Mapping[str, Any]] | None]) -> dict[str, int]:

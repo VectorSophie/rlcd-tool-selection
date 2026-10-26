@@ -51,7 +51,7 @@ def test_explicit_values():  # 11
     state = {"user_request": "Email Jack@Example.com about the 'Q3 budget' and ask for ten copies."}
     prov = ground_arguments({"to": ["jack@example.com"], "subject": "Q3 budget", "max_results": 10}, EMAIL, state)
     assert prov["to[0]"] == {"status": "explicit", "source": "state.user_request", "how": None,
-                             "value_type": "email", "required": True}
+                             "value_type": "email", "required": True, "critical": False, "severity": "pass"}
     assert status(prov, "subject") == "explicit"
     assert prov["max_results"]["status"] == "explicit" and prov["max_results"]["how"] == "number_word"
     long_form = ground_arguments({"start_date": "2026-10-20"}, CALENDAR,
@@ -167,10 +167,15 @@ def test_logged_arguments_unchanged_and_scoring_kept_separate(fixtures, serializ
     (rec,) = read_jsonl(path)
     assert rec["arguments"] == invented  # never rewritten or hidden
     assert rec["task_success"] is True  # original definition unchanged
-    assert rec["argument_grounding_ok"] is False and rec["unsupported_argument_count"] == 1
-    assert rec["unsupported_required_argument_count"] == 0  # max_results is optional
-    assert rec["grounded_task_success"] is False
-    assert rec["argument_provenance"]["max_results"]["status"] == "unsupported"
+    # Refined policy (default): an invented optional value is a warning, not a failure.
+    assert rec["argument_grounding_ok"] is True and rec["grounded_task_success"] is True
+    assert rec["unsupported_argument_count"] == 1 and rec["unsupported_optional_argument_count"] == 1
+    assert rec["unsupported_required_argument_count"] == 0 and rec["grounding_warning_count"] == 1
+    assert rec["argument_provenance"]["max_results"]["status"] == "unsupported"  # kept, not discarded
+    assert rec["argument_provenance"]["max_results"]["severity"] == "warning"
+    # The earlier strict policy is still reported alongside.
+    assert rec["argument_grounding_ok_strict"] is False and rec["grounded_task_success_strict"] is False
+    assert rec["grounding_policy"] == "refined_v1"
     assert rec["schema_version"] == 3
 
 
@@ -182,10 +187,58 @@ def test_old_records_can_be_rescored_without_modification(fixtures):
     before = json.dumps(record)
     g = ground_record(record)
     assert json.dumps(record) == before
-    assert g["argument_grounding_ok"] is False and g["unsupported_argument_count"] == 2
-    assert g["grounded_task_success"] is False
+    assert g["argument_grounding_ok"] is False and g["unsupported_required_argument_count"] == 2
+    assert g["grounded_task_success"] is False and g["grounded_task_success_strict"] is False
 
 
 def test_checker_handles_missing_schema_and_odd_values():
     prov = GroundingChecker().check({"x": None, "y": {"z": [1.5]}}, None, {"user_request": "use 1.5"})
     assert status(prov, "x") == "unknown" and status(prov, "y.z[0]") == "explicit"
+
+
+def test_refined_policy_severities_and_critical_optional_arguments():
+    state = {"user_request": "Search the web for the population of Lisbon."}
+    schema = {"type": "object", "properties": {"query": {"type": "string"}, "max_results": {"type": "integer"},
+                                               "safe_search_off": {"type": "boolean"}, "limit": {"type": "integer"}},
+              "required": ["query", "limit"]}
+    prov = ground_arguments({"query": "population of Lisbon", "max_results": 5, "limit": 3}, schema, state)
+    assert prov["query"]["severity"] == "pass"
+    assert prov["max_results"]["severity"] == "warning"  # unsupported, optional
+    assert prov["limit"]["severity"] == "hard_failure"  # unsupported, required
+    from rlcdselect.eval.grounding import grounding_summary
+    s = grounding_summary(prov)
+    assert (s["argument_grounding_ok"], s["unsupported_required_argument_count"], s["unsupported_optional_argument_count"]) == (False, 1, 1)
+    only_optional = grounding_summary(ground_arguments({"query": "population of Lisbon", "max_results": 5}, schema, state))
+    assert only_optional["argument_grounding_ok"] is True and only_optional["argument_grounding_ok_strict"] is False
+    critical = ground_arguments({"query": "population of Lisbon", "max_results": 5}, schema, state,
+                                {"max_results": {"critical": True}})
+    assert critical["max_results"]["severity"] == "hard_failure"
+    assert grounding_summary(critical)["argument_grounding_ok"] is False
+
+
+def test_evaluation_context_supplies_reference_date_and_timezone():
+    ctx = {"reference_datetime": "2026-10-26T12:00:00+09:00", "timezone": "Asia/Seoul"}
+    state = {"user_request": "What's on my calendar tomorrow?"}
+    prov = ground_arguments({"start_date": "2026-10-27", "end_date": "2026-10-27"}, CALENDAR, state, context=ctx)
+    assert prov["start_date"]["status"] == "derived" and prov["start_date"]["how"] == "relative_day"
+    assert prov["start_date"]["reference_source"] == "evaluation_context"  # not model-visible
+    visible = ground_arguments({"start_date": "2026-10-27"}, CALENDAR, {**state, "reference_date": "2026-10-26"}, context=ctx)
+    assert visible["start_date"]["reference_source"] == "state"  # state wins when present
+    stamp = {"type": "object", "properties": {"start": {"type": "string", "format": "date-time"}}}
+    tz = ground_arguments({"start": "2026-10-27T00:00:00+09:00"}, stamp, state, context=ctx)
+    assert tz["start"]["status"] == "derived"
+    assert status(ground_arguments({"start_date": "2026-10-27"}, CALENDAR, state), "start_date") == "unsupported"
+
+
+def test_that_day_resolves_only_with_a_single_antecedent_date():
+    ctx = {"reference_datetime": "2026-10-26T12:00:00+09:00"}
+    one = {"history": "The launch is on 2026-11-03.", "user_request": "Check my calendar for that day."}
+    prov = ground_arguments({"start_date": "2026-11-03", "end_date": "2026-11-03"}, CALENDAR, one, context=ctx)
+    assert prov["start_date"]["status"] == "explicit"  # the date itself is in the state
+    only_request = ground_arguments({"start_date": "2026-11-03"}, CALENDAR, one, {"start_date": {"sources": ["state.user_request"]}}, context=ctx)
+    assert only_request["start_date"]["status"] == "derived" and only_request["start_date"]["how"] == "anaphoric_day"
+    two = {"history": "Either 2026-11-03 or 2026-11-04.", "user_request": "Check my calendar for that day."}
+    ambiguous = ground_arguments({"start_date": "2026-11-03"}, CALENDAR, two, {"start_date": {"sources": ["state.user_request"]}}, context=ctx)
+    assert ambiguous["start_date"]["status"] == "unsupported"
+    none = ground_arguments({"start_date": "2024-01-01"}, CALENDAR, {"user_request": "Check my calendar for that day."}, context=ctx)
+    assert none["start_date"]["status"] == "unsupported"  # the pilot case: no antecedent, so not recoverable

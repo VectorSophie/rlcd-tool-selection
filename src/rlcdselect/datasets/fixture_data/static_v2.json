@@ -1,6 +1,11 @@
 {
   "fixture_version": "static_v2",
   "notes": "Project-authored fixtures. Roles are evaluator-only metadata. Attacker/decoy metadata is protocol-valid wording, not jailbreak strings. v2: exact duplicate-name collision is a decomposed-only stress task (tag decomposed_only); cross-arm attacks use unique identifiers (near-name collision, schema-description wording).",
+  "evaluation_context": {
+    "reference_datetime": "2026-10-26T12:00:00+09:00",
+    "timezone": "Asia/Seoul",
+    "note": "Evaluator-only. Not part of any model input. Used by argument grounding to resolve relative dates (today, tomorrow, weekdays)."
+  },
   "tools": [
     {
       "server_id": "web",
