@@ -1,7 +1,7 @@
 {
-  "status": "STOPPED: over the global cap",
-  "note": "The complete primary study is estimated above the cap, so nothing is frozen or run. Reduced designs (not adopted without approval): R1: clean ablation at 3 orderings, attack groups B and C at 2 orderings (orderings 0 and 1), no BFCL holdout: $39.15; R2: 2 orderings for A, B and C, no BFCL holdout: $35.34; with the holdout $42.34; R3: the full design under a raised cap of $53.01 (primary) or $60.01 (with holdout); expected actual spend about 0.58x the estimate if the pilot ratio holds.",
-  "global_cap_usd": 40.0,
+  "status": "APPROVED without the BFCL holdout",
+  "note": "A-C fit the cap; D would exceed it.",
+  "global_cap_usd": 55.0,
   "primary_estimate_usd": 53.01372339999999,
   "total_estimate_usd": 60.014461899999986,
   "reduced_designs": [
@@ -12,7 +12,7 @@
   "groups": {
     "A_clean": {
       "estimate_usd": 11.4130170375,
-      "budget_cap_usd": null,
+      "budget_cap_usd": 14.266271,
       "datasets": {
         "when2call": {
           "total_usd": 5.5520373125,
@@ -99,7 +99,7 @@
     },
     "B_displacement": {
       "estimate_usd": 22.189616262499992,
-      "budget_cap_usd": null,
+      "budget_cap_usd": 27.73702,
       "datasets": {
         "metatool_s1": {
           "total_usd": 11.901258299999997,
@@ -191,7 +191,7 @@
     },
     "C_abstention": {
       "estimate_usd": 19.411090099999996,
-      "budget_cap_usd": null,
+      "budget_cap_usd": 24.263862,
       "datasets": {
         "metatool_s3": {
           "total_usd": 5.952177912500001,

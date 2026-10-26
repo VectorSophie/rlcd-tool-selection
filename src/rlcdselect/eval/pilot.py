@@ -59,12 +59,13 @@ def manifest_hash(manifest: Mapping[str, Any]) -> str:
 
 def git_state(repo: Path | str = ".") -> dict[str, Any]:
     def git(*args: str) -> str:
-        return subprocess.run(["git", *args], cwd=repo, capture_output=True, text=True, check=True).stdout.strip()
+        # Not stripped: porcelain lines start with a status column that may be a space (" M path").
+        return subprocess.run(["git", *args], cwd=repo, capture_output=True, text=True, check=True).stdout
     # Run outputs (manifests, records, summaries) live under results/ and do not make the code dirty;
     # any other change, including an untracked source file, does.
     changes = [line for line in git("status", "--porcelain", "--untracked-files=all").splitlines()
-               if not line[3:].startswith("results/")]
-    return {"commit": git("rev-parse", "HEAD"), "dirty": bool(changes), "uncommitted": changes[:20]}
+               if line and not line[3:].startswith("results/")]
+    return {"commit": git("rev-parse", "HEAD").strip(), "dirty": bool(changes), "uncommitted": changes[:20]}
 
 
 def jev_policy(repetitions: int) -> SelectorSamplingPolicy:

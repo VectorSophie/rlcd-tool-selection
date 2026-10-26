@@ -318,6 +318,13 @@ def test_git_state_ignores_results_but_not_code(tmp_path):
     (repo / "results" / "external_pilot").mkdir(parents=True)
     (repo / "results" / "external_pilot" / "manifest.json").write_text("{}")
     assert pilot.git_state(repo)["dirty"] is False
+    # A modified tracked file under results/ (porcelain " M results/...", leading space) is not code either.
+    tracked = repo / "results" / "summary.md"
+    tracked.write_text("a")
+    subprocess.run(["git", "add", "-f", "results/summary.md"], cwd=repo, check=True)
+    subprocess.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q", "-m", "y"], cwd=repo, check=True)
+    tracked.write_text("b")
+    assert pilot.git_state(repo)["dirty"] is False
     (repo / "new_module.py").write_text("x = 1")
     assert pilot.git_state(repo)["dirty"] is True
 

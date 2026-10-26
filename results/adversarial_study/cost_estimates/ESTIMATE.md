@@ -2,7 +2,7 @@
 
 Conservative estimator, unchanged from the external pilot (chars/3 tokens, fixed output allowances, x1.25 margin, live OpenRouter prices; argument generation assumed for every decomposed task). Not discounted, although the pilot's actual spend was 0.58x its estimate.
 
-**Status: STOPPED: over the global cap.** The complete primary study is estimated above the cap, so nothing is frozen or run. Reduced designs (not adopted without approval): R1: clean ablation at 3 orderings, attack groups B and C at 2 orderings (orderings 0 and 1), no BFCL holdout: $39.15; R2: 2 orderings for A, B and C, no BFCL holdout: $35.34; with the holdout $42.34; R3: the full design under a raised cap of $53.01 (primary) or $60.01 (with holdout); expected actual spend about 0.58x the estimate if the pilot ratio holds.
+**Status: APPROVED without the BFCL holdout.** A-C fit the cap; D would exceed it.
 
 | group | dataset | family | estimate $ |
 |---|---|---|---|
@@ -62,9 +62,9 @@ Conservative estimator, unchanged from the external pilot (chars/3 tokens, fixed
 
 | group | orderings | variants | estimate $ | nominal cap $ |
 |---|---|---|---|---|
-| A_clean | 3 | 350 | 11.4130 | – |
-| B_displacement | 3 | 660 | 22.1896 | – |
-| C_abstention | 3 | 560 | 19.4111 | – |
+| A_clean | 3 | 350 | 11.4130 | 14.2663 |
+| B_displacement | 3 | 660 | 22.1896 | 27.7370 |
+| C_abstention | 3 | 560 | 19.4111 | 24.2639 |
 | D_bfcl_holdout | 1 | 700 | 7.0007 | – |
 
-Primary groups (A-C): **$53.0137**. All groups: **$60.0145**. Global cap $40.00.
+Primary groups (A-C): **$53.0137**. All groups: **$60.0145**. Global cap $55.00.
