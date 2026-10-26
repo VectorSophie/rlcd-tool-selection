@@ -29,6 +29,17 @@ class ExperimentConfig:
     # Where tools came from and how they were executed, e.g. {"registry": "mcp", "executor": "mcp",
     # "servers": [...]}; recorded on every run.
     tool_source: dict[str, Any] | None = None
+    # Per-task presentation orderings, overriding `order_seeds` for the listed tasks. Needed when
+    # tasks share a candidate count: one shared seed would apply the same permutation to all of
+    # them and move a source-position bias instead of removing it.
+    task_order_seeds: dict[str, tuple[int | None, ...]] | None = None
+    # Fields copied into every record, e.g. {"manifest_hash": ..., "dataset": ..., "run_group": ...}.
+    record_fields: dict[str, Any] | None = None
+
+    def seeds_for(self, task_id: str) -> tuple[int | None, ...]:
+        if self.task_order_seeds is not None and task_id in self.task_order_seeds:
+            return tuple(self.task_order_seeds[task_id])
+        return self.order_seeds
 
 
 def check_invariants(pipelines: Sequence[Pipeline]) -> None:
@@ -60,13 +71,13 @@ async def run_experiment(
     each run and the experiment aborts (with a `run_aborted` record) once the cap is reached."""
     check_invariants(pipelines)
     shuffle_needed = [t.task_id for t in tasks if "requires_order_shuffle" in t.tags]
-    if shuffle_needed and all(seed is None for seed in config.order_seeds):
+    if any(all(seed is None for seed in config.seeds_for(t)) for t in shuffle_needed):
         raise InvariantError(
             f"{len(shuffle_needed)} task(s) have a known source-order bias (e.g. MetaTool: gold always first) "
             "and need at least one seeded order permutation; source order cannot be the only condition")
     records = []
     for task in tasks:
-        for order_seed in config.order_seeds:
+        for order_seed in config.seeds_for(task.task_id):
             for sample_index in range(config.samples_per_condition):
                 for pipeline in pipelines:
                     try:
@@ -91,6 +102,7 @@ async def run_experiment(
                     ]
                     for rec in (record, *children):
                         rec["tool_source"] = thaw(config.tool_source)
+                        rec.update(thaw(config.record_fields or {}))
                         if budget is not None:
                             rec["cost_charged_usd"] = budget.charge(rec)
                             rec["budget_spent_usd"] = budget.spent_usd

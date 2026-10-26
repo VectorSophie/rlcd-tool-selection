@@ -62,6 +62,16 @@ def estimate_task_cost(task: Task, pipeline_ids: Sequence[str], serialization, p
     """Estimated USD for one task × one sample, per pipeline id. `sampling` (per pipeline id)
     multiplies the selection cost by its repetitions, and the argument cost too when every draw is
     executed end to end."""
+    stages = estimate_task_cost_stages(task, pipeline_ids, serialization, prices, matched_mode, sampling)
+    return {pid: s["selection"] + s["arguments"] for pid, s in stages.items()}
+
+
+def estimate_task_cost_stages(task: Task, pipeline_ids: Sequence[str], serialization, prices: Prices,
+                              matched_mode: str = "discrete",
+                              sampling: Mapping[str, SelectorSamplingPolicy] | None = None) -> dict[str, dict[str, float]]:
+    """Like `estimate_task_cost`, split into the selection stage and the argument-generation stage.
+    The native arm's single call is all selection. Argument generation is assumed to run for every
+    decomposed task (conservative: abstentions skip it)."""
     sampling = sampling or {}
     cset = present_task(task, serialization, order_seed=None, id_seed=None)
     state = render_state(task.state)
@@ -76,17 +86,17 @@ def estimate_task_cost(task: Task, pipeline_ids: Sequence[str], serialization, p
         arg_runs = reps if policy.execute_each_sample else 1
         if pid == "native_llm":
             tools = json.dumps([thaw(t) for t in build_native_tools(cset)])
-            out[pid] = (_tokens(len(NATIVE_SYSTEM_PROMPT) + len(state) + len(tools)) * prices.llm_input
-                        + OUTPUT_TOKENS["native"] * prices.llm_output)
+            out[pid] = ((_tokens(len(NATIVE_SYSTEM_PROMPT) + len(state) + len(tools)) * prices.llm_input
+                         + OUTPUT_TOKENS["native"] * prices.llm_output), 0.0)
         elif pid == "matched_llm":
             select = (_tokens(ADAPTER_OVERHEAD_CHARS + len(state) + len(criteria)) * prices.llm_input
                       + OUTPUT_TOKENS[f"matched_{matched_mode}"] * prices.llm_output)
-            out[pid] = select * reps + args_cost * arg_runs
+            out[pid] = (select * reps, args_cost * arg_runs)
         elif pid == "jev":
-            out[pid] = _tokens(len(state) + len(criteria)) * prices.jev_input * reps + args_cost * arg_runs
+            out[pid] = (_tokens(len(state) + len(criteria)) * prices.jev_input * reps, args_cost * arg_runs)
         else:  # local selectors (Laya, mocks): only argument generation is paid
-            out[pid] = args_cost * arg_runs
-    return {k: v * SAFETY_MARGIN for k, v in out.items()}
+            out[pid] = (0.0, args_cost * arg_runs)
+    return {k: {"selection": sel * SAFETY_MARGIN, "arguments": arg * SAFETY_MARGIN} for k, (sel, arg) in out.items()}
 
 
 def estimate_run_cost(tasks: Sequence[Task], pipeline_ids: Sequence[str], serialization, prices: Prices,

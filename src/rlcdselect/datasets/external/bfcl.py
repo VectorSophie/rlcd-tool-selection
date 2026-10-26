@@ -48,7 +48,7 @@ from rlcdselect.datasets.external.common import (
     sha256_file,
 )
 from rlcdselect.core.placeholders import DEFAULT_DETECTOR
-from rlcdselect.eval.argmatch import canonical_call, option_leaves
+from rlcdselect.eval.argmatch import canonical_call, empty_alternative_paths, option_leaves
 from rlcdselect.eval.grounding import DEFAULT_CHECKER
 from rlcdselect.execution.mock import schema_errors
 
@@ -107,6 +107,7 @@ def adapt_row(row: Mapping[str, Any], subset: str, answers: Mapping[str, Any]) -
         schemas[f["name"]] = schema
     roles = {s.key: ToolRole.IRRELEVANT for s in specs}
     gold_name, options, rules, gold_schema_errors, gold_placeholders = None, None, None, None, None
+    gold_empty_alternatives = None
 
     if subset in ("irrelevance", "live_irrelevance"):
         expected = ExpectedOutcome(frozenset(), abstain_reason="no_suitable_tool")
@@ -129,6 +130,7 @@ def adapt_row(row: Mapping[str, Any], subset: str, answers: Mapping[str, Any]) -
         gold_call = canonical_call(options)
         gold_schema_errors = list(schema_errors(schemas[gold_name], gold_call))
         gold_placeholders = list(DEFAULT_DETECTOR.paths(gold_call))
+        gold_empty_alternatives = empty_alternative_paths(options)
         label = "call"
     if gold_name is not None:
         gold_key = f"{SERVER_ID}/{name_map[gold_name]}"
@@ -143,7 +145,8 @@ def adapt_row(row: Mapping[str, Any], subset: str, answers: Mapping[str, Any]) -
         roles=roles,
         tags=("bfcl", f"bfcl:{subset}", "no_suitable_tool" if label == "irrelevance" else "clean")
              + (("gold_schema_inconsistent",) if gold_schema_errors else ())
-             + (("gold_contains_placeholder",) if gold_placeholders else ()),
+             + (("gold_contains_placeholder",) if gold_placeholders else ())
+             + (("gold_empty_alternative",) if gold_empty_alternatives else ()),
         argument_grounding=rules,
         provenance=provenance(
             source=SOURCES[f"bfcl/{subset}"], split=subset, item_id=row["id"], adapter_version=ADAPTER_VERSION,
@@ -154,6 +157,9 @@ def adapt_row(row: Mapping[str, Any], subset: str, answers: Mapping[str, Any]) -
             # The ground truth itself accepts a placeholder-like value (e.g. unit "N/A"), which the
             # project's grounding policy treats as a hard failure. Kept and flagged, not reconciled.
             gold_placeholder_paths=gold_placeholders or None,
+            # Parameters whose accepted-value list is empty (`[]`): BFCL does not document the
+            # meaning; `argmatch` reads it as "omit or empty", an interpretation.
+            gold_empty_alternative_paths=gold_empty_alternatives or None,
             answers_file=SOURCES[f"bfcl/{subset}/answers"].path if subset not in BFCL_ANSWERLESS_SUBSETS else None,
         ),
     )

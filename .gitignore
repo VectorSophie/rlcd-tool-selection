@@ -13,6 +13,11 @@ build/
 # Run outputs; commit curated examples explicitly.
 results/*
 !results/examples/
+# External pilot: manifests, estimates and summaries are committed; raw records and diagnostics
+# (which contain benchmark content) stay local.
+!results/external_pilot/
+results/external_pilot/**/records.jsonl
+results/external_pilot/**/diagnostics*.jsonl
 
 # External benchmark files fetched from their pinned upstream sources (never redistributed here).
 data/external/

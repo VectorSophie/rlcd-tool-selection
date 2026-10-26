@@ -112,3 +112,19 @@ def _alt_leaves(alt: Any, where: str) -> list[tuple[str, Any]]:
             out += option_leaves(el, f"{where}[*].") if isinstance(el, Mapping) else _alt_leaves(el, f"{where}[*]")
         return out
     return [(where, alt)]
+
+
+def empty_alternative_paths(options: Mapping[str, Any], path: str = "") -> list[str]:
+    """Paths whose list of accepted values is empty (`[]`), at any depth."""
+    out = []
+    for param, accepted in options.items():
+        where = f"{path}{param}"
+        if isinstance(accepted, list) and not accepted:
+            out.append(where)
+            continue
+        for alt in accepted if isinstance(accepted, list) else [accepted]:
+            if isinstance(alt, Mapping):
+                out += empty_alternative_paths(alt, f"{where}.")
+            elif isinstance(alt, list):
+                out += [p for el in alt if isinstance(el, Mapping) for p in empty_alternative_paths(el, f"{where}[*].")]
+    return out
